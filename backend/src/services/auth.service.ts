@@ -206,7 +206,7 @@ export class AuthService {
     return result.rows[0];
   }
 
-  private async generateTokens(userId: string, email: string, role: string): Promise<AuthTokens> {
+  async generateTokens(userId: string, email: string, role: string): Promise<AuthTokens> {
     const payload = {
       userId,
       email,

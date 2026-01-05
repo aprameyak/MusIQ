@@ -14,15 +14,17 @@
    - No external dependencies required
    - `AppleSignInButton` component created
 
-3. **Google Sign In** ⚠️ (AppAuth Required)
-   - Structure ready for AppAuth
-   - Requires AppAuth-iOS package
-   - `GoogleSignInButton` component created (needs AppAuth)
+3. **Google Sign In** ✅ (AppAuth Ready)
+   - Full AppAuth implementation in `GoogleSignInButton`
+   - Requires AppAuth-iOS package to be added via SPM
+   - `GoogleSignInButton` component fully implemented
+   - Backend endpoint ready at `/api/auth/oauth/google`
 
-4. **Spotify OAuth** ⚠️ (AppAuth Required)
-   - Structure ready for AppAuth
-   - Requires AppAuth-iOS package
-   - Not yet implemented in UI
+4. **Spotify OAuth** ✅ (AppAuth Ready)
+   - Full AppAuth implementation in `SpotifySignInButton`
+   - Requires AppAuth-iOS package to be added via SPM
+   - `SpotifySignInButton` component fully implemented
+   - Backend endpoint ready at `/api/auth/oauth/spotify`
 
 ## Adding AppAuth to Xcode Project
 
@@ -80,31 +82,36 @@ Add URL schemes for OAuth callbacks:
 
 ## Implementation Status
 
-- ✅ Apple Sign In button component
-- ✅ Google Sign In button component (needs AppAuth)
+- ✅ Apple Sign In button component (fully functional)
+- ✅ Google Sign In button component (AppAuth implementation complete)
+- ✅ Spotify Sign In button component (AppAuth implementation complete)
 - ✅ OAuth service structure
-- ✅ Backend OAuth endpoints ready
-- ⏳ Full AppAuth integration (requires package installation)
-- ⏳ OAuth callback handling in app delegate
+- ✅ Backend OAuth endpoints (`/api/auth/oauth/apple`, `/google`, `/spotify`)
+- ✅ OAuth callback handling in `MusicAppApp.swift`
+- ✅ URL scheme configuration in `Info.plist`
+- ✅ OAuth callback handler view modifier
+- ⏳ AppAuth-iOS package installation (user needs to add via SPM)
 
 ## Next Steps
 
-1. **Add AppAuth Package**:
-   - Add AppAuth-iOS via SPM in Xcode
-   - Update imports in `OAuthService.swift` and `GoogleSignInButton.swift`
+1. **Add AppAuth Package** (Required for Google & Spotify):
+   - Open Xcode project
+   - Go to **File** → **Add Package Dependencies...**
+   - Enter URL: `https://github.com/openid/AppAuth-iOS`
+   - Select version: **Up to Next Major Version** (1.7.0 or later)
+   - Add to target: **MusicApp**
+   - Click **Add Package**
 
-2. **Complete Google Sign In**:
-   - Implement full OIDAuthState flow
-   - Handle authorization in view controller
-   - Process callback URL
+2. **Configure OAuth Providers**:
+   - Set up Google OAuth in Google Cloud Console
+   - Set up Spotify OAuth in Spotify Developer Dashboard
+   - Configure Apple Sign In in Apple Developer Portal
+   - Add Client IDs to environment variables or config
 
-3. **Complete Spotify OAuth**:
-   - Similar to Google implementation
-   - Use Spotify-specific scopes
-
-4. **Handle OAuth Callbacks**:
-   - Update `AppDelegate` or `SceneDelegate` to handle URL schemes
-   - Process authorization codes and exchange for tokens
+3. **Test OAuth Flows**:
+   - Test Apple Sign In (should work immediately)
+   - Test Google Sign In (after adding AppAuth package)
+   - Test Spotify OAuth (after adding AppAuth package)
 
 ## Current Auth Flow
 

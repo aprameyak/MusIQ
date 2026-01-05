@@ -41,6 +41,7 @@ app.get('/health', (_req, res) => {
 
 // API routes
 import authRoutes from './routes/auth';
+import oauthRoutes from './routes/oauth';
 import profileRoutes from './routes/profile';
 import musicRoutes from './routes/music';
 import ratingRoutes from './routes/ratings';
@@ -49,6 +50,7 @@ import socialRoutes from './routes/social';
 import notificationRoutes from './routes/notifications';
 
 app.use('/api/auth', authRoutes);
+app.use('/api/auth/oauth', oauthRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/music', musicRoutes);
 app.use('/api/ratings', ratingRoutes);

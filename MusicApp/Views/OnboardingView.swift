@@ -134,22 +134,20 @@ struct OnboardingView: View {
                         }
                         .padding(.horizontal, AppStyles.paddingLarge)
                         
-                        HStack(spacing: 12) {
-                            Button(action: {}) {
-                                Text("Spotify")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                            }
-                            .cardStyle()
+                        VStack(spacing: 12) {
+                            AppleSignInButton(
+                                onSuccess: { code, idToken in
+                                    // OAuth handled via notification system
+                                },
+                                onError: { _ in }
+                            )
                             
-                            Button(action: {}) {
-                                Text("Apple")
-                                    .font(.system(size: 14, weight: .medium))
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, 12)
-                            }
-                            .cardStyle()
+                            SpotifySignInButton(
+                                onSuccess: { code in
+                                    // OAuth handled via notification system
+                                },
+                                onError: { _ in }
+                            )
                         }
                         .padding(.horizontal, AppStyles.paddingLarge)
                         .padding(.bottom, 32)

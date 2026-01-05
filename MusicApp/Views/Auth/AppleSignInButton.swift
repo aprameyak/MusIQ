@@ -36,6 +36,28 @@ struct AppleSignInButton: View {
                             return
                         }
                         
+                        // Get user info (only available on first sign in)
+                        let email = appleIDCredential.email
+                        let fullName = appleIDCredential.fullName
+                        let name = fullName != nil ? "\(fullName?.givenName ?? "") \(fullName?.familyName ?? "")".trimmingCharacters(in: .whitespaces) : nil
+                        let userIdentifier = appleIDCredential.user
+                        
+                        // Store user identifier for future sign-ins
+                        UserDefaults.standard.set(userIdentifier, forKey: "appleUserIdentifier")
+                        
+                        // Pass all info via notification for AuthViewModel to handle
+                        NotificationCenter.default.post(
+                            name: NSNotification.Name("AppleSignInSuccess"),
+                            object: nil,
+                            userInfo: [
+                                "code": authorizationCode,
+                                "idToken": identityToken,
+                                "email": email as Any,
+                                "name": name as Any,
+                                "userIdentifier": userIdentifier
+                            ]
+                        )
+                        
                         onSuccess(authorizationCode, identityToken)
                         
                     default:

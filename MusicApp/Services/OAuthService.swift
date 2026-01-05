@@ -11,10 +11,18 @@ import AuthenticationServices
 import AppAuth
 #endif
 
-enum OAuthProvider {
+enum OAuthProviderType {
     case apple
     case google
     case spotify
+    
+    var rawValue: String {
+        switch self {
+        case .apple: return "apple"
+        case .google: return "google"
+        case .spotify: return "spotify"
+        }
+    }
 }
 
 class OAuthService {
@@ -25,11 +33,8 @@ class OAuthService {
     }
     
     // MARK: - Apple Sign In (Native)
-    func signInWithApple() async throws -> AuthToken {
-        // Apple Sign In uses AuthenticationServices framework (native)
-        // This will be handled in the view with ASAuthorizationController
-        throw NetworkError.unknown(NSError(domain: "OAuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Apple Sign In must be initiated from view"]))
-    }
+    // Apple Sign In is handled directly in AppleSignInButton using AuthenticationServices
+    // This method is not needed as the button handles the flow
     
     // MARK: - Google Sign In (AppAuth)
     #if canImport(AppAuth)
@@ -95,11 +100,43 @@ class OAuthService {
     #endif
     
     // MARK: - Handle OAuth Callback
-    func handleOAuthCallback(authorizationCode: String, provider: OAuthProvider) async throws -> AuthToken {
-        let request = OAuthRequest(
-            provider: provider.rawValue,
+    func handleOAuthCallback(authorizationCode: String, provider: OAuthProviderType, idToken: String? = nil, email: String? = nil, name: String? = nil, userIdentifier: String? = nil) async throws -> AuthToken {
+        // Prepare request with all available OAuth data
+        var requestBody: [String: Any] = [
+            "token": authorizationCode
+        ]
+        
+        if let idToken = idToken {
+            requestBody["idToken"] = idToken
+        }
+        
+        if let email = email {
+            requestBody["email"] = email
+        }
+        
+        if let name = name {
+            requestBody["name"] = name
+        }
+        
+        if let userIdentifier = userIdentifier {
+            requestBody["userIdentifier"] = userIdentifier
+        }
+        
+        // Create encodable request
+        struct OAuthRequestBody: Codable {
+            let token: String
+            let idToken: String?
+            let email: String?
+            let name: String?
+            let userIdentifier: String?
+        }
+        
+        let request = OAuthRequestBody(
             token: authorizationCode,
-            idToken: nil
+            idToken: idToken,
+            email: email,
+            name: name,
+            userIdentifier: userIdentifier
         )
         
         let response: APIResponse<AuthToken> = try await APIService.shared.request(
@@ -114,16 +151,6 @@ class OAuthService {
         }
         
         return data
-    }
-}
-
-extension OAuthProvider {
-    var rawValue: String {
-        switch self {
-        case .apple: return "apple"
-        case .google: return "google"
-        case .spotify: return "spotify"
-        }
     }
 }
 

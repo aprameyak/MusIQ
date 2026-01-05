@@ -170,6 +170,7 @@ struct SignupView: View {
                 }
             }
         }
+        .handleOAuthCallbacks(viewModel: viewModel)
     }
 }
 

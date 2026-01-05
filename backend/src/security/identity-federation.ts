@@ -1,5 +1,4 @@
 import { getDatabasePool } from '../database/connection';
-import { AuthService } from '../services/auth.service';
 import { logger } from '../config/logger';
 import { CustomError } from '../middleware/error.middleware';
 
@@ -12,7 +11,6 @@ export interface OAuthUser {
 
 export class IdentityFederationService {
   private pool = getDatabasePool();
-  private authService = new AuthService();
 
   async authenticateWithApple(_idToken: string, userIdentifier?: string): Promise<any> {
     // TODO: Verify Apple JWT token
@@ -38,7 +36,7 @@ export class IdentityFederationService {
     throw new CustomError('Spotify OAuth not yet fully implemented', 501);
   }
 
-  async findOrCreateOAuthUser(oauthUser: OAuthUser): Promise<any> {
+  async findOrCreateOAuthUser(oauthUser: OAuthUser): Promise<{ user: any; tokens: any }> {
     // Check if user exists with this OAuth ID
     const existingUser = await this.pool.query(
       'SELECT * FROM users WHERE oauth_provider = $1 AND oauth_id = $2 AND deleted_at IS NULL',
@@ -46,15 +44,28 @@ export class IdentityFederationService {
     );
 
     if (existingUser.rows.length > 0) {
-      // User exists, return tokens
+      // User exists, generate tokens
       const user = existingUser.rows[0];
-      const tokens = await this.authService.login(
-        user.email,
-        '', // No password for OAuth users
-        undefined,
-        undefined,
-        undefined
+      
+      // Update last login
+      await this.pool.query(
+        'UPDATE users SET last_login_at = NOW() WHERE id = $1',
+        [user.id]
       );
+      
+      // Generate tokens directly (bypass password check for OAuth users)
+      const { AuthService } = await import('../services/auth.service');
+      const authService = new AuthService();
+      const tokens = await authService.generateTokens(user.id, user.email, user.role);
+      
+      // Store refresh token
+      await this.pool.query(
+        `INSERT INTO refresh_tokens (user_id, token, expires_at)
+         VALUES ($1, $2, NOW() + INTERVAL '7 days')
+         ON CONFLICT (token) DO NOTHING`,
+        [user.id, tokens.refreshToken]
+      );
+      
       return { user, tokens };
     }
 
@@ -67,36 +78,57 @@ export class IdentityFederationService {
     if (emailUser.rows.length > 0) {
       // Link OAuth account to existing user
       await this.pool.query(
-        'UPDATE users SET oauth_provider = $1, oauth_id = $2 WHERE id = $3',
+        'UPDATE users SET oauth_provider = $1, oauth_id = $2, last_login_at = NOW() WHERE id = $3',
         [oauthUser.provider, oauthUser.id, emailUser.rows[0].id]
       );
 
-      const tokens = await this.authService.login(
-        emailUser.rows[0].email,
-        '',
-        undefined,
-        undefined,
-        undefined
+      const user = emailUser.rows[0];
+      const { AuthService } = await import('../services/auth.service');
+      const authService = new AuthService();
+      const tokens = await authService.generateTokens(user.id, user.email, user.role);
+      
+      await this.pool.query(
+        `INSERT INTO refresh_tokens (user_id, token, expires_at)
+         VALUES ($1, $2, NOW() + INTERVAL '7 days')
+         ON CONFLICT (token) DO NOTHING`,
+        [user.id, tokens.refreshToken]
       );
-      return { user: emailUser.rows[0], tokens };
+      
+      return { user, tokens };
     }
 
     // Create new user
-    const username = oauthUser.email.split('@')[0] + '_' + oauthUser.provider;
+    let username = oauthUser.email.split('@')[0] + '_' + oauthUser.provider;
+    
+    // Ensure username is unique
+    let uniqueUsername = username;
+    let counter = 1;
+    while (true) {
+      const existing = await this.pool.query(
+        'SELECT id FROM users WHERE username = $1',
+        [uniqueUsername]
+      );
+      if (existing.rows.length === 0) break;
+      uniqueUsername = `${username}${counter}`;
+      counter++;
+    }
+    
     const result = await this.pool.query(
       `INSERT INTO users (email, username, oauth_provider, oauth_id, email_verified, role)
        VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING *`,
-      [oauthUser.email, username, oauthUser.provider, oauthUser.id, true, 'user']
+      [oauthUser.email, uniqueUsername, oauthUser.provider, oauthUser.id, true, 'user']
     );
 
     const newUser = result.rows[0];
-    const tokens = await this.authService.login(
-      newUser.email,
-      '',
-      undefined,
-      undefined,
-      undefined
+    const { AuthService } = await import('../services/auth.service');
+    const authService = new AuthService();
+    const tokens = await authService.generateTokens(newUser.id, newUser.email, newUser.role);
+    
+    await this.pool.query(
+      `INSERT INTO refresh_tokens (user_id, token, expires_at)
+       VALUES ($1, $2, NOW() + INTERVAL '7 days')`,
+      [newUser.id, tokens.refreshToken]
     );
 
     logger.info('OAuth user created', { userId: newUser.id, provider: oauthUser.provider });

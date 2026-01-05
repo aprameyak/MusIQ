@@ -151,6 +151,7 @@ struct LoginView: View {
                 Spacer()
             }
         }
+        .handleOAuthCallbacks(viewModel: viewModel)
     }
 }
 

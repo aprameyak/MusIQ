@@ -76,7 +76,7 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
     
-    func loginWithApple(authorizationCode: String, identityToken: String?) async {
+    func loginWithApple(authorizationCode: String, identityToken: String?, email: String? = nil, name: String? = nil, userIdentifier: String? = nil) async {
         isLoading = true
         errorMessage = nil
         
@@ -84,7 +84,11 @@ class AuthViewModel: ObservableObject {
             let oauthService = OAuthService(authService: authService)
             let token = try await oauthService.handleOAuthCallback(
                 authorizationCode: authorizationCode,
-                provider: .apple
+                provider: .apple,
+                idToken: identityToken,
+                email: email,
+                name: name,
+                userIdentifier: userIdentifier
             )
             
             // Store tokens securely
@@ -113,7 +117,8 @@ class AuthViewModel: ObservableObject {
             let oauthService = OAuthService(authService: authService)
             let token = try await oauthService.handleOAuthCallback(
                 authorizationCode: authorizationCode,
-                provider: .google
+                provider: .google,
+                idToken: idToken
             )
             
             // Store tokens securely
