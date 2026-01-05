@@ -1,10 +1,3 @@
-//
-//  LoginView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct LoginView: View {
@@ -19,7 +12,6 @@ struct LoginView: View {
             VStack(spacing: 32) {
                 Spacer()
                 
-                // Logo
                 ZStack {
                     Circle()
                         .fill(AppGradients.primary)
@@ -31,12 +23,10 @@ struct LoginView: View {
                 }
                 .padding(.bottom, 16)
                 
-                // Title
                 Text("Welcome Back")
                     .font(.system(size: 32, weight: .bold))
                     .foregroundColor(AppColors.textPrimary)
                 
-                // Form
                 VStack(spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Email")
@@ -99,7 +89,6 @@ struct LoginView: View {
                 }
                 .padding(.horizontal, AppStyles.paddingLarge)
                 
-                // Social login
                 VStack(spacing: 16) {
                     HStack {
                         Rectangle()
@@ -158,4 +147,3 @@ struct LoginView: View {
 #Preview {
     LoginView(appState: AppState())
 }
-

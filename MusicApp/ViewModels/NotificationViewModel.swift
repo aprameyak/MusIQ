@@ -1,10 +1,3 @@
-//
-//  NotificationViewModel.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import SwiftUI
 
@@ -28,7 +21,7 @@ class NotificationViewModel: ObservableObject {
             notifications = try await notificationService.getNotifications()
         } catch {
             errorMessage = error.localizedDescription
-            // Load mock data on error
+            
             loadMockData()
         }
         
@@ -89,8 +82,7 @@ class NotificationViewModel: ObservableObject {
     }
     
     private func loadMockData() {
-        // Mock notifications will be loaded from the service
+        
         notifications = []
     }
 }
-

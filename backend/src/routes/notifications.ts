@@ -6,7 +6,6 @@ import { CustomError } from '../middleware/error.middleware';
 const router = Router();
 const pool = getDatabasePool();
 
-// Get notifications
 router.get(
   '/',
   authMiddleware,
@@ -49,7 +48,6 @@ router.get(
   }
 );
 
-// Mark notification as read
 router.put(
   '/:id/read',
   authMiddleware,
@@ -83,7 +81,6 @@ router.put(
   }
 );
 
-// Mark all notifications as read
 router.put(
   '/read-all',
   authMiddleware,
@@ -111,4 +108,3 @@ router.put(
 );
 
 export default router;
-

@@ -13,52 +13,46 @@ export class IdentityFederationService {
   private pool = getDatabasePool();
 
   async authenticateWithApple(_idToken: string, userIdentifier?: string): Promise<any> {
-    // TODO: Verify Apple JWT token
-    // For now, this is a placeholder
+    
     logger.info('Apple Sign In attempted', { userIdentifier });
     
     throw new CustomError('Apple Sign In not yet fully implemented', 501);
   }
 
   async authenticateWithGoogle(_accessToken: string, _idToken?: string): Promise<any> {
-    // TODO: Verify Google token and fetch user info
-    // For now, this is a placeholder
+    
     logger.info('Google Sign In attempted');
     
     throw new CustomError('Google Sign In not yet fully implemented', 501);
   }
 
   async authenticateWithSpotify(_accessToken: string, _refreshToken?: string): Promise<any> {
-    // TODO: Verify Spotify token and fetch user info
-    // For now, this is a placeholder
+    
     logger.info('Spotify OAuth attempted');
     
     throw new CustomError('Spotify OAuth not yet fully implemented', 501);
   }
 
   async findOrCreateOAuthUser(oauthUser: OAuthUser): Promise<{ user: any; tokens: any }> {
-    // Check if user exists with this OAuth ID
+    
     const existingUser = await this.pool.query(
       'SELECT * FROM users WHERE oauth_provider = $1 AND oauth_id = $2 AND deleted_at IS NULL',
       [oauthUser.provider, oauthUser.id]
     );
 
     if (existingUser.rows.length > 0) {
-      // User exists, generate tokens
+      
       const user = existingUser.rows[0];
       
-      // Update last login
       await this.pool.query(
         'UPDATE users SET last_login_at = NOW() WHERE id = $1',
         [user.id]
       );
       
-      // Generate tokens directly (bypass password check for OAuth users)
       const { AuthService } = await import('../services/auth.service');
       const authService = new AuthService();
       const tokens = await authService.generateTokens(user.id, user.email, user.role);
       
-      // Store refresh token
       await this.pool.query(
         `INSERT INTO refresh_tokens (user_id, token, expires_at)
          VALUES ($1, $2, NOW() + INTERVAL '7 days')
@@ -69,14 +63,13 @@ export class IdentityFederationService {
       return { user, tokens };
     }
 
-    // Check if email already exists
     const emailUser = await this.pool.query(
       'SELECT * FROM users WHERE email = $1 AND deleted_at IS NULL',
       [oauthUser.email]
     );
 
     if (emailUser.rows.length > 0) {
-      // Link OAuth account to existing user
+      
       await this.pool.query(
         'UPDATE users SET oauth_provider = $1, oauth_id = $2, last_login_at = NOW() WHERE id = $3',
         [oauthUser.provider, oauthUser.id, emailUser.rows[0].id]
@@ -97,10 +90,8 @@ export class IdentityFederationService {
       return { user, tokens };
     }
 
-    // Create new user
     let username = oauthUser.email.split('@')[0] + '_' + oauthUser.provider;
     
-    // Ensure username is unique
     let uniqueUsername = username;
     let counter = 1;
     while (true) {
@@ -135,4 +126,3 @@ export class IdentityFederationService {
     return { user: newUser, tokens };
   }
 }
-

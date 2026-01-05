@@ -1,10 +1,3 @@
-//
-//  MusicItem.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 enum MusicItemType: String, Codable {
@@ -43,7 +36,6 @@ struct MusicItem: Identifiable, Codable {
     }
 }
 
-// Helper for encoding/decoding Any values
 struct AnyCodable: Codable {
     let value: Any
     
@@ -92,4 +84,3 @@ struct AnyCodable: Codable {
         }
     }
 }
-

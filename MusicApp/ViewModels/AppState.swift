@@ -1,10 +1,3 @@
-//
-//  AppState.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import SwiftUI
 
@@ -36,11 +29,10 @@ class AppState: ObservableObject {
     private let authKey = "isAuthenticated"
     
     init() {
-        // Load persisted state
+        
         hasCompletedOnboarding = userDefaults.bool(forKey: onboardingKey)
         isAuthenticated = userDefaults.bool(forKey: authKey)
         
-        // Determine initial screen
         if !hasCompletedOnboarding {
             currentScreen = .onboarding
         } else if !isAuthenticated {
@@ -75,8 +67,6 @@ class AppState: ObservableObject {
     }
 }
 
-// Extension to make AppState accessible
 extension AppState {
     static var shared: AppState = AppState()
 }
-

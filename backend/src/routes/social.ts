@@ -6,7 +6,6 @@ import { CustomError } from '../middleware/error.middleware';
 const router = Router();
 const pool = getDatabasePool();
 
-// Get friends list
 router.get(
   '/friends',
   authMiddleware,
@@ -32,9 +31,8 @@ router.get(
         [req.userId]
       );
 
-      // Calculate compatibility (simplified)
       const friends = await Promise.all(result.rows.map(async (row) => {
-        // Get compatibility score (simplified calculation)
+        
         const compatibilityResult = await pool.query(
           `SELECT 
             COUNT(*) as shared_ratings,
@@ -53,9 +51,9 @@ router.get(
           id: row.id,
           name: row.username,
           username: `@${row.username}`,
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(row.username)}&background=7c3aed&color=fff`,
+          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.username}`,
           compatibility: Math.round(compatibility),
-          topGenre: 'Hip-Hop', // Would calculate from actual data
+          topGenre: 'Hip-Hop', 
           sharedArtists: parseInt(row.shared_artists) || 0,
           status: row.status
         };
@@ -71,7 +69,6 @@ router.get(
   }
 );
 
-// Follow a user
 router.post(
   '/follow/:userId',
   authMiddleware,
@@ -87,7 +84,6 @@ router.post(
         throw new CustomError('Cannot follow yourself', 400);
       }
 
-      // Check if user exists
       const userResult = await pool.query(
         'SELECT id FROM users WHERE id = $1 AND deleted_at IS NULL',
         [userId]
@@ -97,7 +93,6 @@ router.post(
         throw new CustomError('User not found', 404);
       }
 
-      // Check if friendship already exists
       const existingResult = await pool.query(
         'SELECT id, status FROM friendships WHERE user_id = $1 AND friend_id = $2',
         [req.userId, userId]
@@ -112,14 +107,14 @@ router.post(
           });
           return;
         } else if (existing.status === 'pending') {
-          // Accept the pending request
+          
           await pool.query(
             'UPDATE friendships SET status = $1 WHERE id = $2',
             ['accepted', existing.id]
           );
         }
       } else {
-        // Create new friendship request
+        
         await pool.query(
           'INSERT INTO friendships (user_id, friend_id, status) VALUES ($1, $2, $3)',
           [req.userId, userId, 'pending']
@@ -136,7 +131,6 @@ router.post(
   }
 );
 
-// Get compatibility score
 router.get(
   '/compatibility/:userId',
   authMiddleware,
@@ -174,7 +168,6 @@ router.get(
   }
 );
 
-// Compare taste profiles
 router.get(
   '/compare/:userId',
   authMiddleware,
@@ -186,7 +179,6 @@ router.get(
 
       const { userId } = req.params;
 
-      // Get shared artists/items
       const sharedResult = await pool.query(
         `SELECT COUNT(DISTINCT r1.music_item_id) as shared_count
          FROM ratings r1
@@ -214,7 +206,7 @@ router.get(
         data: {
           compatibility: Math.round(compatibility),
           sharedArtists: parseInt(sharedResult.rows[0]?.shared_count || '0'),
-          sharedGenres: [] // Would calculate from actual data
+          sharedGenres: [] 
         }
       });
     } catch (error) {
@@ -224,4 +216,3 @@ router.get(
 );
 
 export default router;
-

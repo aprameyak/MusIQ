@@ -1,10 +1,3 @@
-//
-//  OnboardingView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct OnboardingSlide {
@@ -53,7 +46,7 @@ struct OnboardingView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Skip button
+                
                 HStack {
                     Spacer()
                     Button("Skip") {
@@ -67,7 +60,6 @@ struct OnboardingView: View {
                 
                 Spacer()
                 
-                // Slide content
                 TabView(selection: $currentSlide) {
                     ForEach(0..<slides.count, id: \.self) { index in
                         OnboardingSlideView(slide: slides[index])
@@ -79,7 +71,6 @@ struct OnboardingView: View {
                 
                 Spacer()
                 
-                // Dots indicator
                 HStack(spacing: 8) {
                     ForEach(0..<slides.count, id: \.self) { index in
                         Capsule()
@@ -97,7 +88,6 @@ struct OnboardingView: View {
                 }
                 .padding(.bottom, 32)
                 
-                // Next/Start button
                 Button(action: {
                     if currentSlide < slides.count - 1 {
                         withAnimation {
@@ -116,7 +106,6 @@ struct OnboardingView: View {
                 .padding(.horizontal, AppStyles.paddingLarge)
                 .padding(.bottom, 32)
                 
-                // Social login options (only on last slide)
                 if currentSlide == slides.count - 1 {
                     VStack(spacing: 16) {
                         HStack {
@@ -137,14 +126,14 @@ struct OnboardingView: View {
                         VStack(spacing: 12) {
                             AppleSignInButton(
                                 onSuccess: { code, idToken in
-                                    // OAuth handled via notification system
+                                    
                                 },
                                 onError: { _ in }
                             )
                             
                             SpotifySignInButton(
                                 onSuccess: { code in
-                                    // OAuth handled via notification system
+                                    
                                 },
                                 onError: { _ in }
                             )
@@ -165,7 +154,7 @@ struct OnboardingSlideView: View {
     
     var body: some View {
         VStack(spacing: 32) {
-            // Icon
+            
             ZStack {
                 Circle()
                     .fill(slide.color.opacity(0.2))
@@ -177,12 +166,10 @@ struct OnboardingSlideView: View {
             }
             .scaleEffect(iconScale)
             
-            // Title
             Text(slide.title)
                 .font(.system(size: 32, weight: .bold))
                 .foregroundColor(AppColors.textPrimary)
             
-            // Description
             Text(slide.description)
                 .font(.system(size: 18))
                 .foregroundColor(AppColors.textSecondary)
@@ -200,4 +187,3 @@ struct OnboardingSlideView: View {
 #Preview {
     OnboardingView(onComplete: {})
 }
-

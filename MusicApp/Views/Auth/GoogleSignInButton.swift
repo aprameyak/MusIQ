@@ -1,10 +1,3 @@
-//
-//  GoogleSignInButton.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 #if canImport(AppAuth)
 import AppAuth
@@ -37,20 +30,18 @@ struct GoogleSignInButton: View {
     @MainActor
     private func performGoogleSignIn() async {
         #if canImport(AppAuth)
-        guard let googleIssuer = URL(string: "https://accounts.google.com"),
-              let redirectURI = URL(string: "com.musicapp://oauth/google/callback") else {
+        guard let googleIssuer = URL(string: "https:
+              let redirectURI = URL(string: "com.musicapp:
             onError(NetworkError.invalidURL)
             return
         }
         
         do {
-            // Discover configuration
+            
             let configuration = try await OIDAuthorizationService.discoverConfiguration(forIssuer: googleIssuer)
             
-            // Get client ID from configuration (should be in environment or config)
             let clientID = ProcessInfo.processInfo.environment["GOOGLE_CLIENT_ID"] ?? "YOUR_GOOGLE_CLIENT_ID"
             
-            // Create authorization request
             let request = OIDAuthorizationRequest(
                 configuration: configuration,
                 clientId: clientID,
@@ -60,27 +51,23 @@ struct GoogleSignInButton: View {
                 additionalParameters: nil
             )
             
-            // Get the current window scene to present auth
             guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                   let rootViewController = windowScene.windows.first?.rootViewController else {
                 onError(NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not find root view controller"]))
                 return
             }
             
-            // Perform authorization
             let authState = try await OIDAuthorizationService.present(
                 request,
                 presenting: rootViewController
             )
             
-            // Get authorization code
             guard let authResponse = authState.lastAuthorizationResponse,
                   let authorizationCode = authResponse.authorizationCode else {
                 onError(NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get authorization code"]))
                 return
             }
             
-            // Get ID token if available
             let idToken = authResponse.idToken
             
             onSuccess(authorizationCode, idToken)
@@ -93,7 +80,6 @@ struct GoogleSignInButton: View {
     }
 }
 
-// Helper extension for AppAuth async presentation
 #if canImport(AppAuth)
 extension OIDAuthorizationService {
     static func present(_ request: OIDAuthorizationRequest, presenting: UIViewController) async throws -> OIDAuthState {

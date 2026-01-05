@@ -1,10 +1,3 @@
-//
-//  SocialView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct SocialView: View {
@@ -21,7 +14,7 @@ struct SocialView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 24) {
-                        // Header
+                        
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Social")
                                 .font(.system(size: 32, weight: .bold))
@@ -35,7 +28,6 @@ struct SocialView: View {
                         .padding(.horizontal, AppStyles.paddingMedium)
                         .padding(.top, AppStyles.paddingLarge)
                         
-                        // Share button
                         Button(action: {}) {
                             HStack {
                                 Image(systemName: "square.and.arrow.up")
@@ -52,7 +44,6 @@ struct SocialView: View {
                         }
                         .padding(.horizontal, AppStyles.paddingMedium)
                         
-                        // Friends list
                         VStack(alignment: .leading, spacing: 16) {
                             HStack(spacing: 8) {
                                 Image(systemName: "person.2.fill")
@@ -76,7 +67,6 @@ struct SocialView: View {
                         .cardStyle()
                         .padding(.horizontal, AppStyles.paddingMedium)
                         
-                        // Invite friends CTA
                         VStack(spacing: 16) {
                             Image(systemName: "person.2.fill")
                                 .font(.system(size: 48))
@@ -123,7 +113,7 @@ struct FriendCardView: View {
     var body: some View {
         VStack(spacing: 16) {
             HStack(spacing: 16) {
-                // Avatar
+                
                 AsyncImage(url: URL(string: friend.avatar)) { image in
                     image
                         .resizable()
@@ -135,7 +125,6 @@ struct FriendCardView: View {
                 .frame(width: 64, height: 64)
                 .clipShape(Circle())
                 
-                // Info
                 VStack(alignment: .leading, spacing: 4) {
                     Text(friend.name)
                         .font(.system(size: 16, weight: .semibold))
@@ -166,7 +155,6 @@ struct FriendCardView: View {
                 
                 Spacer()
                 
-                // Compatibility score
                 VStack(spacing: 4) {
                     Text(compatibilityEmoji)
                         .font(.system(size: 32))
@@ -177,7 +165,6 @@ struct FriendCardView: View {
                 }
             }
             
-            // Actions
             HStack(spacing: 8) {
                 Button(action: {}) {
                     HStack {
@@ -204,7 +191,6 @@ struct FriendCardView: View {
                 }
             }
             
-            // Compatibility bar
             VStack(spacing: 4) {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
@@ -242,4 +228,3 @@ struct FriendCardView: View {
 #Preview {
     SocialView()
 }
-

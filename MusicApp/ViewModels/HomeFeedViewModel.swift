@@ -1,10 +1,3 @@
-//
-//  HomeFeedViewModel.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import SwiftUI
 
@@ -66,4 +59,3 @@ class HomeFeedViewModel: ObservableObject {
         await loadFeed()
     }
 }
-

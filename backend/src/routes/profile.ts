@@ -6,7 +6,6 @@ import { CustomError } from '../middleware/error.middleware';
 const router = Router();
 const pool = getDatabasePool();
 
-// Get current user profile
 router.get(
   '/',
   authMiddleware,
@@ -36,7 +35,6 @@ router.get(
   }
 );
 
-// Get taste profile
 router.get(
   '/taste',
   authMiddleware,
@@ -46,7 +44,6 @@ router.get(
         throw new CustomError('Unauthorized', 401);
       }
 
-      // Get user's rating statistics
       const statsResult = await pool.query(
         `SELECT 
           COUNT(*) as total_ratings,
@@ -59,13 +56,11 @@ router.get(
 
       const stats = statsResult.rows[0];
 
-      // Calculate taste score (simplified - would be more complex in production)
       const tasteScore = Math.round(
         (parseFloat(stats.avg_rating) || 0) * 10 +
         Math.min(parseInt(stats.total_ratings) / 10, 50)
       );
 
-      // Get genre affinity (simplified - would analyze actual music items)
       const genreAffinity: Record<string, number> = {
         'Hip-Hop': 85,
         'R&B': 72,
@@ -75,7 +70,6 @@ router.get(
         'Jazz': 32
       };
 
-      // Get decade preference (simplified)
       const decadePreference: Record<string, number> = {
         '70s': 15,
         '80s': 25,
@@ -85,7 +79,6 @@ router.get(
         '20s': 95
       };
 
-      // Get music attributes (simplified)
       const attributes: Record<string, number> = {
         'Lyrics': 85,
         'Production': 92,
@@ -95,7 +88,6 @@ router.get(
         'Replay': 90
       };
 
-      // Calculate influence (number of ratings * average rating impact)
       const influence = Math.round(parseInt(stats.total_ratings) * (parseFloat(stats.avg_rating) || 0) * 100);
 
       res.json({
@@ -107,7 +99,7 @@ router.get(
           genreAffinity,
           decadePreference,
           attributes,
-          controversyAffinity: 75 // Simplified
+          controversyAffinity: 75 
         }
       });
     } catch (error) {
@@ -116,7 +108,6 @@ router.get(
   }
 );
 
-// Update profile
 router.put(
   '/',
   authMiddleware,
@@ -132,7 +123,7 @@ router.put(
       let paramCount = 1;
 
       if (username) {
-        // Check if username is already taken
+        
         const existingUser = await pool.query(
           'SELECT id FROM users WHERE username = $1 AND id != $2',
           [username, req.userId]
@@ -158,7 +149,6 @@ router.put(
         values
       );
 
-      // Get updated user
       const userResult = await pool.query(
         `SELECT id, email, username, email_verified, mfa_enabled, role, oauth_provider, oauth_id, last_login_at, created_at, updated_at
          FROM users WHERE id = $1 AND deleted_at IS NULL`,
@@ -177,4 +167,3 @@ router.put(
 );
 
 export default router;
-

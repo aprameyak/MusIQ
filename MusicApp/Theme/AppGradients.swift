@@ -1,21 +1,13 @@
-//
-//  AppGradients.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct AppGradients {
-    // Primary gradient (purple to green)
+    
     static let primary = LinearGradient(
         colors: [AppColors.primaryPurple, AppColors.primaryGreen],
         startPoint: .leading,
         endPoint: .trailing
     )
     
-    // Background gradient
     static let background = LinearGradient(
         colors: [
             AppColors.background,
@@ -26,7 +18,6 @@ struct AppGradients {
         endPoint: .bottomTrailing
     )
     
-    // Card gradient
     static let card = LinearGradient(
         colors: [
             AppColors.cardBackground,
@@ -36,14 +27,12 @@ struct AppGradients {
         endPoint: .bottom
     )
     
-    // Accent gradient (pink to purple)
     static let accent = LinearGradient(
         colors: [AppColors.accentPink, AppColors.primaryPurple],
         startPoint: .leading,
         endPoint: .trailing
     )
     
-    // Radial gradient for splash screen
     static let splash = RadialGradient(
         colors: [
             AppColors.primaryPurple.opacity(0.3),
@@ -56,7 +45,6 @@ struct AppGradients {
     )
 }
 
-// View modifier for gradient backgrounds
 struct GradientBackground: ViewModifier {
     let gradient: LinearGradient
     
@@ -71,4 +59,3 @@ extension View {
         modifier(GradientBackground(gradient: gradient))
     }
 }
-

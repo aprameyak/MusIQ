@@ -1,10 +1,3 @@
-//
-//  KeychainHelper.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import Security
 
@@ -21,10 +14,8 @@ class KeychainHelper {
             kSecValueData as String: data
         ]
         
-        // Delete existing item if it exists
         SecItemDelete(query as CFDictionary)
         
-        // Add new item
         SecItemAdd(query as CFDictionary, nil)
     }
     
@@ -68,4 +59,3 @@ class KeychainHelper {
         SecItemDelete(query as CFDictionary)
     }
 }
-

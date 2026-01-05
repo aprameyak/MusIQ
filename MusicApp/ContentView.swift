@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  MusicApp
-//
-//  Created by Aprameya Kannan on 1/5/26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
@@ -55,7 +48,7 @@ struct AuthenticationView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Toggle between login and signup
+                
                 HStack(spacing: 0) {
                     Button(action: {
                         withAnimation {

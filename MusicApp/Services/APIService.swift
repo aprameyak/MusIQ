@@ -1,10 +1,3 @@
-//
-//  APIService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 class APIService {
@@ -14,8 +7,8 @@ class APIService {
     private let session: URLSession
     
     init(baseURL: String? = nil) {
-        // Use environment variable or default to localhost for development
-        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http://localhost:3000/api"
+        
+        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http:
         
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
@@ -94,4 +87,3 @@ enum HTTPMethod: String {
     case delete = "DELETE"
     case patch = "PATCH"
 }
-

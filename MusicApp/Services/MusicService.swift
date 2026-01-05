@@ -1,10 +1,3 @@
-//
-//  MusicService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 class MusicService {
@@ -18,7 +11,7 @@ class MusicService {
         )
         
         guard response.success, let data = response.data else {
-            // Return mock data if API fails
+            
             return getMockFeedData()
         }
         
@@ -52,7 +45,6 @@ class MusicService {
         return data
     }
     
-    // Mock data for development
     private func getMockFeedData() -> [MusicItem] {
         return [
             MusicItem(
@@ -60,7 +52,7 @@ class MusicService {
                 type: .album,
                 title: "ASTROWORLD",
                 artist: "Travis Scott",
-                imageUrl: "https://images.unsplash.com/photo-1738667289162-9e55132e18a2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400&h=400&fit=crop",
+                imageUrl: "https:
                 rating: 8.7,
                 ratingCount: 234500,
                 trending: true,
@@ -74,7 +66,7 @@ class MusicService {
                 type: .song,
                 title: "Blinding Lights",
                 artist: "The Weeknd",
-                imageUrl: "https://images.unsplash.com/photo-1616663395403-2e0052b8e595?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400&h=400&fit=crop",
+                imageUrl: "https:
                 rating: 9.2,
                 ratingCount: 456000,
                 trending: true,
@@ -88,7 +80,7 @@ class MusicService {
                 type: .album,
                 title: "Blonde",
                 artist: "Frank Ocean",
-                imageUrl: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400&h=400&fit=crop",
+                imageUrl: "https:
                 rating: 9.5,
                 ratingCount: 567800,
                 trending: false,
@@ -100,4 +92,3 @@ class MusicService {
         ]
     }
 }
-

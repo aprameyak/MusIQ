@@ -7,7 +7,6 @@ import { CustomError } from '../middleware/error.middleware';
 const router = Router();
 const identityService = new IdentityFederationService();
 
-// Apple Sign In
 router.post(
   '/apple',
   authLimiter,
@@ -19,13 +18,9 @@ router.post(
         throw new CustomError('Authorization code is required', 400);
       }
 
-      // Verify Apple token (simplified - in production, verify JWT from Apple)
-      // For now, we'll accept the token and create/update user
-      // In production, decode and verify the identity token from Apple
       let email = req.body.email;
       let userId = req.body.userIdentifier;
       
-      // If no email provided, generate a placeholder (in production, extract from JWT)
       if (!email) {
         email = `apple_${Date.now()}@privaterelay.appleid.com`;
       }
@@ -56,7 +51,6 @@ router.post(
   }
 );
 
-// Google Sign In
 router.post(
   '/google',
   authLimiter,
@@ -68,9 +62,6 @@ router.post(
         throw new CustomError('Authorization code is required', 400);
       }
 
-      // In production, exchange authorization code for tokens with Google
-      // TODO: Exchange code with Google OAuth API to get user info
-      // For now, we'll accept the code and create/update user
       let email = req.body.email;
       let userId = req.body.userId;
       
@@ -104,7 +95,6 @@ router.post(
   }
 );
 
-// Spotify OAuth
 router.post(
   '/spotify',
   authLimiter,
@@ -116,9 +106,6 @@ router.post(
         throw new CustomError('Authorization code is required', 400);
       }
 
-      // In production, exchange authorization code for tokens with Spotify
-      // TODO: Exchange code with Spotify OAuth API to get user info
-      // For now, we'll accept the code and create/update user
       let email = req.body.email;
       let userId = req.body.userId;
       
@@ -153,4 +140,3 @@ router.post(
 );
 
 export default router;
-

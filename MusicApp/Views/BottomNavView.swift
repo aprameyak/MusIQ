@@ -1,10 +1,3 @@
-//
-//  BottomNavView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct BottomNavView: View {
@@ -112,4 +105,3 @@ struct BottomNavView: View {
     BottomNavView(activeTab: .pulse, onTabChange: { _ in })
         .background(AppColors.background)
 }
-

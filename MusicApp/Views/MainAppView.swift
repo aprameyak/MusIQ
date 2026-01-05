@@ -1,10 +1,3 @@
-//
-//  MainAppView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct MainAppView: View {
@@ -16,7 +9,7 @@ struct MainAppView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Content area
+                
                 Group {
                     switch appState.activeTab {
                     case .pulse:
@@ -33,7 +26,6 @@ struct MainAppView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-                // Bottom navigation
                 BottomNavView(
                     activeTab: appState.activeTab,
                     onTabChange: { tab in
@@ -48,4 +40,3 @@ struct MainAppView: View {
 #Preview {
     MainAppView(appState: AppState())
 }
-

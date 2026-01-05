@@ -1,10 +1,3 @@
-//
-//  GlobalRankingsView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct GlobalRankingsView: View {
@@ -16,7 +9,7 @@ struct GlobalRankingsView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
+                
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Global Charts")
                         .font(.system(size: 32, weight: .bold))
@@ -31,7 +24,6 @@ struct GlobalRankingsView: View {
                 .padding(.top, AppStyles.paddingLarge)
                 .padding(.bottom, AppStyles.paddingMedium)
                 
-                // Tabs
                 HStack(spacing: 4) {
                     ForEach(RankingType.allCases, id: \.self) { type in
                         Button(action: {
@@ -65,7 +57,6 @@ struct GlobalRankingsView: View {
                 .padding(.horizontal, AppStyles.paddingMedium)
                 .padding(.bottom, AppStyles.paddingMedium)
                 
-                // Rankings list
                 if viewModel.isLoading {
                     Spacer()
                     ProgressView()
@@ -108,7 +99,7 @@ struct RankingRowView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Rank
+            
             VStack(spacing: 4) {
                 Text("\(ranking.rank)")
                     .font(.system(size: 24, weight: .bold))
@@ -140,7 +131,6 @@ struct RankingRowView: View {
             }
             .frame(width: 40)
             
-            // Album art
             ZStack(alignment: .topTrailing) {
                 AsyncImage(url: URL(string: ranking.imageUrl)) { image in
                     image
@@ -168,7 +158,6 @@ struct RankingRowView: View {
                 }
             }
             
-            // Info
             VStack(alignment: .leading, spacing: 4) {
                 Text(ranking.title)
                     .font(.system(size: 16, weight: .semibold))
@@ -207,4 +196,3 @@ struct RankingRowView: View {
 #Preview {
     GlobalRankingsView()
 }
-

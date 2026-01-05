@@ -5,7 +5,6 @@ import { getDatabasePool } from '../database/connection';
 const router = Router();
 const pool = getDatabasePool();
 
-// Get album rankings
 router.get(
   '/albums',
   authMiddleware,
@@ -45,8 +44,8 @@ router.get(
         imageUrl: row.image_url,
         rating: parseFloat(row.rating) || 0,
         ratingCount: parseInt(row.rating_count) || 0,
-        isNew: false, // Would calculate based on creation date
-        change: 0 // Would calculate based on previous rankings
+        isNew: false, 
+        change: 0 
       }));
 
       res.json({
@@ -59,7 +58,6 @@ router.get(
   }
 );
 
-// Get song rankings
 router.get(
   '/songs',
   authMiddleware,
@@ -113,7 +111,6 @@ router.get(
   }
 );
 
-// Get artist rankings
 router.get(
   '/artists',
   authMiddleware,
@@ -168,4 +165,3 @@ router.get(
 );
 
 export default router;
-

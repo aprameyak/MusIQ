@@ -43,7 +43,7 @@ export class AuthService {
   }
 
   async signup(email: string, username: string, password: string): Promise<AuthTokens> {
-    // Check if user already exists
+    
     const existingUser = await this.pool.query(
       'SELECT id FROM users WHERE email = $1 OR username = $2',
       [email, username]
@@ -53,10 +53,8 @@ export class AuthService {
       throw new CustomError('User with this email or username already exists', 409);
     }
 
-    // Hash password
     const passwordHash = await bcrypt.hash(password, this.bcryptRounds);
 
-    // Create user
     const result = await this.pool.query(
       `INSERT INTO users (email, username, password_hash, role)
        VALUES ($1, $2, $3, $4)
@@ -66,10 +64,8 @@ export class AuthService {
 
     const user = result.rows[0];
 
-    // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email, user.role);
 
-    // Store refresh token
     await this.storeRefreshToken(user.id, tokens.refreshToken, null, null, null);
 
     logger.info('User signed up', { userId: user.id, email });
@@ -78,7 +74,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string, deviceId?: string, ipAddress?: string, userAgent?: string): Promise<AuthTokens> {
-    // Find user
+    
     const result = await this.pool.query(
       'SELECT id, email, username, password_hash, role, mfa_enabled FROM users WHERE email = $1 AND deleted_at IS NULL',
       [email]
@@ -90,7 +86,6 @@ export class AuthService {
 
     const user = result.rows[0];
 
-    // Verify password
     if (!user.password_hash) {
       throw new CustomError('Invalid email or password', 401);
     }
@@ -100,22 +95,17 @@ export class AuthService {
       throw new CustomError('Invalid email or password', 401);
     }
 
-    // Check MFA (if enabled)
     if (user.mfa_enabled) {
-      // MFA verification would happen here
-      // For now, we'll skip it
+      
     }
 
-    // Update last login
     await this.pool.query(
       'UPDATE users SET last_login_at = NOW() WHERE id = $1',
       [user.id]
     );
 
-    // Generate tokens
     const tokens = await this.generateTokens(user.id, user.email, user.role);
 
-    // Store refresh token
     await this.storeRefreshToken(user.id, tokens.refreshToken, deviceId, ipAddress, userAgent);
 
     logger.info('User logged in', { userId: user.id, email });
@@ -124,14 +114,13 @@ export class AuthService {
   }
 
   async refreshToken(refreshToken: string): Promise<AuthTokens> {
-    // Verify refresh token
+    
     try {
       jwt.verify(refreshToken, this.jwtRefreshSecret);
     } catch (error) {
       throw new CustomError('Invalid refresh token', 401);
     }
 
-    // Check if token exists in database and is not revoked
     const tokenResult = await this.pool.query(
       `SELECT rt.*, u.id as user_id, u.email, u.role
        FROM refresh_tokens rt
@@ -146,16 +135,13 @@ export class AuthService {
 
     const tokenData = tokenResult.rows[0];
 
-    // Revoke old token
     await this.pool.query(
       'UPDATE refresh_tokens SET revoked_at = NOW() WHERE id = $1',
       [tokenData.id]
     );
 
-    // Generate new tokens
     const tokens = await this.generateTokens(tokenData.user_id, tokenData.email, tokenData.role);
 
-    // Store new refresh token
     await this.storeRefreshToken(
       tokenData.user_id,
       tokens.refreshToken,
@@ -225,7 +211,6 @@ export class AuthService {
       { expiresIn: this.jwtRefreshExpiresIn } as jwt.SignOptions
     );
 
-    // Calculate expires in seconds
     const expiresIn = this.parseExpiresIn(this.jwtExpiresIn);
 
     return {
@@ -244,7 +229,7 @@ export class AuthService {
     userAgent: string | null | undefined
   ): Promise<void> {
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+    expiresAt.setDate(expiresAt.getDate() + 7); 
 
     await this.pool.query(
       `INSERT INTO refresh_tokens (user_id, token, device_id, ip_address, user_agent, expires_at)
@@ -255,7 +240,7 @@ export class AuthService {
 
   private parseExpiresIn(expiresIn: string): number {
     const match = expiresIn.match(/(\d+)([smhd])/);
-    if (!match) return 900; // Default 15 minutes
+    if (!match) return 900; 
 
     const value = parseInt(match[1]);
     const unit = match[2];
@@ -269,4 +254,3 @@ export class AuthService {
     }
   }
 }
-

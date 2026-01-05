@@ -1,10 +1,3 @@
-//
-//  SignupView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct SignupView: View {
@@ -18,7 +11,7 @@ struct SignupView: View {
             
             ScrollView {
                 VStack(spacing: 32) {
-                    // Logo
+                    
                     ZStack {
                         Circle()
                             .fill(AppGradients.primary)
@@ -30,12 +23,10 @@ struct SignupView: View {
                     }
                     .padding(.top, 40)
                     
-                    // Title
                     Text("Create Account")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(AppColors.textPrimary)
                     
-                    // Form
                     VStack(spacing: 20) {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Email")
@@ -116,7 +107,6 @@ struct SignupView: View {
                     }
                     .padding(.horizontal, AppStyles.paddingLarge)
                     
-                    // Social login
                     VStack(spacing: 16) {
                         HStack {
                             Rectangle()
@@ -177,4 +167,3 @@ struct SignupView: View {
 #Preview {
     SignupView(appState: AppState())
 }
-

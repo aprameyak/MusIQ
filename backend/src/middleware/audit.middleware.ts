@@ -6,10 +6,10 @@ const auditService = new AuditService();
 
 export const auditMiddleware = (action: string, resourceType?: string) => {
   return async (req: AuthRequest, res: any, next: NextFunction): Promise<void> => {
-    // Log after response is sent
+    
     const originalSend = res.send;
     res.send = function (data: any) {
-      // Extract resource ID from params or body
+      
       const resourceId = req.params.id || req.body?.id || req.body?.musicItemId;
 
       auditService.log({
@@ -25,7 +25,7 @@ export const auditMiddleware = (action: string, resourceType?: string) => {
           statusCode: res.statusCode
         }
       }).catch(err => {
-        // Don't break the request if audit logging fails
+        
         console.error('Audit logging error:', err);
       });
 
@@ -35,4 +35,3 @@ export const auditMiddleware = (action: string, resourceType?: string) => {
     next();
   };
 };
-

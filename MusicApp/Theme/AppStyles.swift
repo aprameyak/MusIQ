@@ -1,35 +1,24 @@
-//
-//  AppStyles.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct AppStyles {
-    // Corner radius
+    
     static let cornerRadiusSmall: CGFloat = 12
     static let cornerRadiusMedium: CGFloat = 16
     static let cornerRadiusLarge: CGFloat = 24
     
-    // Spacing
     static let spacingSmall: CGFloat = 8
     static let spacingMedium: CGFloat = 16
     static let spacingLarge: CGFloat = 24
     
-    // Padding
     static let paddingSmall: CGFloat = 12
     static let paddingMedium: CGFloat = 16
     static let paddingLarge: CGFloat = 24
     
-    // Shadow
     static let shadowColor = Color.black.opacity(0.3)
     static let shadowRadius: CGFloat = 8
     static let shadowOffset = CGSize(width: 0, height: 4)
 }
 
-// Card style modifier
 struct CardStyle: ViewModifier {
     func body(content: Content) -> some View {
         content
@@ -48,7 +37,6 @@ struct CardStyle: ViewModifier {
     }
 }
 
-// Gradient button style
 struct GradientButtonStyle: ButtonStyle {
     let isEnabled: Bool
     
@@ -74,7 +62,6 @@ struct GradientButtonStyle: ButtonStyle {
     }
 }
 
-// Secondary button style
 struct SecondaryButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
@@ -101,4 +88,3 @@ extension View {
         buttonStyle(SecondaryButtonStyle())
     }
 }
-

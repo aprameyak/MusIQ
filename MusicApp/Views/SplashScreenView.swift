@@ -1,10 +1,3 @@
-//
-//  SplashScreenView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct SplashScreenView: View {
@@ -25,9 +18,9 @@ struct SplashScreenView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 32) {
-                // Logo animation
+                
                 ZStack {
-                    // Outer glow ring
+                    
                     Circle()
                         .fill(
                             LinearGradient(
@@ -43,7 +36,6 @@ struct SplashScreenView: View {
                         .blur(radius: 20)
                         .scaleEffect(glowScale)
                     
-                    // Main logo circle
                     ZStack {
                         Circle()
                             .fill(AppGradients.primary)
@@ -56,7 +48,6 @@ struct SplashScreenView: View {
                     .scaleEffect(logoScale)
                     .rotationEffect(.degrees(logoRotation))
                     
-                    // Sparkle decorations
                     Image(systemName: "sparkles")
                         .font(.system(size: 24))
                         .foregroundColor(AppColors.primaryGreen)
@@ -73,7 +64,6 @@ struct SplashScreenView: View {
                 }
                 .padding(.top, 100)
                 
-                // App name
                 VStack(spacing: 8) {
                     Text("Pulse")
                         .font(.system(size: 48, weight: .bold))
@@ -88,7 +78,6 @@ struct SplashScreenView: View {
                 }
                 .padding(.top, 32)
                 
-                // Loading indicator
                 HStack(spacing: 8) {
                     ForEach(0..<3) { index in
                         Circle()
@@ -105,24 +94,21 @@ struct SplashScreenView: View {
             }
         }
         .onAppear {
-            // Logo animation
+            
             withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
                 logoScale = 1
                 logoRotation = 0
             }
             
-            // Content fade in
             withAnimation(.easeInOut(duration: 0.3).delay(0.3)) {
                 showContent = true
             }
             
-            // Glow pulse animation
             withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
                 glowScale = 1.2
                 glowOpacity = 0.8
             }
             
-            // Sparkle rotations
             withAnimation(.linear(duration: 3).repeatForever(autoreverses: false)) {
                 sparkle1Rotation = 360
             }
@@ -131,7 +117,6 @@ struct SplashScreenView: View {
                 sparkle2Rotation = -360
             }
             
-            // Loading dots animation
             for i in 0..<3 {
                 withAnimation(
                     .easeInOut(duration: 1)
@@ -142,7 +127,6 @@ struct SplashScreenView: View {
                 }
             }
             
-            // Auto-transition after 1.5 seconds
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                 onComplete()
             }
@@ -153,4 +137,3 @@ struct SplashScreenView: View {
 #Preview {
     SplashScreenView(onComplete: {})
 }
-

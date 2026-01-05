@@ -9,7 +9,6 @@ import { logger } from '../config/logger';
 const router = Router();
 const pool = getDatabasePool();
 
-// Submit a rating
 router.post(
   '/',
   ratingLimiter,
@@ -23,7 +22,6 @@ router.post(
 
       const { musicItemId, rating, tags } = req.body;
 
-      // Check if music item exists
       const musicItemResult = await pool.query(
         'SELECT id FROM music_items WHERE id = $1',
         [musicItemId]
@@ -33,7 +31,6 @@ router.post(
         throw new CustomError('Music item not found', 404);
       }
 
-      // Check if user already rated this item
       const existingRating = await pool.query(
         'SELECT id FROM ratings WHERE user_id = $1 AND music_item_id = $2',
         [req.userId, musicItemId]
@@ -41,7 +38,7 @@ router.post(
 
       let ratingResult;
       if (existingRating.rows.length > 0) {
-        // Update existing rating
+        
         ratingResult = await pool.query(
           `UPDATE ratings 
            SET rating = $1, tags = $2, updated_at = NOW()
@@ -50,7 +47,7 @@ router.post(
           [rating, JSON.stringify(tags || []), req.userId, musicItemId]
         );
       } else {
-        // Create new rating
+        
         ratingResult = await pool.query(
           `INSERT INTO ratings (user_id, music_item_id, rating, tags)
            VALUES ($1, $2, $3, $4)
@@ -59,7 +56,6 @@ router.post(
         );
       }
 
-      // Recalculate music item average rating
       await pool.query(
         `UPDATE music_items 
          SET updated_at = NOW()
@@ -94,7 +90,6 @@ router.post(
   }
 );
 
-// Get ratings for a music item
 router.get(
   '/:musicItemId',
   authMiddleware,
@@ -138,7 +133,6 @@ router.get(
   }
 );
 
-// Get user's ratings
 router.get(
   '/user/:userId',
   authMiddleware,
@@ -149,7 +143,6 @@ router.get(
       const limit = parseInt(req.query.limit as string) || 20;
       const offset = (page - 1) * limit;
 
-      // Users can only see their own ratings unless they're admin
       if (userId !== req.userId && req.userRole !== 'admin') {
         throw new CustomError('Forbidden', 403);
       }
@@ -196,4 +189,3 @@ router.get(
 );
 
 export default router;
-

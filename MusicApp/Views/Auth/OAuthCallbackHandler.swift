@@ -1,10 +1,3 @@
-//
-//  OAuthCallbackHandler.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 import Combine
 
@@ -15,7 +8,7 @@ struct OAuthCallbackHandler: ViewModifier {
     func body(content: Content) -> some View {
         content
             .onAppear {
-                // Listen for OAuth callbacks
+                
                 NotificationCenter.default.publisher(for: NSNotification.Name("OAuthCallback"))
                     .sink { notification in
                         guard let userInfo = notification.userInfo,
@@ -57,7 +50,6 @@ struct OAuthCallbackHandler: ViewModifier {
                     }
             }
             
-            // Also listen for Apple Sign In success notification
             NotificationCenter.default.publisher(for: NSNotification.Name("AppleSignInSuccess"))
                 .sink { notification in
                     guard let userInfo = notification.userInfo,
@@ -92,4 +84,3 @@ extension View {
         modifier(OAuthCallbackHandler(viewModel: viewModel))
     }
 }
-

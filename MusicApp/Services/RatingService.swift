@@ -1,10 +1,3 @@
-//
-//  RatingService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 class RatingService {
@@ -50,4 +43,3 @@ class RatingService {
         return data
     }
 }
-

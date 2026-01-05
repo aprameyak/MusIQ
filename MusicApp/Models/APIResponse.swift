@@ -1,10 +1,3 @@
-//
-//  APIResponse.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 struct APIResponse<T: Codable>: Codable {
@@ -27,4 +20,3 @@ struct PaginatedResponse<T: Codable>: Codable {
     let total: Int
     let hasMore: Bool
 }
-

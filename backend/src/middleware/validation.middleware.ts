@@ -20,7 +20,6 @@ export const validate = (validations: ValidationChain[]) => {
   };
 };
 
-// Common validation rules
 export const signupValidation = [
   body('email')
     .isEmail()
@@ -65,4 +64,3 @@ export const ratingValidation = [
     .isString()
     .withMessage('Each tag must be a string')
 ];
-

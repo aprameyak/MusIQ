@@ -7,7 +7,6 @@ import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 const router = Router();
 const authService = new AuthService();
 
-// Signup
 router.post(
   '/signup',
   authLimiter,
@@ -28,7 +27,6 @@ router.post(
   }
 );
 
-// Login
 router.post(
   '/login',
   authLimiter,
@@ -53,7 +51,6 @@ router.post(
   }
 );
 
-// Refresh token
 router.post(
   '/refresh',
   async (req, res, next) => {
@@ -84,7 +81,6 @@ router.post(
   }
 );
 
-// Logout
 router.post(
   '/logout',
   authMiddleware,
@@ -106,7 +102,6 @@ router.post(
   }
 );
 
-// Get current user
 router.get(
   '/me',
   authMiddleware,
@@ -136,7 +131,6 @@ router.get(
         return;
       }
 
-      // Remove sensitive data
       const { password_hash, ...userData } = user;
 
       res.json({
@@ -150,4 +144,3 @@ router.get(
 );
 
 export default router;
-

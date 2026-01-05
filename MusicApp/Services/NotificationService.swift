@@ -1,10 +1,3 @@
-//
-//  NotificationService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 class NotificationService {
@@ -17,7 +10,7 @@ class NotificationService {
         )
         
         guard response.success, let data = response.data else {
-            // Return mock data if API fails
+            
             return getMockNotifications()
         }
         
@@ -42,7 +35,6 @@ class NotificationService {
         ) as APIResponse<EmptyResponse>
     }
     
-    // Mock data for development
     private func getMockNotifications() -> [AppNotification] {
         let formatter = ISO8601DateFormatter()
         let now = Date()
@@ -56,7 +48,7 @@ class NotificationService {
                 message: "Your 10/10 rating pushed \"ASTROWORLD\" up 12 spots in the charts",
                 read: false,
                 metadata: nil,
-                createdAt: now.addingTimeInterval(-120) // 2 min ago
+                createdAt: now.addingTimeInterval(-120) 
             ),
             AppNotification(
                 id: "2",
@@ -66,7 +58,7 @@ class NotificationService {
                 message: "You've unlocked 'Taste Maker' - 100 ratings milestone",
                 read: false,
                 metadata: nil,
-                createdAt: now.addingTimeInterval(-3600) // 1 hour ago
+                createdAt: now.addingTimeInterval(-3600) 
             ),
             AppNotification(
                 id: "3",
@@ -76,9 +68,8 @@ class NotificationService {
                 message: "Sarah Wilson has 87% taste compatibility with you!",
                 read: false,
                 metadata: nil,
-                createdAt: now.addingTimeInterval(-10800) // 3 hours ago
+                createdAt: now.addingTimeInterval(-10800) 
             )
         ]
     }
 }
-

@@ -1,16 +1,9 @@
-//
-//  AuthToken.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 struct AuthToken: Codable {
     let accessToken: String
     let refreshToken: String
-    let expiresIn: Int // seconds
+    let expiresIn: Int 
     let tokenType: String
     
     enum CodingKeys: String, CodingKey {
@@ -37,8 +30,7 @@ struct RefreshTokenRequest: Codable {
 }
 
 struct OAuthRequest: Codable {
-    let provider: String // "apple", "google", "spotify"
+    let provider: String 
     let token: String
     let idToken: String?
 }
-

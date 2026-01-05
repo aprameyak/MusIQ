@@ -1,10 +1,3 @@
-//
-//  ProfileService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 class ProfileService {
@@ -30,7 +23,7 @@ class ProfileService {
         )
         
         guard response.success, let data = response.data else {
-            // Return mock data if API fails
+            
             return TasteProfileResponse(
                 tasteScore: 87,
                 totalRatings: 342,
@@ -80,4 +73,3 @@ class ProfileService {
         return data
     }
 }
-

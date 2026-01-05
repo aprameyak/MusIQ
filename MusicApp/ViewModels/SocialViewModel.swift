@@ -1,10 +1,3 @@
-//
-//  SocialViewModel.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import SwiftUI
 
@@ -28,7 +21,7 @@ class SocialViewModel: ObservableObject {
             friends = try await socialService.getFriends()
         } catch {
             errorMessage = error.localizedDescription
-            // Load mock data on error
+            
             loadMockData()
         }
         
@@ -59,7 +52,7 @@ class SocialViewModel: ObservableObject {
                 id: "1",
                 name: "Sarah Wilson",
                 username: "@sarahmusic",
-                avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
+                avatar: "https:
                 compatibility: 87,
                 topGenre: "R&B",
                 sharedArtists: 42,
@@ -69,7 +62,7 @@ class SocialViewModel: ObservableObject {
                 id: "2",
                 name: "Mike Chen",
                 username: "@mikebeats",
-                avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+                avatar: "https:
                 compatibility: 73,
                 topGenre: "Hip-Hop",
                 sharedArtists: 28,
@@ -79,7 +72,7 @@ class SocialViewModel: ObservableObject {
                 id: "3",
                 name: "Emma Davis",
                 username: "@emmad",
-                avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+                avatar: "https:
                 compatibility: 92,
                 topGenre: "Pop",
                 sharedArtists: 56,
@@ -88,4 +81,3 @@ class SocialViewModel: ObservableObject {
         ]
     }
 }
-

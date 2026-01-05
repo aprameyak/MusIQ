@@ -1,10 +1,3 @@
-//
-//  RatingModalView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct RatingModalView: View {
@@ -15,16 +8,15 @@ struct RatingModalView: View {
     
     var body: some View {
         ZStack {
-            // Backdrop
+            
             Color.black.opacity(0.8)
                 .ignoresSafeArea()
                 .onTapGesture {
                     onClose()
                 }
             
-            // Modal
             VStack(spacing: 0) {
-                // Header
+                
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Rate this music")
@@ -48,7 +40,7 @@ struct RatingModalView: View {
                 .padding(AppStyles.paddingLarge)
                 
                 if let item = item {
-                    // Album info
+                    
                     HStack(spacing: 16) {
                         AsyncImage(url: URL(string: item.imageUrl)) { image in
                             image
@@ -95,7 +87,6 @@ struct RatingModalView: View {
                     .cornerRadius(AppStyles.cornerRadiusMedium)
                     .padding(.horizontal, AppStyles.paddingLarge)
                     
-                    // Star rating
                     VStack(spacing: 16) {
                         Text("Your rating")
                             .font(.system(size: 14))
@@ -135,7 +126,6 @@ struct RatingModalView: View {
                     .padding(.horizontal, AppStyles.paddingLarge)
                     .padding(.top, AppStyles.paddingLarge)
                     
-                    // Tags
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Add tags (optional)")
                             .font(.system(size: 14))
@@ -169,7 +159,6 @@ struct RatingModalView: View {
                     .padding(.horizontal, AppStyles.paddingLarge)
                     .padding(.top, AppStyles.paddingLarge)
                     
-                    // Submit button
                     Button(action: {
                         Task {
                             if await viewModel.submitRating(for: item.id) {
@@ -204,7 +193,6 @@ struct RatingModalView: View {
     }
 }
 
-// Flow layout for tags
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
     
@@ -264,7 +252,7 @@ struct FlowLayout: Layout {
             type: .album,
             title: "ASTROWORLD",
             artist: "Travis Scott",
-            imageUrl: "https://images.unsplash.com/photo-1738667289162-9e55132e18a2?w=400&h=400&fit=crop",
+            imageUrl: "https:
             rating: 8.7,
             ratingCount: 234500,
             trending: true,
@@ -277,4 +265,3 @@ struct FlowLayout: Layout {
         onSubmit: { _, _ in }
     )
 }
-

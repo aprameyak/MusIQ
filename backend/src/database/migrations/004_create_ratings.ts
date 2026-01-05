@@ -11,11 +11,9 @@ export async function up(knex: Knex): Promise<void> {
     table.unique(['user_id', 'music_item_id']);
   });
 
-  // Index for faster queries
   await knex.schema.raw('CREATE INDEX idx_ratings_user_music ON ratings(user_id, music_item_id)');
 }
 
 export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists('ratings');
 }
-

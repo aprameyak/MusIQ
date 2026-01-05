@@ -1,10 +1,3 @@
-//
-//  MusicAppApp.swift
-//  MusicApp
-//
-//  Created by Aprameya Kannan on 1/5/26.
-//
-
 import SwiftUI
 
 @main
@@ -16,15 +9,14 @@ struct MusicAppApp: App {
             ContentView()
                 .environmentObject(appState)
                 .onOpenURL { url in
-                    // Handle OAuth callbacks
+                    
                     handleOAuthCallback(url: url)
                 }
         }
     }
     
     private func handleOAuthCallback(url: URL) {
-        // Parse OAuth callback URL
-        // Format: com.musicapp://oauth/{provider}/callback?code=...
+        
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         
         guard let host = url.host,
@@ -33,7 +25,6 @@ struct MusicAppApp: App {
             return
         }
         
-        // Determine provider from URL path
         var provider: OAuthProviderType?
         if host.contains("google") {
             provider = .google
@@ -47,10 +38,8 @@ struct MusicAppApp: App {
             return
         }
         
-        // Get ID token if available
         let idToken = queryItems.first(where: { $0.name == "id_token" })?.value
         
-        // Post notification to handle OAuth callback
         NotificationCenter.default.post(
             name: NSNotification.Name("OAuthCallback"),
             object: nil,

@@ -1,13 +1,5 @@
-//
-//  AnimationHelpers.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
-// Animation helpers and modifiers
 extension View {
     func fadeIn(delay: Double = 0) -> some View {
         self.modifier(FadeInModifier(delay: delay))
@@ -69,4 +61,3 @@ struct ScaleInModifier: ViewModifier {
             }
     }
 }
-

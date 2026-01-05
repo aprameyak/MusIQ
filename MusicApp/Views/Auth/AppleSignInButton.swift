@@ -1,10 +1,3 @@
-//
-//  AppleSignInButton.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 import AuthenticationServices
 
@@ -22,30 +15,26 @@ struct AppleSignInButton: View {
                 case .success(let authorization):
                     switch authorization.credential {
                     case let appleIDCredential as ASAuthorizationAppleIDCredential:
-                        // Get identity token
+                        
                         guard let identityTokenData = appleIDCredential.identityToken,
                               let identityToken = String(data: identityTokenData, encoding: .utf8) else {
                             onError(NSError(domain: "AppleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get identity token"]))
                             return
                         }
                         
-                        // Get authorization code
                         guard let authorizationCodeData = appleIDCredential.authorizationCode,
                               let authorizationCode = String(data: authorizationCodeData, encoding: .utf8) else {
                             onError(NSError(domain: "AppleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get authorization code"]))
                             return
                         }
                         
-                        // Get user info (only available on first sign in)
                         let email = appleIDCredential.email
                         let fullName = appleIDCredential.fullName
                         let name = fullName != nil ? "\(fullName?.givenName ?? "") \(fullName?.familyName ?? "")".trimmingCharacters(in: .whitespaces) : nil
                         let userIdentifier = appleIDCredential.user
                         
-                        // Store user identifier for future sign-ins
                         UserDefaults.standard.set(userIdentifier, forKey: "appleUserIdentifier")
                         
-                        // Pass all info via notification for AuthViewModel to handle
                         NotificationCenter.default.post(
                             name: NSNotification.Name("AppleSignInSuccess"),
                             object: nil,
@@ -80,4 +69,3 @@ struct AppleSignInButton: View {
         onError: { _ in }
     )
 }
-

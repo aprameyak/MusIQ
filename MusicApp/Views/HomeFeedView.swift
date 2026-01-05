@@ -1,10 +1,3 @@
-//
-//  HomeFeedView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct HomeFeedView: View {
@@ -17,7 +10,7 @@ struct HomeFeedView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
+                
                 VStack(spacing: 16) {
                     HStack {
                         Text("Pulse")
@@ -41,7 +34,6 @@ struct HomeFeedView: View {
                         }
                     }
                     
-                    // Filter tabs
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(FeedFilter.allCases, id: \.self) { filter in
@@ -91,7 +83,6 @@ struct HomeFeedView: View {
                 .padding(.top, AppStyles.paddingLarge)
                 .padding(.bottom, AppStyles.paddingMedium)
                 
-                // Feed
                 if viewModel.isLoading {
                     Spacer()
                     ProgressView()
@@ -140,7 +131,7 @@ struct HomeFeedView: View {
                         ratingViewModel.reset()
                     },
                     onSubmit: { rating, tags in
-                        // Rating submitted
+                        
                         Task {
                             await viewModel.refreshFeed()
                         }
@@ -165,4 +156,3 @@ struct HomeFeedView: View {
 #Preview {
     HomeFeedView()
 }
-

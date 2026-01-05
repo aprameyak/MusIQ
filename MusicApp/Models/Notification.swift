@@ -1,10 +1,3 @@
-//
-//  Notification.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 enum NotificationType: String, Codable {
@@ -72,4 +65,3 @@ extension AppNotification {
         return formatter.localizedString(for: createdAt, relativeTo: Date())
     }
 }
-

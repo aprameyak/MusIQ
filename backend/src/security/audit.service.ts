@@ -33,7 +33,7 @@ export class AuditService {
       logger.info('Audit log created', data);
     } catch (error) {
       logger.error('Failed to create audit log', error);
-      // Don't throw - audit logging should not break the application
+      
     }
   }
 
@@ -54,4 +54,3 @@ export class AuditService {
     return result.rows;
   }
 }
-

@@ -1,10 +1,3 @@
-//
-//  OAuthService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import AuthenticationServices
 #if canImport(AppAuth)
@@ -32,35 +25,25 @@ class OAuthService {
         self.authService = authService
     }
     
-    // MARK: - Apple Sign In (Native)
-    // Apple Sign In is handled directly in AppleSignInButton using AuthenticationServices
-    // This method is not needed as the button handles the flow
-    
-    // MARK: - Google Sign In (AppAuth)
     #if canImport(AppAuth)
     func signInWithGoogle() async throws -> AuthToken {
-        // AppAuth implementation for Google
-        // Configuration
-        guard let googleIssuer = URL(string: "https://accounts.google.com"),
-              let redirectURI = URL(string: "com.musicapp://oauth/callback") else {
+        
+        guard let googleIssuer = URL(string: "https:
+              let redirectURI = URL(string: "com.musicapp:
             throw NetworkError.invalidURL
         }
         
-        // Discover configuration
         let configuration = try await OIDAuthorizationService.discoverConfiguration(forIssuer: googleIssuer)
         
-        // Create authorization request
         let request = OIDAuthorizationRequest(
             configuration: configuration,
-            clientId: "YOUR_GOOGLE_CLIENT_ID", // From .env or config
+            clientId: "YOUR_GOOGLE_CLIENT_ID", 
             scopes: [OIDScopeOpenID, OIDScopeProfile, OIDScopeEmail, "openid"],
             redirectURL: redirectURI,
             responseType: OIDResponseTypeCode,
             additionalParameters: nil
         )
         
-        // This needs to be handled in the view with OIDAuthState
-        // For now, return error indicating it needs view-level handling
         throw NetworkError.unknown(NSError(domain: "OAuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Google Sign In requires AppAuth view controller"]))
     }
     #else
@@ -69,22 +52,19 @@ class OAuthService {
     }
     #endif
     
-    // MARK: - Spotify OAuth (AppAuth)
     #if canImport(AppAuth)
     func signInWithSpotify() async throws -> AuthToken {
-        // Spotify OAuth implementation
-        guard let spotifyIssuer = URL(string: "https://accounts.spotify.com"),
-              let redirectURI = URL(string: "com.musicapp://oauth/spotify/callback") else {
+        
+        guard let spotifyIssuer = URL(string: "https:
+              let redirectURI = URL(string: "com.musicapp:
             throw NetworkError.invalidURL
         }
         
-        // Discover configuration
         let configuration = try await OIDAuthorizationService.discoverConfiguration(forIssuer: spotifyIssuer)
         
-        // Create authorization request
         let request = OIDAuthorizationRequest(
             configuration: configuration,
-            clientId: "YOUR_SPOTIFY_CLIENT_ID", // From .env or config
+            clientId: "YOUR_SPOTIFY_CLIENT_ID", 
             scopes: ["user-read-email", "user-read-private"],
             redirectURL: redirectURI,
             responseType: OIDResponseTypeCode,
@@ -99,9 +79,8 @@ class OAuthService {
     }
     #endif
     
-    // MARK: - Handle OAuth Callback
     func handleOAuthCallback(authorizationCode: String, provider: OAuthProviderType, idToken: String? = nil, email: String? = nil, name: String? = nil, userIdentifier: String? = nil) async throws -> AuthToken {
-        // Prepare request with all available OAuth data
+        
         var requestBody: [String: Any] = [
             "token": authorizationCode
         ]
@@ -122,7 +101,6 @@ class OAuthService {
             requestBody["userIdentifier"] = userIdentifier
         }
         
-        // Create encodable request
         struct OAuthRequestBody: Codable {
             let token: String
             let idToken: String?
@@ -153,4 +131,3 @@ class OAuthService {
         return data
     }
 }
-

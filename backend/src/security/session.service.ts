@@ -13,7 +13,7 @@ export class SessionService {
   private readonly maxSessions = 5;
 
   async createSession(userId: string, _deviceId?: string, _ipAddress?: string, _userAgent?: string): Promise<string> {
-    // Check current session count
+    
     const activeSessions = await this.pool.query(
       `SELECT COUNT(*) as count
        FROM refresh_tokens
@@ -23,13 +23,10 @@ export class SessionService {
 
     const sessionCount = parseInt(activeSessions.rows[0].count);
 
-    // If max sessions reached, revoke oldest session
     if (sessionCount >= this.maxSessions) {
       await this.revokeOldestSession(userId);
     }
 
-    // Session is created via refresh token in auth service
-    // This service just manages session limits
     logger.info('Session created', { userId, deviceId: _deviceId });
     return 'session-created';
   }
@@ -93,4 +90,3 @@ export class SessionService {
     logger.info('Expired sessions cleaned up', { count: result.rowCount });
   }
 }
-

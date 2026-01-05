@@ -1,10 +1,3 @@
-//
-//  TasteProfileViewModel.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import SwiftUI
 
@@ -55,19 +48,16 @@ class TasteProfileViewModel: ObservableObject {
             totalRatings = profile.totalRatings
             influence = profile.influence
             
-            // Load genre data
             genreData = profile.genreAffinity.map { GenreData(name: $0.key, value: $0.value) }
             
-            // Load decade data
             decadeData = profile.decadePreference.map { DecadeData(decade: $0.key, value: $0.value) }
             
-            // Load radar data
             radarData = profile.attributes.map { RadarData(category: $0.key, value: $0.value) }
             
             controversyAffinity = profile.controversyAffinity
         } catch {
             errorMessage = error.localizedDescription
-            // Load mock data on error
+            
             loadMockData()
         }
         
@@ -104,7 +94,6 @@ class TasteProfileViewModel: ObservableObject {
     }
 }
 
-// Temporary struct for API response (will be replaced with actual API)
 struct TasteProfileResponse: Codable {
     let tasteScore: Int
     let totalRatings: Int
@@ -114,4 +103,3 @@ struct TasteProfileResponse: Codable {
     let attributes: [String: Int]
     let controversyAffinity: Int
 }
-

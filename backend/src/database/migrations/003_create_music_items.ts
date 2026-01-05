@@ -3,7 +3,7 @@ import { Knex } from 'knex';
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('music_items', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
-    table.string('type').notNullable(); // 'album', 'song', 'artist'
+    table.string('type').notNullable(); 
     table.string('title').notNullable().index();
     table.string('artist').notNullable().index();
     table.string('image_url').nullable();
@@ -17,4 +17,3 @@ export async function up(knex: Knex): Promise<void> {
 export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists('music_items');
 }
-

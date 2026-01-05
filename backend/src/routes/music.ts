@@ -7,7 +7,6 @@ import { searchLimiter } from '../middleware/rate-limit.middleware';
 const router = Router();
 const pool = getDatabasePool();
 
-// Get music feed
 router.get(
   '/feed',
   authMiddleware,
@@ -32,12 +31,10 @@ router.get(
       const queryParams: any[] = [];
       let paramCount = 1;
 
-      // Apply filter
       if (filter === 'trending') {
         query += ` AND r.created_at > NOW() - INTERVAL '7 days'`;
       } else if (filter === 'forYou') {
-        // For "For You", we'd implement personalized recommendations
-        // For now, just return all items
+        
       }
 
       query += ` GROUP BY mi.id ORDER BY `;
@@ -53,7 +50,6 @@ router.get(
 
       const result = await pool.query(query, queryParams);
 
-      // Format response
       const items = result.rows.map(row => ({
         id: row.id,
         type: row.type,
@@ -79,7 +75,6 @@ router.get(
   }
 );
 
-// Get music item by ID
 router.get(
   '/:id',
   authMiddleware,
@@ -127,7 +122,6 @@ router.get(
   }
 );
 
-// Search music
 router.get(
   '/search',
   searchLimiter,
@@ -184,4 +178,3 @@ router.get(
 );
 
 export default router;
-

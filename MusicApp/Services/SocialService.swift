@@ -1,10 +1,3 @@
-//
-//  SocialService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 class SocialService {
@@ -68,4 +61,3 @@ struct TasteComparison: Codable {
     let sharedArtists: Int
     let sharedGenres: [String]
 }
-

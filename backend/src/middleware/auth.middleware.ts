@@ -31,7 +31,6 @@ export const authMiddleware = async (
       throw new CustomError('Invalid or expired token', 401);
     }
 
-    // Verify user still exists and is not deleted
     const pool = getDatabasePool();
     const userResult = await pool.query(
       'SELECT id, email, role FROM users WHERE id = $1 AND deleted_at IS NULL',
@@ -44,7 +43,6 @@ export const authMiddleware = async (
 
     const user = userResult.rows[0];
 
-    // Attach user info to request
     req.userId = user.id;
     req.userEmail = user.email;
     req.userRole = user.role;
@@ -54,4 +52,3 @@ export const authMiddleware = async (
     next(error);
   }
 };
-

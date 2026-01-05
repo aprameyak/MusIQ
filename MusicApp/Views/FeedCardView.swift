@@ -1,10 +1,3 @@
-//
-//  FeedCardView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct FeedCardView: View {
@@ -17,7 +10,7 @@ struct FeedCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Album artwork
+            
             ZStack(alignment: .topTrailing) {
                 AsyncImage(url: URL(string: item.imageUrl)) { image in
                     image
@@ -35,7 +28,6 @@ struct FeedCardView: View {
                 .cornerRadius(AppStyles.cornerRadiusMedium)
                 .clipped()
                 
-                // Play overlay for songs
                 if item.type == .song {
                     ZStack {
                         Color.black.opacity(0.4)
@@ -48,7 +40,6 @@ struct FeedCardView: View {
                     }
                 }
                 
-                // Trending badge
                 if item.trending == true {
                     ZStack {
                         Circle()
@@ -63,9 +54,8 @@ struct FeedCardView: View {
                 }
             }
             
-            // Content
             VStack(alignment: .leading, spacing: 8) {
-                // Title and artist
+                
                 VStack(alignment: .leading, spacing: 4) {
                     Text(item.title)
                         .font(.system(size: 16, weight: .semibold))
@@ -78,7 +68,6 @@ struct FeedCardView: View {
                         .lineLimit(1)
                 }
                 
-                // Rating display
                 HStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
@@ -107,7 +96,6 @@ struct FeedCardView: View {
                     }
                 }
                 
-                // Action buttons
                 HStack(spacing: 8) {
                     Button(action: {
                         isFavorited.toggle()
@@ -169,7 +157,7 @@ struct FeedCardView: View {
             type: .album,
             title: "ASTROWORLD",
             artist: "Travis Scott",
-            imageUrl: "https://images.unsplash.com/photo-1738667289162-9e55132e18a2?w=400&h=400&fit=crop",
+            imageUrl: "https:
             rating: 8.7,
             ratingCount: 234500,
             trending: true,
@@ -185,4 +173,3 @@ struct FeedCardView: View {
     .padding()
     .background(AppColors.background)
 }
-

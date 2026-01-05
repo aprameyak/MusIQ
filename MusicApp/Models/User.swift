@@ -1,10 +1,3 @@
-//
-//  User.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 enum UserRole: String, Codable {
@@ -97,4 +90,3 @@ struct UserProfile: Codable {
     let totalRatings: Int
     let influence: Int
 }
-

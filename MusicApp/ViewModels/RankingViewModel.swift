@@ -1,10 +1,3 @@
-//
-//  RankingViewModel.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import SwiftUI
 
@@ -31,7 +24,7 @@ struct RankingItem: Identifiable, Codable {
     let rating: Double
     let ratingCount: Int
     let isNew: Bool
-    let change: Int // positive = up, negative = down, 0 = no change
+    let change: Int 
 }
 
 @MainActor
@@ -55,7 +48,7 @@ class RankingViewModel: ObservableObject {
             rankings = try await rankingService.getRankings(type: activeType.rawValue)
         } catch {
             errorMessage = error.localizedDescription
-            // Load mock data on error
+            
             loadMockData()
         }
         
@@ -76,7 +69,7 @@ class RankingViewModel: ObservableObject {
                 rank: 1,
                 title: "To Pimp a Butterfly",
                 artist: "Kendrick Lamar",
-                imageUrl: "https://images.unsplash.com/photo-1616663395403-2e0052b8e595?w=400&h=400&fit=crop",
+                imageUrl: "https:
                 rating: 9.7,
                 ratingCount: 892000,
                 isNew: false,
@@ -87,7 +80,7 @@ class RankingViewModel: ObservableObject {
                 rank: 2,
                 title: "My Beautiful Dark Twisted Fantasy",
                 artist: "Kanye West",
-                imageUrl: "https://images.unsplash.com/photo-1738667289162-9e55132e18a2?w=400&h=400&fit=crop",
+                imageUrl: "https:
                 rating: 9.6,
                 ratingCount: 856000,
                 isNew: false,
@@ -98,7 +91,7 @@ class RankingViewModel: ObservableObject {
                 rank: 3,
                 title: "Blonde",
                 artist: "Frank Ocean",
-                imageUrl: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=400&h=400&fit=crop",
+                imageUrl: "https:
                 rating: 9.5,
                 ratingCount: 678000,
                 isNew: false,
@@ -107,4 +100,3 @@ class RankingViewModel: ObservableObject {
         ]
     }
 }
-

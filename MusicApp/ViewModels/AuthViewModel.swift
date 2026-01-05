@@ -1,10 +1,3 @@
-//
-//  AuthViewModel.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import SwiftUI
 
@@ -31,15 +24,12 @@ class AuthViewModel: ObservableObject {
             let request = LoginRequest(email: email, password: password)
             let token = try await authService.login(request: request)
             
-            // Store tokens securely
             KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
             KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
             
-            // Fetch user profile
             let user = try await authService.getCurrentUser()
             isAuthenticated = true
             
-            // Update app state
             if let appState = try? await getAppState() {
                 appState.authenticate(user: user)
             }
@@ -58,15 +48,12 @@ class AuthViewModel: ObservableObject {
             let request = SignupRequest(email: email, username: username, password: password)
             let token = try await authService.signup(request: request)
             
-            // Store tokens securely
             KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
             KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
             
-            // Fetch user profile
             let user = try await authService.getCurrentUser()
             isAuthenticated = true
             
-            // Update app state
             let appState = getAppState()
             appState.authenticate(user: user)
         } catch {
@@ -91,15 +78,12 @@ class AuthViewModel: ObservableObject {
                 userIdentifier: userIdentifier
             )
             
-            // Store tokens securely
             KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
             KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
             
-            // Fetch user profile
             let user = try await authService.getCurrentUser()
             isAuthenticated = true
             
-            // Update app state
             let appState = getAppState()
             appState.authenticate(user: user)
         } catch {
@@ -121,15 +105,12 @@ class AuthViewModel: ObservableObject {
                 idToken: idToken
             )
             
-            // Store tokens securely
             KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
             KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
             
-            // Fetch user profile
             let user = try await authService.getCurrentUser()
             isAuthenticated = true
             
-            // Update app state
             let appState = getAppState()
             appState.authenticate(user: user)
         } catch {
@@ -150,15 +131,12 @@ class AuthViewModel: ObservableObject {
                 provider: .spotify
             )
             
-            // Store tokens securely
             KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
             KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
             
-            // Fetch user profile
             let user = try await authService.getCurrentUser()
             isAuthenticated = true
             
-            // Update app state
             let appState = getAppState()
             appState.authenticate(user: user)
         } catch {
@@ -169,9 +147,7 @@ class AuthViewModel: ObservableObject {
     }
     
     private func getAppState() -> AppState {
-        // This would typically be injected via environment
-        // For now, we'll access it through a shared instance
+        
         return AppState.shared
     }
 }
-

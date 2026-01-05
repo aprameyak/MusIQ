@@ -1,10 +1,3 @@
-//
-//  Friend.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 enum FriendshipStatus: String, Codable {
@@ -18,7 +11,7 @@ struct Friend: Identifiable, Codable {
     let name: String
     let username: String
     let avatar: String
-    let compatibility: Int // 0-100
+    let compatibility: Int 
     let topGenre: String
     let sharedArtists: Int
     let status: FriendshipStatus?
@@ -78,4 +71,3 @@ struct Friendship: Identifiable, Codable {
         try container.encode(formatter.string(from: updatedAt), forKey: .updatedAt)
     }
 }
-

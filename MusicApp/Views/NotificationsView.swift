@@ -1,10 +1,3 @@
-//
-//  NotificationsView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
 struct NotificationsView: View {
@@ -20,7 +13,7 @@ struct NotificationsView: View {
                     .tint(AppColors.primaryGreen)
             } else {
                 VStack(spacing: 0) {
-                    // Header
+                    
                     HStack {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Notifications")
@@ -98,13 +91,13 @@ struct NotificationCardView: View {
     
     var body: some View {
         HStack(spacing: 0) {
-            // Accent line
+            
             Rectangle()
                 .fill(color)
                 .frame(width: 4)
             
             HStack(spacing: 16) {
-                // Icon
+                
                 ZStack {
                     Circle()
                         .fill(color.opacity(0.2))
@@ -115,7 +108,6 @@ struct NotificationCardView: View {
                         .foregroundColor(color)
                 }
                 
-                // Content
                 VStack(alignment: .leading, spacing: 8) {
                     Text(notification.title)
                         .font(.system(size: 16, weight: .semibold))
@@ -140,7 +132,6 @@ struct NotificationCardView: View {
             onTap()
         }
         
-        // Impact notification special styling
         if notification.type == .impact {
             VStack(spacing: 0) {
                 Rectangle()
@@ -194,4 +185,3 @@ struct NotificationCardView: View {
 #Preview {
     NotificationsView()
 }
-

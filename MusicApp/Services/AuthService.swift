@@ -1,10 +1,3 @@
-//
-//  AuthService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 class AuthService {
@@ -82,4 +75,3 @@ class AuthService {
 
 struct EmptyBody: Encodable {}
 struct EmptyResponse: Decodable {}
-

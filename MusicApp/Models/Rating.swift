@@ -1,17 +1,10 @@
-//
-//  Rating.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 struct Rating: Identifiable, Codable {
     let id: String
     let userId: String
     let musicItemId: String
-    let rating: Int // 1-10
+    let rating: Int 
     let tags: [String]
     let createdAt: Date
     let updatedAt: Date
@@ -65,4 +58,3 @@ struct RatingResponse: Codable {
     let rating: Rating
     let message: String
 }
-

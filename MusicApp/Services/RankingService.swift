@@ -1,10 +1,3 @@
-//
-//  RankingService.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 
 class RankingService {
@@ -18,11 +11,10 @@ class RankingService {
         )
         
         guard response.success, let data = response.data else {
-            // Return empty array if API fails
+            
             return []
         }
         
         return data
     }
 }
-

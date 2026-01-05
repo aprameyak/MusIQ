@@ -14,7 +14,7 @@ export const getDatabasePool = (): Pool => {
     const config: PoolConfig = {
       connectionString,
       ssl: {
-        rejectUnauthorized: false // Required for Neon DB
+        rejectUnauthorized: false 
       },
       max: parseInt(process.env.DB_POOL_MAX || '10'),
       min: parseInt(process.env.DB_POOL_MIN || '2'),
@@ -46,7 +46,6 @@ export const closeDatabasePool = async (): Promise<void> => {
   }
 };
 
-// Test database connection
 export const testConnection = async (): Promise<boolean> => {
   try {
     const testPool = getDatabasePool();
@@ -58,4 +57,3 @@ export const testConnection = async (): Promise<boolean> => {
     return false;
   }
 };
-

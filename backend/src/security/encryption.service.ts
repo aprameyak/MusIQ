@@ -11,10 +11,9 @@ export class EncryptionService {
   private encryptedPosition = this.tagPosition + this.tagLength;
 
   private getKey(): Buffer {
-    // In production, get from Azure Key Vault or environment variable
+    
     const key = process.env.ENCRYPTION_KEY || 'default-encryption-key-change-in-production-32-chars!!';
     
-    // Ensure key is exactly 32 bytes
     return crypto.scryptSync(key, 'salt', this.keyLength);
   }
 
@@ -32,7 +31,6 @@ export class EncryptionService {
 
       const tag = (cipher as any).getAuthTag();
 
-      // Combine: salt + iv + tag + encrypted
       return Buffer.concat([
         salt,
         iv,
@@ -73,4 +71,3 @@ export class EncryptionService {
     return crypto.createHash('sha256').update(text).digest('hex');
   }
 }
-

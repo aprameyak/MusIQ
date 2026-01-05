@@ -1,10 +1,3 @@
-//
-//  TasteProfileView.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 import Charts
 
@@ -22,7 +15,7 @@ struct TasteProfileView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 24) {
-                        // Header
+                        
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Your Taste DNA")
                                 .font(.system(size: 32, weight: .bold))
@@ -36,7 +29,6 @@ struct TasteProfileView: View {
                         .padding(.horizontal, AppStyles.paddingMedium)
                         .padding(.top, AppStyles.paddingLarge)
                         
-                        // Stats cards
                         HStack(spacing: 12) {
                             StatCard(
                                 icon: "sparkles",
@@ -73,7 +65,6 @@ struct TasteProfileView: View {
                         }
                         .padding(.horizontal, AppStyles.paddingMedium)
                         
-                        // Genre Affinity
                         VStack(alignment: .leading, spacing: 16) {
                             HStack(spacing: 8) {
                                 Image(systemName: "music.note")
@@ -111,7 +102,6 @@ struct TasteProfileView: View {
                         .cardStyle()
                         .padding(.horizontal, AppStyles.paddingMedium)
                         
-                        // Decade Preference
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Decade Preference")
                                 .font(.system(size: 18, weight: .semibold))
@@ -152,7 +142,6 @@ struct TasteProfileView: View {
                         .cardStyle()
                         .padding(.horizontal, AppStyles.paddingMedium)
                         
-                        // Music Attributes (Radar Chart placeholder - simplified as bar chart)
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Music Attributes")
                                 .font(.system(size: 18, weight: .semibold))
@@ -193,7 +182,6 @@ struct TasteProfileView: View {
                         .cardStyle()
                         .padding(.horizontal, AppStyles.paddingMedium)
                         
-                        // Controversy Affinity
                         VStack(alignment: .leading, spacing: 16) {
                             Text("Controversy Affinity")
                                 .font(.system(size: 18, weight: .semibold))
@@ -286,4 +274,3 @@ struct StatCard: View {
 #Preview {
     TasteProfileView()
 }
-

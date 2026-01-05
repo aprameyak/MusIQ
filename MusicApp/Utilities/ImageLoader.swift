@@ -1,13 +1,5 @@
-//
-//  ImageLoader.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import SwiftUI
 
-// AsyncImage is already built into SwiftUI, so this is a helper extension
 extension AsyncImage {
     static func musicImage(url: String, placeholder: String = "music.note") -> some View {
         AsyncImage(url: URL(string: url)) { phase in
@@ -37,4 +29,3 @@ extension AsyncImage {
         }
     }
 }
-

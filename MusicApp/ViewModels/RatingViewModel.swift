@@ -1,10 +1,3 @@
-//
-//  RatingViewModel.swift
-//  MusicApp
-//
-//  Created on 1/5/26.
-//
-
 import Foundation
 import SwiftUI
 
@@ -58,7 +51,6 @@ class RatingViewModel: ObservableObject {
             
             _ = try await ratingService.submitRating(request: request)
             
-            // Reset form
             rating = 0
             hoverRating = 0
             selectedTags = []
@@ -79,4 +71,3 @@ class RatingViewModel: ObservableObject {
         errorMessage = nil
     }
 }
-
