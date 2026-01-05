@@ -1,5 +1,4 @@
 import rateLimit from 'express-rate-limit';
-import { Request, Response } from 'express';
 
 // General API rate limiter
 export const apiLimiter = rateLimit({

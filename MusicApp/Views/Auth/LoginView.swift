@@ -117,31 +117,33 @@ struct LoginView: View {
                     .padding(.horizontal, AppStyles.paddingLarge)
                     
                     HStack(spacing: 12) {
-                        Button(action: {
-                            Task {
-                                await viewModel.loginWithApple()
+                        AppleSignInButton(
+                            onSuccess: { code, idToken in
+                                Task {
+                                    await viewModel.loginWithApple(
+                                        authorizationCode: code,
+                                        identityToken: idToken
+                                    )
+                                }
+                            },
+                            onError: { error in
+                                viewModel.errorMessage = error.localizedDescription
                             }
-                        }) {
-                            Text("Apple")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(AppColors.textPrimary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                        }
-                        .cardStyle()
+                        )
                         
-                        Button(action: {
-                            Task {
-                                await viewModel.loginWithGoogle()
+                        GoogleSignInButton(
+                            onSuccess: { code, idToken in
+                                Task {
+                                    await viewModel.loginWithGoogle(
+                                        authorizationCode: code,
+                                        idToken: idToken
+                                    )
+                                }
+                            },
+                            onError: { error in
+                                viewModel.errorMessage = error.localizedDescription
                             }
-                        }) {
-                            Text("Google")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(AppColors.textPrimary)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                        }
-                        .cardStyle()
+                        )
                     }
                     .padding(.horizontal, AppStyles.paddingLarge)
                 }

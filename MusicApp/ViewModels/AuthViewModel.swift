@@ -76,19 +76,91 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
     
-    func loginWithApple() async {
-        // TODO: Implement Apple Sign In
-        errorMessage = "Apple Sign In not yet implemented"
+    func loginWithApple(authorizationCode: String, identityToken: String?) async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let oauthService = OAuthService(authService: authService)
+            let token = try await oauthService.handleOAuthCallback(
+                authorizationCode: authorizationCode,
+                provider: .apple
+            )
+            
+            // Store tokens securely
+            KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
+            KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
+            
+            // Fetch user profile
+            let user = try await authService.getCurrentUser()
+            isAuthenticated = true
+            
+            // Update app state
+            let appState = getAppState()
+            appState.authenticate(user: user)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
     }
     
-    func loginWithGoogle() async {
-        // TODO: Implement Google Sign In
-        errorMessage = "Google Sign In not yet implemented"
+    func loginWithGoogle(authorizationCode: String, idToken: String?) async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let oauthService = OAuthService(authService: authService)
+            let token = try await oauthService.handleOAuthCallback(
+                authorizationCode: authorizationCode,
+                provider: .google
+            )
+            
+            // Store tokens securely
+            KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
+            KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
+            
+            // Fetch user profile
+            let user = try await authService.getCurrentUser()
+            isAuthenticated = true
+            
+            // Update app state
+            let appState = getAppState()
+            appState.authenticate(user: user)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
     }
     
-    func loginWithSpotify() async {
-        // TODO: Implement Spotify OAuth
-        errorMessage = "Spotify OAuth not yet implemented"
+    func loginWithSpotify(authorizationCode: String) async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let oauthService = OAuthService(authService: authService)
+            let token = try await oauthService.handleOAuthCallback(
+                authorizationCode: authorizationCode,
+                provider: .spotify
+            )
+            
+            // Store tokens securely
+            KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
+            KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
+            
+            // Fetch user profile
+            let user = try await authService.getCurrentUser()
+            isAuthenticated = true
+            
+            // Update app state
+            let appState = getAppState()
+            appState.authenticate(user: user)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+        
+        isLoading = false
     }
     
     private func getAppState() -> AppState {

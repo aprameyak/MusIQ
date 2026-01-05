@@ -1,12 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
+// @ts-ignore - hpp doesn't have types
 import hpp from 'hpp';
 
 // HTTP Parameter Pollution protection
 export const hppMiddleware = hpp();
 
+// Apply HPP middleware
+export const applyHpp = hppMiddleware;
+
 // Security headers middleware
 export const securityMiddleware = (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ) => {
