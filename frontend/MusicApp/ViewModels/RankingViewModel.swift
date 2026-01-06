@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import SwiftUI
 
 enum RankingType: String, CaseIterable {
@@ -69,7 +70,7 @@ class RankingViewModel: ObservableObject {
                 rank: 1,
                 title: "To Pimp a Butterfly",
                 artist: "Kendrick Lamar",
-                imageUrl: "https:
+                imageUrl: "https://i.scdn.co/image/placeholder",
                 rating: 9.7,
                 ratingCount: 892000,
                 isNew: false,
@@ -80,7 +81,7 @@ class RankingViewModel: ObservableObject {
                 rank: 2,
                 title: "My Beautiful Dark Twisted Fantasy",
                 artist: "Kanye West",
-                imageUrl: "https:
+                imageUrl: "https://i.scdn.co/image/placeholder",
                 rating: 9.6,
                 ratingCount: 856000,
                 isNew: false,
@@ -91,7 +92,7 @@ class RankingViewModel: ObservableObject {
                 rank: 3,
                 title: "Blonde",
                 artist: "Frank Ocean",
-                imageUrl: "https:
+                imageUrl: "https://i.scdn.co/image/placeholder",
                 rating: 9.5,
                 ratingCount: 678000,
                 isNew: false,

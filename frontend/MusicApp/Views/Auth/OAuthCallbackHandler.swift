@@ -48,31 +48,29 @@ struct OAuthCallbackHandler: ViewModifier {
                             }
                         }
                     }
-            }
-            
-            NotificationCenter.default.publisher(for: NSNotification.Name("AppleSignInSuccess"))
-                .sink { notification in
-                    guard let userInfo = notification.userInfo,
-                          let code = userInfo["code"] as? String else {
-                        return
-                    }
-                    
-                    let idToken = userInfo["idToken"] as? String
-                    let email = userInfo["email"] as? String
-                    let name = userInfo["name"] as? String
-                    let userIdentifier = userInfo["userIdentifier"] as? String
-                    
-                    Task {
-                        await viewModel.loginWithApple(
-                            authorizationCode: code,
-                            identityToken: idToken,
-                            email: email,
-                            name: name,
-                            userIdentifier: userIdentifier
-                        )
-                    }
-                }
-                .store(in: &cancellables)
+                    .store(in: &cancellables)
+                
+                NotificationCenter.default.publisher(for: NSNotification.Name("AppleSignInSuccess"))
+                    .sink { notification in
+                        guard let userInfo = notification.userInfo,
+                              let code = userInfo["code"] as? String else {
+                            return
+                        }
+                        
+                        let idToken = userInfo["idToken"] as? String
+                        let email = userInfo["email"] as? String
+                        let name = userInfo["name"] as? String
+                        let userIdentifier = userInfo["userIdentifier"] as? String
+                        
+                        Task {
+                            await viewModel.loginWithApple(
+                                authorizationCode: code,
+                                identityToken: idToken,
+                                email: email,
+                                name: name,
+                                userIdentifier: userIdentifier
+                            )
+                        }
                     }
                     .store(in: &cancellables)
             }

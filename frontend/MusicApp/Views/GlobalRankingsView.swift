@@ -9,87 +9,105 @@ struct GlobalRankingsView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Global Charts")
-                        .font(.system(size: 32, weight: .bold))
-                        .foregroundColor(AppColors.textPrimary)
-                    
-                    Text("Powered by your ratings")
-                        .font(.system(size: 14))
-                        .foregroundColor(AppColors.textSecondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, AppStyles.paddingMedium)
-                .padding(.top, AppStyles.paddingLarge)
-                .padding(.bottom, AppStyles.paddingMedium)
-                
-                HStack(spacing: 4) {
-                    ForEach(RankingType.allCases, id: \.self) { type in
-                        Button(action: {
-                            viewModel.setType(type)
-                        }) {
-                            Text(type.displayName)
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(
-                                    viewModel.activeType == type ?
-                                    AppColors.textPrimary :
-                                    AppColors.textSecondary
-                                )
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 10)
-                                .background(
-                                    viewModel.activeType == type ?
-                                    AppGradients.primary :
-                                    Color.clear
-                                )
-                                .cornerRadius(AppStyles.cornerRadiusMedium)
-                        }
-                    }
-                }
-                .padding(4)
-                .background(AppColors.cardBackground)
-                .cornerRadius(AppStyles.cornerRadiusMedium)
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                        .stroke(AppColors.borderPurple, lineWidth: 1)
-                )
-                .padding(.horizontal, AppStyles.paddingMedium)
-                .padding(.bottom, AppStyles.paddingMedium)
-                
-                if viewModel.isLoading {
-                    Spacer()
-                    ProgressView()
-                        .tint(AppColors.primaryGreen)
-                    Spacer()
-                } else if viewModel.rankings.isEmpty {
-                    Spacer()
-                    VStack(spacing: 16) {
-                        Image(systemName: "trophy")
-                            .font(.system(size: 48))
-                            .foregroundColor(AppColors.textSecondary)
-                        
-                        Text("No rankings available")
-                            .font(.system(size: 18, weight: .medium))
-                            .foregroundColor(AppColors.textSecondary)
-                    }
-                    Spacer()
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 12) {
-                            ForEach(viewModel.rankings) { ranking in
-                                RankingRowView(ranking: ranking)
-                                    .padding(.horizontal, AppStyles.paddingMedium)
-                            }
-                        }
-                        .padding(.top, 8)
-                        .padding(.bottom, 100)
-                    }
-                }
+                headerView
+                typeSelectorView
+                contentView
             }
         }
         .task {
             await viewModel.loadRankings()
+        }
+    }
+    
+    private var headerView: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Global Charts")
+                .font(.system(size: 32, weight: .bold))
+                .foregroundColor(AppColors.textPrimary)
+            
+            Text("Powered by your ratings")
+                .font(.system(size: 14))
+                .foregroundColor(AppColors.textSecondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, AppStyles.paddingMedium)
+        .padding(.top, AppStyles.paddingLarge)
+        .padding(.bottom, AppStyles.paddingMedium)
+    }
+    
+    private var typeSelectorView: some View {
+        HStack(spacing: 4) {
+            ForEach(RankingType.allCases, id: \.self) { type in
+                typeButton(for: type)
+            }
+        }
+        .padding(4)
+        .background(AppColors.cardBackground)
+        .cornerRadius(AppStyles.cornerRadiusMedium)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
+                .stroke(AppColors.borderPurple, lineWidth: 1)
+        )
+        .padding(.horizontal, AppStyles.paddingMedium)
+        .padding(.bottom, AppStyles.paddingMedium)
+    }
+    
+    private func typeButton(for type: RankingType) -> some View {
+        Button(action: {
+            viewModel.setType(type)
+        }) {
+            Text(type.displayName)
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(
+                    viewModel.activeType == type ?
+                    AppColors.textPrimary :
+                    AppColors.textSecondary
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    Group {
+                        if viewModel.activeType == type {
+                            AppGradients.primary
+                        } else {
+                            Color.clear
+                        }
+                    }
+                )
+                .cornerRadius(AppStyles.cornerRadiusMedium)
+        }
+    }
+    
+    @ViewBuilder
+    private var contentView: some View {
+        if viewModel.isLoading {
+            Spacer()
+            ProgressView()
+                .tint(AppColors.primaryGreen)
+            Spacer()
+        } else if viewModel.rankings.isEmpty {
+            Spacer()
+            VStack(spacing: 16) {
+                Image(systemName: "trophy")
+                    .font(.system(size: 48))
+                    .foregroundColor(AppColors.textSecondary)
+                
+                Text("No rankings available")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(AppColors.textSecondary)
+            }
+            Spacer()
+        } else {
+            ScrollView {
+                LazyVStack(spacing: 12) {
+                    ForEach(viewModel.rankings) { ranking in
+                        RankingRowView(ranking: ranking)
+                            .padding(.horizontal, AppStyles.paddingMedium)
+                    }
+                }
+                .padding(.top, 8)
+                .padding(.bottom, 100)
+            }
         }
     }
 }

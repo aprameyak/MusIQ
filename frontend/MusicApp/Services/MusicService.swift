@@ -52,7 +52,7 @@ class MusicService {
                 type: .album,
                 title: "ASTROWORLD",
                 artist: "Travis Scott",
-                imageUrl: "https:
+                imageUrl: "https://i.scdn.co/image/placeholder",
                 rating: 8.7,
                 ratingCount: 234500,
                 trending: true,
@@ -66,7 +66,7 @@ class MusicService {
                 type: .song,
                 title: "Blinding Lights",
                 artist: "The Weeknd",
-                imageUrl: "https:
+                imageUrl: "https://i.scdn.co/image/placeholder",
                 rating: 9.2,
                 ratingCount: 456000,
                 trending: true,
@@ -80,7 +80,7 @@ class MusicService {
                 type: .album,
                 title: "Blonde",
                 artist: "Frank Ocean",
-                imageUrl: "https:
+                imageUrl: "https://i.scdn.co/image/placeholder",
                 rating: 9.5,
                 ratingCount: 567800,
                 trending: false,

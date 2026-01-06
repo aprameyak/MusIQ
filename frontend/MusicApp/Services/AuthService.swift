@@ -73,5 +73,5 @@ class AuthService {
     }
 }
 
-struct EmptyBody: Encodable {}
-struct EmptyResponse: Decodable {}
+struct EmptyBody: Codable {}
+struct EmptyResponse: Codable {}

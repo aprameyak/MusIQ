@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
+import Combine
 
-@MainActor
 class AuthViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var username: String = ""

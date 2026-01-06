@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import SwiftUI
 
 @MainActor
@@ -52,7 +53,7 @@ class SocialViewModel: ObservableObject {
                 id: "1",
                 name: "Sarah Wilson",
                 username: "@sarahmusic",
-                avatar: "https:
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=placeholder",
                 compatibility: 87,
                 topGenre: "R&B",
                 sharedArtists: 42,
@@ -62,7 +63,7 @@ class SocialViewModel: ObservableObject {
                 id: "2",
                 name: "Mike Chen",
                 username: "@mikebeats",
-                avatar: "https:
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=placeholder",
                 compatibility: 73,
                 topGenre: "Hip-Hop",
                 sharedArtists: 28,
@@ -72,7 +73,7 @@ class SocialViewModel: ObservableObject {
                 id: "3",
                 name: "Emma Davis",
                 username: "@emmad",
-                avatar: "https:
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=placeholder",
                 compatibility: 92,
                 topGenre: "Pop",
                 sharedArtists: 56,

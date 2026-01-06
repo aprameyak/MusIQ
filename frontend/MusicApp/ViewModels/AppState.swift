@@ -1,5 +1,6 @@
 import Foundation
 import SwiftUI
+import Combine
 
 enum AppScreen {
     case splash
@@ -16,7 +17,6 @@ enum ActiveTab: String, CaseIterable {
     case notifications = "notifications"
 }
 
-@MainActor
 class AppState: ObservableObject {
     @Published var currentScreen: AppScreen = .splash
     @Published var activeTab: ActiveTab = .pulse
@@ -28,8 +28,8 @@ class AppState: ObservableObject {
     private let onboardingKey = "hasCompletedOnboarding"
     private let authKey = "isAuthenticated"
     
+    @MainActor
     init() {
-        
         hasCompletedOnboarding = userDefaults.bool(forKey: onboardingKey)
         isAuthenticated = userDefaults.bool(forKey: authKey)
         
@@ -42,12 +42,14 @@ class AppState: ObservableObject {
         }
     }
     
+    @MainActor
     func completeOnboarding() {
         hasCompletedOnboarding = true
         userDefaults.set(true, forKey: onboardingKey)
         currentScreen = .authentication
     }
     
+    @MainActor
     func authenticate(user: User) {
         isAuthenticated = true
         currentUser = user
@@ -55,6 +57,7 @@ class AppState: ObservableObject {
         currentScreen = .main
     }
     
+    @MainActor
     func logout() {
         isAuthenticated = false
         currentUser = nil
@@ -62,6 +65,7 @@ class AppState: ObservableObject {
         currentScreen = .authentication
     }
     
+    @MainActor
     func setActiveTab(_ tab: ActiveTab) {
         activeTab = tab
     }

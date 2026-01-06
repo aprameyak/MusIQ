@@ -20,6 +20,34 @@ struct MusicItem: Identifiable, Codable {
     let appleMusicId: String?
     let metadata: [String: AnyCodable]?
     
+    init(
+        id: String,
+        type: MusicItemType,
+        title: String,
+        artist: String,
+        imageUrl: String,
+        rating: Double,
+        ratingCount: Int,
+        trending: Bool? = nil,
+        trendingChange: Int? = nil,
+        spotifyId: String? = nil,
+        appleMusicId: String? = nil,
+        metadata: [String: AnyCodable]? = nil
+    ) {
+        self.id = id
+        self.type = type
+        self.title = title
+        self.artist = artist
+        self.imageUrl = imageUrl
+        self.rating = rating
+        self.ratingCount = ratingCount
+        self.trending = trending
+        self.trendingChange = trendingChange
+        self.spotifyId = spotifyId
+        self.appleMusicId = appleMusicId
+        self.metadata = metadata
+    }
+    
     enum CodingKeys: String, CodingKey {
         case id
         case type

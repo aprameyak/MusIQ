@@ -17,6 +17,26 @@ struct AppNotification: Identifiable, Codable {
     let metadata: [String: AnyCodable]?
     let createdAt: Date
     
+    init(
+        id: String,
+        userId: String,
+        type: NotificationType,
+        title: String,
+        message: String,
+        read: Bool,
+        metadata: [String: AnyCodable]? = nil,
+        createdAt: Date
+    ) {
+        self.id = id
+        self.userId = userId
+        self.type = type
+        self.title = title
+        self.message = message
+        self.read = read
+        self.metadata = metadata
+        self.createdAt = createdAt
+    }
+    
     enum CodingKeys: String, CodingKey {
         case id
         case userId

@@ -1,7 +1,15 @@
 import SwiftUI
 
-extension AsyncImage {
-    static func musicImage(url: String, placeholder: String = "music.note") -> some View {
+struct MusicAsyncImage: View {
+    let url: String
+    let placeholder: String
+    
+    init(url: String, placeholder: String = "music.note") {
+        self.url = url
+        self.placeholder = placeholder
+    }
+    
+    var body: some View {
         AsyncImage(url: URL(string: url)) { phase in
             switch phase {
             case .empty:
