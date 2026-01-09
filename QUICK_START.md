@@ -1,88 +1,92 @@
 # Quick Start Guide
 
-## Backend Setup & Run
+## Step 1: Start the Backend
 
-1. **Navigate to backend directory:**
+Open a terminal and run:
+
+```bash
+cd backend
+npm run dev
+```
+
+You should see:
+```
+Server running on port 3000
+Database connection established
+```
+
+**Keep this terminal open!** The backend needs to keep running.
+
+## Step 2: Test Backend (Optional)
+
+In a new terminal, test if the backend is working:
+
+```bash
+curl http://localhost:3000/health
+```
+
+You should get: `{"status":"ok","timestamp":"..."}`
+
+## Step 3: Run the iOS App
+
+### Option A: Using Xcode (Recommended)
+
+1. Open Xcode:
    ```bash
-   cd backend
+   open frontend/MusicApp.xcodeproj
    ```
 
-2. **Install dependencies (first time only):**
-   ```bash
-   npm install
-   ```
+2. Select a simulator (e.g., iPhone 15 Pro) from the device menu
 
-3. **Set up your .env file:**
-   ```bash
-   cp .env.example .env
-   ```
-   Then edit `.env` and add:
-   - Your Neon DB connection string
-   - JWT_SECRET (32+ character random string)
-   - JWT_REFRESH_SECRET (32+ character random string)
-   - ENCRYPTION_KEY (exactly 32 characters)
+3. Press `Cmd + R` or click the Run button (▶️)
 
-4. **Run database migrations:**
-   ```bash
-   npm run migrate
-   ```
+### Option B: Using Command Line
 
-5. **Seed the database (optional, adds sample data):**
-   ```bash
-   npm run seed
-   ```
+```bash
+cd frontend
+xcodebuild -project MusicApp.xcodeproj -scheme MusicApp -destination 'platform=iOS Simulator,name=iPhone 15 Pro' build run
+```
 
-6. **Start the backend server:**
-   ```bash
-   npm run dev
-   ```
-   
-   The server will start on `http://localhost:3000`
-   You should see: "Server running on port 3000" and "Database connection established"
+## Step 4: Test Login
 
-## Frontend Setup & Run
+1. In the iOS app, try to sign up with:
+   - Email: `test@example.com`
+   - Username: `testuser`
+   - Password: `Test123!`
 
-1. **Open the project in Xcode:**
-   ```bash
-   cd frontend
-   open MusicApp.xcodeproj
-   ```
+2. If signup works, try logging in with the same credentials
 
-2. **Select a simulator or device:**
-   - In Xcode, click the device selector at the top
-   - Choose an iPhone simulator (e.g., "iPhone 15 Pro")
+## Troubleshooting Login Issues
 
-3. **Update API URL (if needed):**
-   - The default is already set to `http://localhost:3000/api` in `APIService.swift`
-   - If your backend runs on a different port, update it there
+### Issue: "Cannot connect to server"
 
-4. **Build and run:**
-   - Press `Cmd + R` or click the Play button
-   - The app will build and launch in the simulator
+**Solution:**
+1. Make sure the backend is running (Step 1)
+2. Check backend terminal for errors
+3. Try using your Mac's IP address instead of localhost:
+   - Find your IP: `ifconfig | grep "inet " | grep -v 127.0.0.1`
+   - In Xcode: Product > Scheme > Edit Scheme > Run > Arguments > Environment Variables
+   - Add: `API_BASE_URL` = `http://YOUR_IP:3000/api`
 
-## Testing the App
+### Issue: "Server error 500"
 
-1. **Backend is running** - You should see the server logs
-2. **Frontend launches** - You'll see the splash screen
-3. **Create an account** - Use the signup screen
-4. **Login** - Use your credentials to login
-5. **Explore** - Browse the music feed, submit ratings, etc.
+**Solution:**
+1. Check backend terminal logs
+2. Make sure database migrations ran: `cd backend && npm run migrate`
+3. Verify `.env` file has all required variables (see SETUP.md)
 
-## Troubleshooting
+### Issue: "CORS error"
 
-**Backend won't start:**
-- Check that `.env` file exists and has all required variables
-- Make sure DATABASE_URL is correct
-- Check if port 3000 is already in use
+**Solution:**
+1. In `backend/.env`, set: `CORS_ORIGIN=*`
+2. Restart the backend server
 
-**Frontend can't connect:**
-- Make sure backend is running first
-- Check that API_BASE_URL matches your backend URL
-- For iOS simulator, `localhost` works fine
-- For physical device, use your computer's IP address instead of `localhost`
+## Your Mac's IP Address
 
-**Database connection fails:**
-- Verify your Neon DB connection string is correct
-- Check that your Neon database is active
-- Ensure SSL mode is set correctly
+Your current IP: **192.168.86.99**
 
+If `127.0.0.1` doesn't work, use this IP in the iOS app's API URL.
+
+## Need More Help?
+
+See `SETUP.md` for detailed setup instructions.

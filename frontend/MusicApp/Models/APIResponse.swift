@@ -11,6 +11,14 @@ struct APIError: Codable {
     let code: String
     let message: String
     let details: [String: AnyCodable]?
+    let stack: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case code
+        case message
+        case details
+        case stack
+    }
 }
 
 struct PaginatedResponse<T: Codable>: Codable {

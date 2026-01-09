@@ -102,3 +102,4 @@ export class RBACService {
     return parseInt(result.rows[0].count) > 0;
   }
 }
+

@@ -29,14 +29,14 @@ struct User: Identifiable, Codable {
         case id
         case email
         case username
-        case emailVerified
-        case mfaEnabled
+        case emailVerified = "email_verified"
+        case mfaEnabled = "mfa_enabled"
         case role
-        case oauthProvider
-        case oauthId
-        case lastLoginAt
-        case createdAt
-        case updatedAt
+        case oauthProvider = "oauth_provider"
+        case oauthId = "oauth_id"
+        case lastLoginAt = "last_login_at"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
     }
     
     init(from decoder: Decoder) throws {
@@ -52,6 +52,7 @@ struct User: Identifiable, Codable {
         
         if let lastLoginString = try? container.decode(String.self, forKey: .lastLoginAt) {
             let formatter = ISO8601DateFormatter()
+            formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
             lastLoginAt = formatter.date(from: lastLoginString)
         } else {
             lastLoginAt = nil
@@ -60,6 +61,7 @@ struct User: Identifiable, Codable {
         let createdAtString = try container.decode(String.self, forKey: .createdAt)
         let updatedAtString = try container.decode(String.self, forKey: .updatedAt)
         let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         createdAt = formatter.date(from: createdAtString) ?? Date()
         updatedAt = formatter.date(from: updatedAtString) ?? Date()
     }
@@ -76,6 +78,7 @@ struct User: Identifiable, Codable {
         try container.encodeIfPresent(oauthId, forKey: .oauthId)
         
         let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         if let lastLoginAt = lastLoginAt {
             try container.encode(formatter.string(from: lastLoginAt), forKey: .lastLoginAt)
         }

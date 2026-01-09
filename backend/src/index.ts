@@ -15,10 +15,14 @@ const PORT = process.env.PORT || 3000;
 app.use(helmet());
 app.use(securityMiddleware);
 
-app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
-  credentials: true
-}));
+const corsOptions = {
+  origin: process.env.CORS_ORIGIN === '*' ? true : (process.env.CORS_ORIGIN || '*'),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Device-ID']
+};
+
+app.use(cors(corsOptions));
 
 import { applyHpp } from './middleware/security.middleware';
 app.use(applyHpp);

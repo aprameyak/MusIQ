@@ -7,8 +7,8 @@ class APIService {
     private let session: URLSession
     
     init(baseURL: String? = nil) {
-        
-        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http://localhost:3000/api"
+        let defaultURL = "http://127.0.0.1:3000/api"
+        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? defaultURL
         
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
@@ -58,8 +58,12 @@ class APIService {
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
                     return try decoder.decode(T.self, from: data)
-                } catch {
-                    throw NetworkError.decodingError
+                } catch let decodingError {
+                    if let jsonString = String(data: data, encoding: .utf8) {
+                        print("❌ Decoding Error - Response JSON: \(jsonString)")
+                    }
+                    print("❌ Decoding Error Details: \(decodingError)")
+                    throw NetworkError.unknown(decodingError)
                 }
             case 401:
                 throw NetworkError.unauthorized

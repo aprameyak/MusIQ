@@ -41,3 +41,4 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.dropTableIfExists('permissions');
   await knex.schema.dropTableIfExists('roles');
 }
+
