@@ -23,37 +23,7 @@ class ProfileService {
         )
         
         guard response.success, let data = response.data else {
-            
-            return TasteProfileResponse(
-                tasteScore: 87,
-                totalRatings: 342,
-                influence: 12456,
-                genreAffinity: [
-                    "Hip-Hop": 85,
-                    "R&B": 72,
-                    "Pop": 68,
-                    "Rock": 54,
-                    "Electronic": 45,
-                    "Jazz": 32
-                ],
-                decadePreference: [
-                    "70s": 15,
-                    "80s": 25,
-                    "90s": 45,
-                    "00s": 68,
-                    "10s": 82,
-                    "20s": 95
-                ],
-                attributes: [
-                    "Lyrics": 85,
-                    "Production": 92,
-                    "Vocals": 78,
-                    "Innovation": 88,
-                    "Emotion": 75,
-                    "Replay": 90
-                ],
-                controversyAffinity: 75
-            )
+            throw NetworkError.unauthorized
         }
         
         return data
