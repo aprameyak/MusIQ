@@ -194,7 +194,7 @@ export class MusicBrainzLoadService {
       `;
 
       try {
-        const result = await this.pool.query(query, params);
+        await this.pool.query(query, params);
         inserted += batch.length;
         logger.info(`Loaded ${inserted}/${relations.length} album-artist relations`);
       } catch (error: any) {

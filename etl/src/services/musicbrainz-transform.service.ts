@@ -1,5 +1,4 @@
 import { MusicBrainzConfig } from '../config/musicbrainz.config';
-import { logger } from '../config/logger';
 
 interface RawReleaseGroup {
   id: string;
