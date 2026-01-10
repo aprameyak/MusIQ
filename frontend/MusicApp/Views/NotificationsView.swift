@@ -141,14 +141,16 @@ struct NotificationCardView: View {
                     .frame(height: 1)
                 
                 HStack {
-                    if let influenceCount = notification.metadata?["influenceCount"] as? Int {
-                        Text("You influenced \(influenceCount.formatted()) listeners")
-                    } else {
-                        Text("You made an impact!")
+                    Group {
+                        if let influenceCount = notification.metadata?["influenceCount"] as? Int {
+                            Text("You influenced \(influenceCount.formatted()) listeners")
+                        } else {
+                            Text("You made an impact!")
+                        }
                     }
-                        .font(.system(size: 14))
-                        .foregroundColor(AppColors.primary)
-                        .padding(AppStyles.paddingSmall)
+                    .font(.system(size: 14))
+                    .foregroundColor(AppColors.primary)
+                    .padding(AppStyles.paddingSmall)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(AppColors.accentLight.opacity(0.3))
