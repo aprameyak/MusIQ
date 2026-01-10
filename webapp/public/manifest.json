@@ -1,0 +1,17 @@
+{
+  "name": "MusIQ",
+  "short_name": "MusIQ",
+  "description": "Rate music, discover new sounds, and influence global rankings",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F8FC",
+  "theme_color": "#35516D",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+
