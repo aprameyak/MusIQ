@@ -22,13 +22,13 @@ struct RadarData: Identifiable {
 
 @MainActor
 class TasteProfileViewModel: ObservableObject {
-    @Published var tasteScore: Int = 87
-    @Published var totalRatings: Int = 342
-    @Published var influence: Int = 12456
+    @Published var tasteScore: Int = 0
+    @Published var totalRatings: Int = 0
+    @Published var influence: Int = 0
     @Published var genreData: [GenreData] = []
     @Published var decadeData: [DecadeData] = []
     @Published var radarData: [RadarData] = []
-    @Published var controversyAffinity: Int = 75
+    @Published var controversyAffinity: Int = 0
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     

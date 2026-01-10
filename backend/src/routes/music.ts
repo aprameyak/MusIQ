@@ -31,18 +31,16 @@ router.get(
       const queryParams: any[] = [];
       let paramCount = 1;
 
-      if (filter === 'trending') {
-        query += ` AND r.created_at > NOW() - INTERVAL '7 days'`;
-      } else if (filter === 'forYou') {
+      if (filter === 'forYou') {
         
       }
 
       query += ` GROUP BY mi.id ORDER BY `;
 
       if (filter === 'trending') {
-        query += `recent_ratings DESC, rating DESC`;
+        query += `recent_ratings DESC NULLS LAST, rating DESC, rating_count DESC, mi.created_at DESC`;
       } else {
-        query += `rating DESC, rating_count DESC`;
+        query += `rating DESC, rating_count DESC, mi.created_at DESC`;
       }
 
       query += ` LIMIT $${paramCount++} OFFSET $${paramCount++}`;

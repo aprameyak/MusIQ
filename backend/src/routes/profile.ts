@@ -140,14 +140,16 @@ router.get(
       );
 
       const attributes: Record<string, number> = {};
-      const maxTagCount = Math.max(...tagResult.rows.map((r: any) => parseInt(r.count || '0')), 1);
-      tagResult.rows.forEach((row: any) => {
-        const tag = row.tag;
-        const count = parseInt(row.count || '0');
-        if (tag && typeof tag === 'string') {
-          attributes[tag] = Math.round((count / maxTagCount) * 100);
-        }
-      });
+      if (tagResult.rows.length > 0) {
+        const maxTagCount = Math.max(...tagResult.rows.map((r: any) => parseInt(r.count || '0')), 1);
+        tagResult.rows.forEach((row: any) => {
+          const tag = row.tag;
+          const count = parseInt(row.count || '0');
+          if (tag && typeof tag === 'string') {
+            attributes[tag] = Math.round((count / maxTagCount) * 100);
+          }
+        });
+      }
 
       const controversyResult = await pool.query(
         `SELECT 
