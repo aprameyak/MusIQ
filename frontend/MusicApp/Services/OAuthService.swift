@@ -29,7 +29,7 @@ class OAuthService {
     func signInWithGoogle() async throws -> AuthToken {
         
         guard let googleIssuer = URL(string: "https://accounts.google.com"),
-              let redirectURI = URL(string: "com.musicapp://oauth/google/callback") else {
+              let redirectURI = URL(string: "com.musiq://oauth/google/callback") else {
             throw NetworkError.invalidURL
         }
         
@@ -56,7 +56,7 @@ class OAuthService {
     func signInWithSpotify() async throws -> AuthToken {
         
         guard let spotifyIssuer = URL(string: "https://accounts.spotify.com"),
-              let redirectURI = URL(string: "com.musicapp://oauth/spotify/callback") else {
+              let redirectURI = URL(string: "com.musiq://oauth/spotify/callback") else {
             throw NetworkError.invalidURL
         }
         

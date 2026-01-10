@@ -56,7 +56,7 @@ struct SplashScreenView: View {
                 .padding(.top, 100)
                 
                 VStack(spacing: 8) {
-                    Text("Pulse")
+                    Text("MusIQ")
                         .font(.system(size: 48, weight: .bold))
                         .foregroundColor(AppColors.textPrimary)
                         .shadow(color: AppColors.primary.opacity(0.2), radius: 20)

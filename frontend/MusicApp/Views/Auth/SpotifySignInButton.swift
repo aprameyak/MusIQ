@@ -32,7 +32,7 @@ struct SpotifySignInButton: View {
         #if canImport(AppAuth)
         
         guard let spotifyAuthURL = URL(string: "https://accounts.spotify.com/authorize"),
-              let redirectURI = URL(string: "com.musicapp://oauth/spotify/callback"),
+              let redirectURI = URL(string: "com.musiq://oauth/spotify/callback"),
               let tokenURL = URL(string: "https://accounts.spotify.com/api/token") else {
             onError(NetworkError.invalidURL)
             return

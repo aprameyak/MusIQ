@@ -1,10 +1,10 @@
-# Music Rating App - iOS Frontend
+# MusIQ - iOS Frontend
 
 ## Setup
 
 1. Open the project in Xcode:
    ```bash
-   open MusicApp.xcodeproj
+   open MusIQ.xcodeproj
    ```
 
 2. Configure environment variables (optional):
@@ -15,7 +15,7 @@
      - `SPOTIFY_CLIENT_ID`: Your Spotify OAuth client ID (if using Spotify OAuth)
 
 3. Update API base URL in code (if not using environment variable):
-   - Edit `MusicApp/Services/APIService.swift`
+   - Edit `MusIQ/Services/APIService.swift`
    - Change the default `baseURL` value
 
 4. Configure OAuth (if using):

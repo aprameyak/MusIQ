@@ -13,7 +13,7 @@ struct HomeFeedView: View {
                 
                 VStack(spacing: 16) {
                     HStack {
-                        Text("Pulse")
+                        Text("MusIQ")
                             .font(.system(size: 32, weight: .bold))
                             .foregroundColor(AppColors.textPrimary)
                             .shadow(color: AppColors.primary.opacity(0.1), radius: 20)
