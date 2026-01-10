@@ -1,7 +1,6 @@
 import { Knex } from 'knex';
 
 export async function seed(knex: Knex): Promise<void> {
-  
   const existingItems = await knex('music_items').count('id as count').first();
   
   if (existingItems && parseInt(existingItems.count as string) > 0) {

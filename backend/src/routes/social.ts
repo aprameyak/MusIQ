@@ -32,7 +32,6 @@ router.get(
       );
 
       const friends = await Promise.all(result.rows.map(async (row) => {
-        
         const compatibilityResult = await pool.query(
           `SELECT 
             COUNT(*) as shared_ratings,
@@ -107,14 +106,12 @@ router.post(
           });
           return;
         } else if (existing.status === 'pending') {
-          
           await pool.query(
             'UPDATE friendships SET status = $1 WHERE id = $2',
             ['accepted', existing.id]
           );
         }
       } else {
-        
         await pool.query(
           'INSERT INTO friendships (user_id, friend_id, status) VALUES ($1, $2, $3)',
           [req.userId, userId, 'pending']

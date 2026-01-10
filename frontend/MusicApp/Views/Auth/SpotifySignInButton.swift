@@ -30,7 +30,6 @@ struct SpotifySignInButton: View {
     @MainActor
     private func performSpotifySignIn() async {
         #if canImport(AppAuth)
-        
         guard let spotifyAuthURL = URL(string: "https://accounts.spotify.com/authorize"),
               let redirectURI = URL(string: "com.musiq://oauth/spotify/callback"),
               let tokenURL = URL(string: "https://accounts.spotify.com/api/token") else {
@@ -46,7 +45,6 @@ struct SpotifySignInButton: View {
         )
         
         do {
-            
             let request = OIDAuthorizationRequest(
                 configuration: configuration,
                 clientId: clientID,

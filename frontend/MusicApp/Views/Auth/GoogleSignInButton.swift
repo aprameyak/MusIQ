@@ -37,7 +37,6 @@ struct GoogleSignInButton: View {
         }
         
         do {
-            
             let configuration = try await OIDAuthorizationService.discoverConfiguration(forIssuer: googleIssuer)
             
             let clientID = ProcessInfo.processInfo.environment["GOOGLE_CLIENT_ID"] ?? "YOUR_GOOGLE_CLIENT_ID"

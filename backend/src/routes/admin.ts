@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
-import { rbacMiddleware } from '../middleware/rbac.middleware';
+import { requireRole } from '../middleware/rbac.middleware';
 import { runETLJobManually } from '../jobs/music-etl.job';
 import { logger } from '../config/logger';
 
@@ -9,7 +9,7 @@ const router = Router();
 router.post(
   '/etl/run',
   authMiddleware,
-  rbacMiddleware(['admin']),
+  requireRole('admin'),
   async (req: AuthRequest, res, next) => {
     try {
       logger.info('Manual ETL job triggered', { userId: req.userId });

@@ -60,9 +60,9 @@ class APIService {
                     return try decoder.decode(T.self, from: data)
                 } catch let decodingError {
                     if let jsonString = String(data: data, encoding: .utf8) {
-                        print("❌ Decoding Error - Response JSON: \(jsonString)")
+                        print("Decoding Error - Response JSON: \(jsonString)")
                     }
-                    print("❌ Decoding Error Details: \(decodingError)")
+                    print("Decoding Error Details: \(decodingError)")
                     throw NetworkError.unknown(decodingError)
                 }
             case 401:
