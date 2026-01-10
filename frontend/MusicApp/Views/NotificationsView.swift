@@ -141,7 +141,11 @@ struct NotificationCardView: View {
                     .frame(height: 1)
                 
                 HStack {
-                    Text("🎉 You influenced \(Int.random(in: 1000...5000).formatted()) listeners")
+                    if let influenceCount = notification.metadata?["influenceCount"] as? Int {
+                        Text("🎉 You influenced \(influenceCount.formatted()) listeners")
+                    } else {
+                        Text("🎉 You made an impact!")
+                    }
                         .font(.system(size: 14))
                         .foregroundColor(AppColors.primary)
                         .padding(AppStyles.paddingSmall)

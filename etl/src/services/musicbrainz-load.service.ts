@@ -44,7 +44,7 @@ export class MusicBrainzLoadService {
       });
 
       const query = `
-        INSERT INTO mb_artists (mbid, name, sort_name, type, area, disambiguation, created_at, updated_at)
+        INSERT INTO mb_artists (mbid, name, sort_name, type, area, disambiguation)
         VALUES ${values}
         ON CONFLICT (mbid) DO UPDATE SET
           name = EXCLUDED.name,
@@ -96,7 +96,7 @@ export class MusicBrainzLoadService {
       });
 
       const query = `
-        INSERT INTO mb_albums (mbid, title, release_date, status, primary_type, secondary_types, cover_art_url, created_at, updated_at)
+        INSERT INTO mb_albums (mbid, title, release_date, status, primary_type, secondary_types, cover_art_url)
         VALUES ${values}
         ON CONFLICT (mbid) DO UPDATE SET
           title = EXCLUDED.title,
@@ -146,7 +146,7 @@ export class MusicBrainzLoadService {
       });
 
       const query = `
-        INSERT INTO mb_tracks (mbid, title, length, disambiguation, created_at, updated_at)
+        INSERT INTO mb_tracks (mbid, title, length, disambiguation)
         VALUES ${values}
         ON CONFLICT (mbid) DO UPDATE SET
           title = EXCLUDED.title,

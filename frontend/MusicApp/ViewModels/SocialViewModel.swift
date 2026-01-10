@@ -22,8 +22,7 @@ class SocialViewModel: ObservableObject {
             friends = try await socialService.getFriends()
         } catch {
             errorMessage = error.localizedDescription
-            
-            loadMockData()
+            friends = []
         }
         
         isLoading = false
@@ -45,40 +44,5 @@ class SocialViewModel: ObservableObject {
         if score >= 70 { return "👍" }
         if score >= 60 { return "👌" }
         return "🤔"
-    }
-    
-    private func loadMockData() {
-        friends = [
-            Friend(
-                id: "1",
-                name: "Sarah Wilson",
-                username: "@sarahmusic",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=placeholder",
-                compatibility: 87,
-                topGenre: "R&B",
-                sharedArtists: 42,
-                status: .accepted
-            ),
-            Friend(
-                id: "2",
-                name: "Mike Chen",
-                username: "@mikebeats",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=placeholder",
-                compatibility: 73,
-                topGenre: "Hip-Hop",
-                sharedArtists: 28,
-                status: .accepted
-            ),
-            Friend(
-                id: "3",
-                name: "Emma Davis",
-                username: "@emmad",
-                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=placeholder",
-                compatibility: 92,
-                topGenre: "Pop",
-                sharedArtists: 56,
-                status: .accepted
-            )
-        ]
     }
 }

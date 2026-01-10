@@ -22,8 +22,7 @@ class NotificationViewModel: ObservableObject {
             notifications = try await notificationService.getNotifications()
         } catch {
             errorMessage = error.localizedDescription
-            
-            loadMockData()
+            notifications = []
         }
         
         isLoading = false
@@ -80,10 +79,5 @@ class NotificationViewModel: ObservableObject {
         case .trending:
             return AppColors.notificationTrending
         }
-    }
-    
-    private func loadMockData() {
-        
-        notifications = []
     }
 }
