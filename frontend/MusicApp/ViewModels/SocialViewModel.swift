@@ -39,10 +39,6 @@ class SocialViewModel: ObservableObject {
     }
     
     func getCompatibilityEmoji(_ score: Int) -> String {
-        if score >= 90 { return "🔥" }
-        if score >= 80 { return "✨" }
-        if score >= 70 { return "👍" }
-        if score >= 60 { return "👌" }
-        return "🤔"
+        return ""
     }
 }
