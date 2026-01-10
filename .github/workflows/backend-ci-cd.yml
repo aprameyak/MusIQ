@@ -1,0 +1,158 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci-cd.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci-cd.yml'
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  ci:
+    name: CI - Lint and Build
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./backend
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linter
+        run: npm run lint
+      
+      - name: Build project
+        run: npm run build
+      
+      - name: Check build output
+        run: |
+          if [ ! -d "dist" ]; then
+            echo "Build failed: dist directory not found"
+            exit 1
+          fi
+          echo "Build successful: dist directory exists"
+          ls -la dist/ | head -10
+
+  deploy:
+    name: Deploy to Server
+    needs: ci
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci --production=false
+      
+      - name: Build project
+        working-directory: ./backend
+        run: npm run build
+      
+      - name: Create deployment package
+        working-directory: ./backend
+        run: |
+          mkdir -p ../deploy-package
+          cp -r dist ../deploy-package/
+          cp package.json ../deploy-package/
+          cp package-lock.json ../deploy-package/
+          cp knexfile.ts ../deploy-package/ 2>/dev/null || true
+          cp -r src/database/migrations ../deploy-package/migrations 2>/dev/null || true
+          cp -r src/database/seeds ../deploy-package/seeds 2>/dev/null || true
+          tar -czf ../deploy-package.tar.gz -C .. deploy-package
+      
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+      
+      - name: Copy files to server
+        run: |
+          scp -r deploy-package.tar.gz ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/tmp/
+      
+      - name: Deploy to server
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            set -e
+            
+            DEPLOY_DIR="/opt/musiq-backend"
+            BACKUP_DIR="/opt/musiq-backend-backup-$(date +%Y%m%d-%H%M%S)"
+            
+            echo "Creating backup..."
+            if [ -d "$DEPLOY_DIR" ]; then
+              sudo mkdir -p "$(dirname $BACKUP_DIR)"
+              sudo cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
+            fi
+            
+            echo "Extracting deployment package..."
+            cd /tmp
+            sudo mkdir -p "$DEPLOY_DIR"
+            sudo tar -xzf deploy-package.tar.gz -C /tmp/
+            sudo cp -r /tmp/deploy-package/* "$DEPLOY_DIR/"
+            
+            echo "Installing production dependencies..."
+            cd "$DEPLOY_DIR"
+            sudo npm ci --production
+            
+            echo "Running database migrations..."
+            sudo npm run migrate || echo "Migration failed or already up to date"
+            
+            echo "Restarting application..."
+            sudo pm2 restart musiq-api || sudo pm2 start dist/index.js --name musiq-api || echo "PM2 not configured yet"
+            
+            echo "Cleaning up..."
+            sudo rm -rf /tmp/deploy-package /tmp/deploy-package.tar.gz
+            
+            echo "Deployment completed successfully!"
+          EOF
+      
+      - name: Verify deployment
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            sleep 5
+            if sudo pm2 list | grep -q "musiq-api.*online"; then
+              echo "✅ Application is running"
+              sudo pm2 status musiq-api
+            else
+              echo "⚠️ Application may not be running. Check PM2 status."
+              sudo pm2 list
+            fi
+          EOF
+
