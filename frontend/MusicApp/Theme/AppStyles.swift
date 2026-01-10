@@ -14,7 +14,7 @@ struct AppStyles {
     static let paddingMedium: CGFloat = 16
     static let paddingLarge: CGFloat = 24
     
-    static let shadowColor = Color.black.opacity(0.3)
+    static let shadowColor = Color.black.opacity(0.1)
     static let shadowRadius: CGFloat = 8
     static let shadowOffset = CGSize(width: 0, height: 4)
 }
@@ -26,7 +26,7 @@ struct CardStyle: ViewModifier {
             .cornerRadius(AppStyles.cornerRadiusMedium)
             .overlay(
                 RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                    .stroke(AppColors.borderPurple, lineWidth: 1)
+                    .stroke(AppColors.border, lineWidth: 1)
             )
             .shadow(
                 color: AppStyles.shadowColor,
@@ -48,14 +48,8 @@ struct GradientButtonStyle: ButtonStyle {
         configuration.label
             .padding(.horizontal, AppStyles.paddingMedium)
             .padding(.vertical, AppStyles.paddingSmall)
-            .background(
-                isEnabled ? AppGradients.primary : LinearGradient(
-                    colors: [AppColors.secondaryBackground],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .foregroundColor(isEnabled ? AppColors.textPrimary : AppColors.textSecondary)
+            .background(isEnabled ? AppColors.primary : AppColors.secondaryBackground)
+            .foregroundColor(isEnabled ? .white : AppColors.textSecondary)
             .cornerRadius(AppStyles.cornerRadiusMedium)
             .scaleEffect(configuration.isPressed ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)

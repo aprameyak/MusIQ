@@ -44,6 +44,7 @@ import ratingRoutes from './routes/ratings';
 import rankingRoutes from './routes/rankings';
 import socialRoutes from './routes/social';
 import notificationRoutes from './routes/notifications';
+import adminRoutes from './routes/admin';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/oauth', oauthRoutes);
@@ -53,10 +54,12 @@ app.use('/api/ratings', ratingRoutes);
 app.use('/api/rankings', rankingRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use(errorMiddleware);
 
 import { testConnection } from './database/connection';
+import { startETLScheduler } from './jobs/music-etl.job';
 
 app.listen(PORT, async () => {
   logger.info(`Server running on port ${PORT}`);
@@ -67,6 +70,10 @@ app.listen(PORT, async () => {
     logger.info('Database connection established');
   } else {
     logger.error('Database connection failed - check DATABASE_URL');
+  }
+
+  if (process.env.ENABLE_ETL === 'true') {
+    startETLScheduler();
   }
 });
 

@@ -22,23 +22,14 @@ struct SplashScreenView: View {
                 ZStack {
                     
                     Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [
-                                    AppColors.primaryPurple.opacity(glowOpacity),
-                                    AppColors.primaryGreen.opacity(glowOpacity)
-                                ],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(AppColors.primary.opacity(glowOpacity * 0.3))
                         .frame(width: 140, height: 140)
                         .blur(radius: 20)
                         .scaleEffect(glowScale)
                     
                     ZStack {
                         Circle()
-                            .fill(AppGradients.primary)
+                            .fill(AppColors.primary)
                             .frame(width: 96, height: 96)
                         
                         Image(systemName: "music.note")
@@ -50,14 +41,14 @@ struct SplashScreenView: View {
                     
                     Image(systemName: "sparkles")
                         .font(.system(size: 24))
-                        .foregroundColor(AppColors.primaryGreen)
+                        .foregroundColor(AppColors.primary)
                         .offset(x: -48, y: -48)
                         .rotationEffect(.degrees(sparkle1Rotation))
                         .scaleEffect(glowScale)
                     
                     Image(systemName: "sparkles")
                         .font(.system(size: 20))
-                        .foregroundColor(AppColors.accentPink)
+                        .foregroundColor(AppColors.secondary)
                         .offset(x: 48, y: 48)
                         .rotationEffect(.degrees(sparkle2Rotation))
                         .scaleEffect(glowScale * 1.2)
@@ -68,7 +59,7 @@ struct SplashScreenView: View {
                     Text("Pulse")
                         .font(.system(size: 48, weight: .bold))
                         .foregroundColor(AppColors.textPrimary)
-                        .shadow(color: AppColors.primaryGreen.opacity(0.5), radius: 20)
+                        .shadow(color: AppColors.primary.opacity(0.2), radius: 20)
                         .opacity(showContent ? 1 : 0)
                     
                     Text("Rate. Discover. Influence.")
@@ -83,8 +74,8 @@ struct SplashScreenView: View {
                         Circle()
                             .fill(
                                 loadingDots[index] ?
-                                AppColors.primaryGreen :
-                                AppColors.primaryPurple.opacity(0.5)
+                                AppColors.primary :
+                                AppColors.secondary.opacity(0.5)
                             )
                             .frame(width: 8, height: 8)
                     }

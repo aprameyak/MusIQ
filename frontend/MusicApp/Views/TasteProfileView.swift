@@ -11,7 +11,7 @@ struct TasteProfileView: View {
             
             if viewModel.isLoading {
                 ProgressView()
-                    .tint(AppColors.primaryGreen)
+                    .tint(AppColors.primary)
             } else {
                 ScrollView {
                     VStack(spacing: 24) {
@@ -34,33 +34,21 @@ struct TasteProfileView: View {
                                 icon: "sparkles",
                                 value: "\(viewModel.tasteScore)",
                                 label: "Taste Score",
-                                gradient: LinearGradient(
-                                    colors: [AppColors.primaryPurple, AppColors.primaryPurple.opacity(0.7)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                                gradient: AppColors.primary
                             )
                             
                             StatCard(
                                 icon: "trophy.fill",
                                 value: "\(viewModel.totalRatings)",
                                 label: "Ratings",
-                                gradient: LinearGradient(
-                                    colors: [AppColors.primaryGreen, AppColors.primaryGreen.opacity(0.7)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                                gradient: AppColors.secondary
                             )
                             
                             StatCard(
                                 icon: "target",
                                 value: "\(viewModel.influence.formatted())",
                                 label: "Influence",
-                                gradient: LinearGradient(
-                                    colors: [AppColors.accentPink, AppColors.accentPink.opacity(0.7)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                                gradient: AppColors.accent
                             )
                         }
                         .padding(.horizontal, AppStyles.paddingMedium)
@@ -69,7 +57,7 @@ struct TasteProfileView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "music.note")
                                     .font(.system(size: 20))
-                                    .foregroundColor(AppColors.primaryPurple)
+                                    .foregroundColor(AppColors.primary)
                                 
                                 Text("Genre Affinity")
                                     .font(.system(size: 18, weight: .semibold))
@@ -83,8 +71,8 @@ struct TasteProfileView: View {
                                 )
                                 .foregroundStyle(
                                     item.name == "Hip-Hop" || item.name == "Pop" || item.name == "Electronic" ?
-                                    AppColors.primaryPurple :
-                                    AppColors.primaryGreen
+                                    AppColors.primary :
+                                    AppColors.secondary
                                 )
                                 .cornerRadius(4)
                             }
@@ -129,7 +117,7 @@ struct TasteProfileView: View {
                                                 .cornerRadius(4)
                                             
                                             Rectangle()
-                                                .fill(AppGradients.primary)
+                                                .fill(AppColors.primary)
                                                 .frame(width: geometry.size.width * CGFloat(decade.value) / 100, height: 8)
                                                 .cornerRadius(4)
                                         }
@@ -169,7 +157,7 @@ struct TasteProfileView: View {
                                                 .cornerRadius(3)
                                             
                                             Rectangle()
-                                                .fill(AppColors.primaryPurple)
+                                                .fill(AppColors.primary)
                                                 .frame(width: geometry.size.width * CGFloat(item.value) / 100, height: 6)
                                                 .cornerRadius(3)
                                         }
@@ -195,11 +183,7 @@ struct TasteProfileView: View {
                                 Circle()
                                     .trim(from: 0, to: CGFloat(viewModel.controversyAffinity) / 100)
                                     .stroke(
-                                        LinearGradient(
-                                            colors: [AppColors.accentPink, AppColors.primaryPurple],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        ),
+                                        AppColors.primary,
                                         style: StrokeStyle(lineWidth: 16, lineCap: .round)
                                     )
                                     .frame(width: 192, height: 192)
@@ -248,7 +232,7 @@ struct StatCard: View {
     let icon: String
     let value: String
     let label: String
-    let gradient: LinearGradient
+    let gradient: Color
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -267,6 +251,7 @@ struct StatCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(AppStyles.paddingMedium)
         .background(gradient)
+        .foregroundColor(.white)
         .cornerRadius(AppStyles.cornerRadiusMedium)
     }
 }
