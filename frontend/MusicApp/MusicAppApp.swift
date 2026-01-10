@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct MusicAppApp: App {
+struct MusIQApp: App {
     @StateObject private var appState = AppState.shared
     
     var body: some Scene {

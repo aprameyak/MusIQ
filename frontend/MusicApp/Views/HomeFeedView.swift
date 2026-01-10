@@ -13,10 +13,10 @@ struct HomeFeedView: View {
                 
                 VStack(spacing: 16) {
                     HStack {
-                        Text("Pulse")
+                        Text("MusIQ")
                             .font(.system(size: 32, weight: .bold))
                             .foregroundColor(AppColors.textPrimary)
-                            .shadow(color: AppColors.primaryGreen.opacity(0.3), radius: 20)
+                            .shadow(color: AppColors.primary.opacity(0.1), radius: 20)
                         
                         Spacer()
                         
@@ -29,7 +29,7 @@ struct HomeFeedView: View {
                                 .cornerRadius(AppStyles.cornerRadiusMedium)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                                        .stroke(AppColors.borderPurple, lineWidth: 1)
+                                        .stroke(AppColors.border, lineWidth: 1)
                                 )
                         }
                     }
@@ -56,12 +56,8 @@ struct HomeFeedView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         viewModel.activeFilter == filter ?
-                                        AppGradients.primary :
-                                        LinearGradient(
-                                            colors: [AppColors.cardBackground],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
+                                        AppColors.primary :
+                                        AppColors.cardBackground
                                     )
                                     .cornerRadius(AppStyles.cornerRadiusMedium)
                                     .overlay(
@@ -69,7 +65,7 @@ struct HomeFeedView: View {
                                             .stroke(
                                                 viewModel.activeFilter == filter ?
                                                 Color.clear :
-                                                AppColors.borderPurple,
+                                                AppColors.border,
                                                 lineWidth: 1
                                             )
                                     )
@@ -86,7 +82,7 @@ struct HomeFeedView: View {
                 if viewModel.isLoading {
                     Spacer()
                     ProgressView()
-                        .tint(AppColors.primaryGreen)
+                        .tint(AppColors.primary)
                     Spacer()
                 } else if viewModel.feedItems.isEmpty {
                     Spacer()

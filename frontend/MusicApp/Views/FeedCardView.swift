@@ -21,7 +21,7 @@ struct FeedCardView: View {
                         .fill(AppColors.secondaryBackground)
                         .overlay(
                             ProgressView()
-                                .tint(AppColors.primaryGreen)
+                                .tint(AppColors.primary)
                         )
                 }
                 .frame(width: 96, height: 96)
@@ -43,7 +43,7 @@ struct FeedCardView: View {
                 if item.trending == true {
                     ZStack {
                         Circle()
-                            .fill(AppGradients.accent)
+                            .fill(AppColors.accent)
                             .frame(width: 24, height: 24)
                         
                         Image(systemName: "arrow.up")
@@ -72,7 +72,7 @@ struct FeedCardView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 14))
-                            .foregroundColor(AppColors.accentYellow)
+                            .foregroundColor(AppColors.secondary)
                         
                         Text(String(format: "%.1f", item.rating))
                             .font(.system(size: 14, weight: .medium))
@@ -87,11 +87,11 @@ struct FeedCardView: View {
                         HStack(spacing: 4) {
                             Image(systemName: "arrow.up")
                                 .font(.system(size: 10))
-                                .foregroundColor(AppColors.primaryGreen)
+                                .foregroundColor(AppColors.primary)
                             
                             Text("+\(change)")
                                 .font(.system(size: 12))
-                                .foregroundColor(AppColors.primaryGreen)
+                                .foregroundColor(AppColors.primary)
                         }
                     }
                 }
@@ -105,13 +105,13 @@ struct FeedCardView: View {
                             .font(.system(size: 16))
                             .foregroundColor(
                                 isFavorited ?
-                                AppColors.accentPink :
+                                AppColors.accent :
                                 AppColors.textSecondary
                             )
                             .frame(width: 36, height: 36)
                             .background(
                                 isFavorited ?
-                                AppColors.accentPink.opacity(0.2) :
+                                AppColors.accentLight :
                                 AppColors.secondaryBackground
                             )
                             .cornerRadius(AppStyles.cornerRadiusSmall)
@@ -128,7 +128,7 @@ struct FeedCardView: View {
                         .foregroundColor(.white)
                         .padding(.horizontal, 16)
                         .padding(.vertical, 8)
-                        .background(AppGradients.primary)
+                        .background(AppColors.primary)
                         .cornerRadius(AppStyles.cornerRadiusSmall)
                     }
                     

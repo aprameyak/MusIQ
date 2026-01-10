@@ -10,7 +10,7 @@ struct NotificationsView: View {
             
             if viewModel.isLoading {
                 ProgressView()
-                    .tint(AppColors.primaryGreen)
+                    .tint(AppColors.primary)
             } else {
                 VStack(spacing: 0) {
                     
@@ -33,7 +33,7 @@ struct NotificationsView: View {
                             }
                         }
                         .font(.system(size: 14))
-                        .foregroundColor(AppColors.primaryPurple)
+                        .foregroundColor(AppColors.primary)
                     }
                     .padding(.horizontal, AppStyles.paddingMedium)
                     .padding(.top, AppStyles.paddingLarge)
@@ -44,7 +44,7 @@ struct NotificationsView: View {
                         VStack(spacing: 16) {
                             Image(systemName: "bell")
                                 .font(.system(size: 64))
-                                .foregroundColor(AppColors.primaryPurple.opacity(0.5))
+                                .foregroundColor(AppColors.primary.opacity(0.5))
                             
                             Text("You're all caught up!")
                                 .font(.system(size: 18, weight: .medium))
@@ -136,34 +136,18 @@ struct NotificationCardView: View {
             VStack(spacing: 0) {
                 Rectangle()
                     .fill(
-                        LinearGradient(
-                            colors: [
-                                AppColors.primaryPurple.opacity(0.1),
-                                AppColors.primaryGreen.opacity(0.1)
-                            ],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
+                        AppColors.accentLight.opacity(0.3)
                     )
                     .frame(height: 1)
                 
                 HStack {
                     Text("🎉 You influenced \(Int.random(in: 1000...5000).formatted()) listeners")
                         .font(.system(size: 14))
-                        .foregroundColor(AppColors.primaryGreen)
+                        .foregroundColor(AppColors.primary)
                         .padding(AppStyles.paddingSmall)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    LinearGradient(
-                        colors: [
-                            AppColors.primaryPurple.opacity(0.1),
-                            AppColors.primaryGreen.opacity(0.1)
-                        ],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
+                .background(AppColors.accentLight.opacity(0.3))
                 .cornerRadius(AppStyles.cornerRadiusSmall)
                 .padding(.horizontal, AppStyles.paddingMedium)
                 .padding(.top, 8)

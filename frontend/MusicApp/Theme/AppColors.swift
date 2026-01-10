@@ -1,27 +1,26 @@
 import SwiftUI
 
 struct AppColors {
+    static let background = Color(hex: "#F5F8FC")
+    static let cardBackground = Color(hex: "#FFFFFF")
+    static let secondaryBackground = Color(hex: "#EAF1F8")
     
-    static let background = Color(hex: "#0a0118")
-    static let cardBackground = Color(hex: "#1a0f2e")
-    static let secondaryBackground = Color(hex: "#2d1b4e")
+    static let primary = Color(hex: "#35516D")
+    static let secondary = Color(hex: "#7A93AC")
     
-    static let primaryPurple = Color(hex: "#7c3aed")
-    static let primaryGreen = Color(hex: "#06d6a0")
+    static let accent = Color(hex: "#35516D")
+    static let accentLight = Color(hex: "#D0DEEC")
     
-    static let accentPink = Color(hex: "#ff006e")
-    static let accentYellow = Color(hex: "#fbbf24")
+    static let textPrimary = Color(hex: "#0F2A44")
+    static let textSecondary = Color(hex: "#7A93AC")
     
-    static let textPrimary = Color.white
-    static let textSecondary = Color(hex: "#9ca3af")
+    static let border = Color(hex: "#D6E0EB")
+    static let borderLight = Color(hex: "#D0DEEC")
     
-    static let borderPurple = Color(hex: "#7c3aed").opacity(0.2)
-    static let borderGreen = Color(hex: "#06d6a0").opacity(0.2)
-    
-    static let notificationImpact = Color(hex: "#06d6a0")
-    static let notificationBadge = Color(hex: "#fbbf24")
-    static let notificationSocial = Color(hex: "#7c3aed")
-    static let notificationTrending = Color(hex: "#ff006e")
+    static let notificationImpact = Color(hex: "#35516D")
+    static let notificationBadge = Color(hex: "#7A93AC")
+    static let notificationSocial = Color(hex: "#35516D")
+    static let notificationTrending = Color(hex: "#7A93AC")
 }
 
 extension Color {

@@ -16,25 +16,25 @@ struct OnboardingView: View {
             icon: "music.note",
             title: "Rate Your Music",
             description: "Share your honest opinions on albums, songs, and artists",
-            color: AppColors.primaryPurple
+            color: AppColors.primary
         ),
         OnboardingSlide(
             icon: "sparkles",
             title: "Discover New Sounds",
             description: "Explore trending music and personalized recommendations",
-            color: AppColors.primaryGreen
+            color: AppColors.secondary
         ),
         OnboardingSlide(
             icon: "person.2.fill",
             title: "Influence the Charts",
             description: "Your ratings shape the global music rankings",
-            color: AppColors.accentPink
+            color: AppColors.accent
         ),
         OnboardingSlide(
             icon: "trophy.fill",
             title: "Build Your Profile",
             description: "Create your unique taste DNA and compare with friends",
-            color: AppColors.accentYellow
+            color: AppColors.secondary
         )
     ]
     
@@ -76,7 +76,7 @@ struct OnboardingView: View {
                         Capsule()
                             .fill(
                                 currentSlide == index ?
-                                AppColors.primaryGreen :
+                                AppColors.primary :
                                 AppColors.secondaryBackground
                             )
                             .frame(

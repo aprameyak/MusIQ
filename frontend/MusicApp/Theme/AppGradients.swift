@@ -1,61 +1,24 @@
 import SwiftUI
 
 struct AppGradients {
-    
-    static let primary = LinearGradient(
-        colors: [AppColors.primaryPurple, AppColors.primaryGreen],
-        startPoint: .leading,
-        endPoint: .trailing
-    )
-    
-    static let background = LinearGradient(
-        colors: [
-            AppColors.background,
-            AppColors.cardBackground,
-            AppColors.background
-        ],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-    
-    static let card = LinearGradient(
-        colors: [
-            AppColors.cardBackground,
-            AppColors.secondaryBackground
-        ],
-        startPoint: .top,
-        endPoint: .bottom
-    )
-    
-    static let accent = LinearGradient(
-        colors: [AppColors.accentPink, AppColors.primaryPurple],
-        startPoint: .leading,
-        endPoint: .trailing
-    )
-    
-    static let splash = RadialGradient(
-        colors: [
-            AppColors.primaryPurple.opacity(0.3),
-            AppColors.primaryGreen.opacity(0.2),
-            AppColors.background
-        ],
-        center: .center,
-        startRadius: 50,
-        endRadius: 200
-    )
+    static let primary = AppColors.primary
+    static let background = AppColors.background
+    static let card = AppColors.cardBackground
+    static let accent = AppColors.accent
+    static let splash = AppColors.background
 }
 
 struct GradientBackground: ViewModifier {
-    let gradient: LinearGradient
+    let color: Color
     
     func body(content: Content) -> some View {
         content
-            .background(gradient)
+            .background(color)
     }
 }
 
 extension View {
-    func gradientBackground(_ gradient: LinearGradient = AppGradients.background) -> some View {
-        modifier(GradientBackground(gradient: gradient))
+    func gradientBackground(_ color: Color = AppColors.background) -> some View {
+        modifier(GradientBackground(color: color))
     }
 }

@@ -17,7 +17,7 @@ struct MusicAsyncImage: View {
                     Rectangle()
                         .fill(AppColors.secondaryBackground)
                     ProgressView()
-                        .tint(AppColors.primaryGreen)
+                        .tint(AppColors.primary)
                 }
             case .success(let image):
                 image

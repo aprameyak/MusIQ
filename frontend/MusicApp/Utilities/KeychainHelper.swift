@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 class KeychainHelper {
-    static let service = "com.musicapp.tokens"
+    static let service = "com.musiq.tokens"
     
     static func store(token: String, forKey key: String) {
         let data = token.data(using: .utf8)!

@@ -46,7 +46,7 @@ struct GlobalRankingsView: View {
         .cornerRadius(AppStyles.cornerRadiusMedium)
         .overlay(
             RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                .stroke(AppColors.borderPurple, lineWidth: 1)
+                .stroke(AppColors.border, lineWidth: 1)
         )
         .padding(.horizontal, AppStyles.paddingMedium)
         .padding(.bottom, AppStyles.paddingMedium)
@@ -68,7 +68,7 @@ struct GlobalRankingsView: View {
                 .background(
                     Group {
                         if viewModel.activeType == type {
-                            AppGradients.primary
+                            AppColors.primary
                         } else {
                             Color.clear
                         }
@@ -83,7 +83,7 @@ struct GlobalRankingsView: View {
         if viewModel.isLoading {
             Spacer()
             ProgressView()
-                .tint(AppColors.primaryGreen)
+                .tint(AppColors.primary)
             Spacer()
         } else if viewModel.rankings.isEmpty {
             Spacer()
@@ -123,7 +123,7 @@ struct RankingRowView: View {
                     .font(.system(size: 24, weight: .bold))
                     .foregroundColor(
                         ranking.rank <= 3 ?
-                        AppColors.accentYellow :
+                        AppColors.secondary :
                         AppColors.textPrimary
                     )
                 
@@ -133,16 +133,16 @@ struct RankingRowView: View {
                             .font(.system(size: 10))
                             .foregroundColor(
                                 ranking.change > 0 ?
-                                AppColors.primaryGreen :
-                                AppColors.accentPink
+                                AppColors.primary :
+                                AppColors.secondary
                             )
                         
                         Text("\(abs(ranking.change))")
                             .font(.system(size: 10))
                             .foregroundColor(
                                 ranking.change > 0 ?
-                                AppColors.primaryGreen :
-                                AppColors.accentPink
+                                AppColors.primary :
+                                AppColors.secondary
                             )
                     }
                 }
@@ -165,7 +165,7 @@ struct RankingRowView: View {
                 if ranking.isNew {
                     ZStack {
                         Circle()
-                            .fill(AppColors.accentPink)
+                            .fill(AppColors.secondary)
                             .frame(width: 20, height: 20)
                         
                         Image(systemName: "flame.fill")
@@ -191,7 +191,7 @@ struct RankingRowView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
                             .font(.system(size: 12))
-                            .foregroundColor(AppColors.accentYellow)
+                            .foregroundColor(AppColors.secondary)
                         
                         Text(String(format: "%.1f", ranking.rating))
                             .font(.system(size: 14, weight: .medium))

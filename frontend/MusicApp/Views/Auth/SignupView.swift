@@ -14,7 +14,7 @@ struct SignupView: View {
                     
                     ZStack {
                         Circle()
-                            .fill(AppGradients.primary)
+                            .fill(AppColors.primary)
                             .frame(width: 120, height: 120)
                         
                         Image(systemName: "music.note")
@@ -40,7 +40,7 @@ struct SignupView: View {
                                 .cornerRadius(AppStyles.cornerRadiusMedium)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                                        .stroke(AppColors.borderPurple, lineWidth: 1)
+                                        .stroke(AppColors.border, lineWidth: 1)
                                 )
                                 .foregroundColor(AppColors.textPrimary)
                                 .autocapitalization(.none)
@@ -59,7 +59,7 @@ struct SignupView: View {
                                 .cornerRadius(AppStyles.cornerRadiusMedium)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                                        .stroke(AppColors.borderPurple, lineWidth: 1)
+                                        .stroke(AppColors.border, lineWidth: 1)
                                 )
                                 .foregroundColor(AppColors.textPrimary)
                                 .autocapitalization(.none)
@@ -77,7 +77,7 @@ struct SignupView: View {
                                 .cornerRadius(AppStyles.cornerRadiusMedium)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                                        .stroke(AppColors.borderPurple, lineWidth: 1)
+                                        .stroke(AppColors.border, lineWidth: 1)
                                 )
                                 .foregroundColor(AppColors.textPrimary)
                         }
@@ -85,7 +85,7 @@ struct SignupView: View {
                         if let error = viewModel.errorMessage {
                             Text(error)
                                 .font(.system(size: 14))
-                                .foregroundColor(AppColors.accentPink)
+                                .foregroundColor(AppColors.accent)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
                         
