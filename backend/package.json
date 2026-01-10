@@ -19,8 +19,8 @@
     "rating",
     "api"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Aprameya Kannan",
+  "license": "MIT",
   "dependencies": {
     "@azure/identity": "^4.0.1",
     "@azure/keyvault-secrets": "^4.7.0",

@@ -10,7 +10,6 @@ struct FeedCardView: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            
             ZStack(alignment: .topTrailing) {
                 AsyncImage(url: URL(string: item.imageUrl)) { image in
                     image
@@ -55,7 +54,6 @@ struct FeedCardView: View {
             }
             
             VStack(alignment: .leading, spacing: 8) {
-                
                 VStack(alignment: .leading, spacing: 4) {
                     Text(item.title)
                         .font(.system(size: 16, weight: .semibold))

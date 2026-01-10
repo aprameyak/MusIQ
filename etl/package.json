@@ -17,8 +17,8 @@
     "music",
     "data-pipeline"
   ],
-  "author": "",
-  "license": "ISC",
+  "author": "Aprameya Kannan",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.13.2",
     "dotenv": "^16.3.1",

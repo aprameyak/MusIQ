@@ -11,7 +11,6 @@ class MusicService {
         )
         
         guard response.success, let data = response.data else {
-            
             return getMockFeedData()
         }
         

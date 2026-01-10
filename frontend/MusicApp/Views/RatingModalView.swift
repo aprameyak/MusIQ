@@ -8,7 +8,6 @@ struct RatingModalView: View {
     
     var body: some View {
         ZStack {
-            
             Color.black.opacity(0.8)
                 .ignoresSafeArea()
                 .onTapGesture {
@@ -16,7 +15,6 @@ struct RatingModalView: View {
                 }
             
             VStack(spacing: 0) {
-                
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Rate this music")
@@ -40,7 +38,6 @@ struct RatingModalView: View {
                 .padding(AppStyles.paddingLarge)
                 
                 if let item = item {
-                    
                     HStack(spacing: 16) {
                         AsyncImage(url: URL(string: item.imageUrl)) { image in
                             image
