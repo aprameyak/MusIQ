@@ -46,13 +46,32 @@ router.get(
         const avgDiff = parseFloat(compatibilityResult.rows[0]?.avg_rating_diff || '10');
         const compatibility = Math.max(0, Math.min(100, 100 - (avgDiff * 10) + (sharedRatings * 2)));
 
+        const topGenreResult = await pool.query(
+          `SELECT 
+            mi.metadata->>'genres' as genres,
+            COUNT(*) as count
+           FROM ratings r
+           JOIN music_items mi ON r.music_item_id = mi.id
+           WHERE r.user_id = $1 AND mi.metadata->>'genres' IS NOT NULL
+           GROUP BY mi.metadata->>'genres'
+           ORDER BY count DESC
+           LIMIT 1`,
+          [row.id]
+        );
+
+        let topGenre = 'Unknown';
+        if (topGenreResult.rows.length > 0) {
+          const genres = JSON.parse(topGenreResult.rows[0].genres || '[]');
+          topGenre = Array.isArray(genres) && genres.length > 0 ? genres[0] : 'Unknown';
+        }
+
         return {
           id: row.id,
           name: row.username,
           username: `@${row.username}`,
           avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.username}`,
           compatibility: Math.round(compatibility),
-          topGenre: 'Hip-Hop', 
+          topGenre,
           sharedArtists: parseInt(row.shared_artists) || 0,
           status: row.status
         };
@@ -198,12 +217,35 @@ router.get(
       const avgDiff = parseFloat(compatibilityResult.rows[0]?.avg_rating_diff || '10');
       const compatibility = Math.max(0, Math.min(100, 100 - (avgDiff * 10) + (sharedRatings * 2)));
 
+      const sharedGenresResult = await pool.query(
+        `SELECT 
+          DISTINCT mi.metadata->>'genres' as genres
+         FROM ratings r1
+         JOIN ratings r2 ON r1.music_item_id = r2.music_item_id
+         JOIN music_items mi ON r1.music_item_id = mi.id
+         WHERE r1.user_id = $1 AND r2.user_id = $2
+         AND mi.metadata->>'genres' IS NOT NULL`,
+        [req.userId, userId]
+      );
+
+      const sharedGenresSet = new Set<string>();
+      sharedGenresResult.rows.forEach((row: any) => {
+        const genres = JSON.parse(row.genres || '[]');
+        if (Array.isArray(genres)) {
+          genres.forEach((genre: string) => {
+            if (genre && typeof genre === 'string') {
+              sharedGenresSet.add(genre);
+            }
+          });
+        }
+      });
+
       res.json({
         success: true,
         data: {
           compatibility: Math.round(compatibility),
           sharedArtists: parseInt(sharedResult.rows[0]?.shared_count || '0'),
-          sharedGenres: [] 
+          sharedGenres: Array.from(sharedGenresSet)
         }
       });
     } catch (error) {
