@@ -49,8 +49,7 @@ class RankingViewModel: ObservableObject {
             rankings = try await rankingService.getRankings(type: activeType.rawValue)
         } catch {
             errorMessage = error.localizedDescription
-            
-            loadMockData()
+            rankings = []
         }
         
         isLoading = false
@@ -61,43 +60,5 @@ class RankingViewModel: ObservableObject {
         Task {
             await loadRankings()
         }
-    }
-    
-    private func loadMockData() {
-        rankings = [
-            RankingItem(
-                id: "1",
-                rank: 1,
-                title: "To Pimp a Butterfly",
-                artist: "Kendrick Lamar",
-                imageUrl: "https://i.scdn.co/image/placeholder",
-                rating: 9.7,
-                ratingCount: 892000,
-                isNew: false,
-                change: 0
-            ),
-            RankingItem(
-                id: "2",
-                rank: 2,
-                title: "My Beautiful Dark Twisted Fantasy",
-                artist: "Kanye West",
-                imageUrl: "https://i.scdn.co/image/placeholder",
-                rating: 9.6,
-                ratingCount: 856000,
-                isNew: false,
-                change: 0
-            ),
-            RankingItem(
-                id: "3",
-                rank: 3,
-                title: "Blonde",
-                artist: "Frank Ocean",
-                imageUrl: "https://i.scdn.co/image/placeholder",
-                rating: 9.5,
-                ratingCount: 678000,
-                isNew: false,
-                change: 1
-            )
-        ]
     }
 }

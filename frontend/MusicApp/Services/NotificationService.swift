@@ -10,8 +10,7 @@ class NotificationService {
         )
         
         guard response.success, let data = response.data else {
-            
-            return getMockNotifications()
+            return []
         }
         
         return data
@@ -33,43 +32,5 @@ class NotificationService {
             body: EmptyBody(),
             requiresAuth: true
         ) as APIResponse<EmptyResponse>
-    }
-    
-    private func getMockNotifications() -> [AppNotification] {
-        let formatter = ISO8601DateFormatter()
-        let now = Date()
-        
-        return [
-            AppNotification(
-                id: "1",
-                userId: "current-user",
-                type: .impact,
-                title: "Your Rating Made an Impact!",
-                message: "Your 10/10 rating pushed \"ASTROWORLD\" up 12 spots in the charts",
-                read: false,
-                metadata: nil,
-                createdAt: now.addingTimeInterval(-120) 
-            ),
-            AppNotification(
-                id: "2",
-                userId: "current-user",
-                type: .badge,
-                title: "New Badge Earned!",
-                message: "You've unlocked 'Taste Maker' - 100 ratings milestone",
-                read: false,
-                metadata: nil,
-                createdAt: now.addingTimeInterval(-3600) 
-            ),
-            AppNotification(
-                id: "3",
-                userId: "current-user",
-                type: .social,
-                title: "Friend Match",
-                message: "Sarah Wilson has 87% taste compatibility with you!",
-                read: false,
-                metadata: nil,
-                createdAt: now.addingTimeInterval(-10800) 
-            )
-        ]
     }
 }

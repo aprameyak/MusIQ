@@ -22,13 +22,13 @@ struct RadarData: Identifiable {
 
 @MainActor
 class TasteProfileViewModel: ObservableObject {
-    @Published var tasteScore: Int = 87
-    @Published var totalRatings: Int = 342
-    @Published var influence: Int = 12456
+    @Published var tasteScore: Int = 0
+    @Published var totalRatings: Int = 0
+    @Published var influence: Int = 0
     @Published var genreData: [GenreData] = []
     @Published var decadeData: [DecadeData] = []
     @Published var radarData: [RadarData] = []
-    @Published var controversyAffinity: Int = 75
+    @Published var controversyAffinity: Int = 0
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     
@@ -58,40 +58,12 @@ class TasteProfileViewModel: ObservableObject {
             controversyAffinity = profile.controversyAffinity
         } catch {
             errorMessage = error.localizedDescription
-            
-            loadMockData()
+            genreData = []
+            decadeData = []
+            radarData = []
         }
         
         isLoading = false
-    }
-    
-    private func loadMockData() {
-        genreData = [
-            GenreData(name: "Hip-Hop", value: 85),
-            GenreData(name: "R&B", value: 72),
-            GenreData(name: "Pop", value: 68),
-            GenreData(name: "Rock", value: 54),
-            GenreData(name: "Electronic", value: 45),
-            GenreData(name: "Jazz", value: 32)
-        ]
-        
-        decadeData = [
-            DecadeData(decade: "70s", value: 15),
-            DecadeData(decade: "80s", value: 25),
-            DecadeData(decade: "90s", value: 45),
-            DecadeData(decade: "00s", value: 68),
-            DecadeData(decade: "10s", value: 82),
-            DecadeData(decade: "20s", value: 95)
-        ]
-        
-        radarData = [
-            RadarData(category: "Lyrics", value: 85),
-            RadarData(category: "Production", value: 92),
-            RadarData(category: "Vocals", value: 78),
-            RadarData(category: "Innovation", value: 88),
-            RadarData(category: "Emotion", value: 75),
-            RadarData(category: "Replay", value: 90)
-        ]
     }
 }
 

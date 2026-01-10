@@ -31,18 +31,16 @@ router.get(
       const queryParams: any[] = [];
       let paramCount = 1;
 
-      if (filter === 'trending') {
-        query += ` AND r.created_at > NOW() - INTERVAL '7 days'`;
-      } else if (filter === 'forYou') {
+      if (filter === 'forYou') {
         
       }
 
       query += ` GROUP BY mi.id ORDER BY `;
 
       if (filter === 'trending') {
-        query += `recent_ratings DESC, rating DESC`;
+        query += `recent_ratings DESC NULLS LAST, rating DESC, rating_count DESC, mi.created_at DESC`;
       } else {
-        query += `rating DESC, rating_count DESC`;
+        query += `rating DESC, rating_count DESC, mi.created_at DESC`;
       }
 
       query += ` LIMIT $${paramCount++} OFFSET $${paramCount++}`;
@@ -50,19 +48,36 @@ router.get(
 
       const result = await pool.query(query, queryParams);
 
-      const items = result.rows.map(row => ({
-        id: row.id,
-        type: row.type,
-        title: row.title,
-        artist: row.artist,
-        imageUrl: row.image_url,
-        rating: parseFloat(row.rating) || 0,
-        ratingCount: parseInt(row.rating_count) || 0,
-        trending: parseInt(row.recent_ratings) > 10,
-        trendingChange: parseInt(row.recent_ratings) > 10 ? Math.floor(Math.random() * 20) : null,
-        spotifyId: row.spotify_id,
-        appleMusicId: row.apple_music_id,
-        metadata: row.metadata
+      const items = await Promise.all(result.rows.map(async (row) => {
+        let trendingChange: number | null = null;
+        if (parseInt(row.recent_ratings) > 10) {
+          const previousPeriodResult = await pool.query(
+            `SELECT COUNT(*) as count
+             FROM ratings
+             WHERE music_item_id = $1 
+             AND created_at > NOW() - INTERVAL '14 days' 
+             AND created_at <= NOW() - INTERVAL '7 days'`,
+            [row.id]
+          );
+          const previousCount = parseInt(previousPeriodResult.rows[0]?.count || '0');
+          const currentCount = parseInt(row.recent_ratings);
+          trendingChange = currentCount - previousCount;
+        }
+
+        return {
+          id: row.id,
+          type: row.type,
+          title: row.title,
+          artist: row.artist,
+          imageUrl: row.image_url,
+          rating: parseFloat(row.rating) || 0,
+          ratingCount: parseInt(row.rating_count) || 0,
+          trending: parseInt(row.recent_ratings) > 10,
+          trendingChange,
+          spotifyId: row.spotify_id,
+          appleMusicId: row.apple_music_id,
+          metadata: row.metadata
+        };
       }));
 
       res.json({

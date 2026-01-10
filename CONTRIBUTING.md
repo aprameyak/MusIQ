@@ -181,5 +181,5 @@ If you have questions about contributing, feel free to:
 - Check existing documentation
 - Review existing code for examples
 
-Thank you for contributing to MusIQ! 🎵
+Thank you for contributing to MusIQ!
 

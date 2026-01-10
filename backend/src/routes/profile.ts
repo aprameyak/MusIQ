@@ -61,32 +61,107 @@ router.get(
         Math.min(parseInt(stats.total_ratings) / 10, 50)
       );
 
-      const genreAffinity: Record<string, number> = {
-        'Hip-Hop': 85,
-        'R&B': 72,
-        'Pop': 68,
-        'Rock': 54,
-        'Electronic': 45,
-        'Jazz': 32
-      };
+      const genreResult = await pool.query(
+        `SELECT 
+          jsonb_array_elements_text(mi.metadata->'genres') as genre,
+          COUNT(*) as count,
+          AVG(r.rating) as avg_rating
+         FROM ratings r
+         JOIN music_items mi ON r.music_item_id = mi.id
+         WHERE r.user_id = $1 
+         AND mi.metadata->'genres' IS NOT NULL
+         AND jsonb_typeof(mi.metadata->'genres') = 'array'
+         GROUP BY genre
+         ORDER BY count DESC, avg_rating DESC
+         LIMIT 10`,
+        [req.userId]
+      );
 
-      const decadePreference: Record<string, number> = {
-        '70s': 15,
-        '80s': 25,
-        '90s': 45,
-        '00s': 68,
-        '10s': 82,
-        '20s': 95
-      };
+      const genreAffinity: Record<string, number> = {};
+      if (genreResult.rows.length > 0) {
+        const maxCount = Math.max(...genreResult.rows.map((r: any) => parseInt(r.count || '0')), 1);
+        genreResult.rows.forEach((row: any) => {
+          const genre = row.genre;
+          const count = parseInt(row.count || '0');
+          if (genre && typeof genre === 'string') {
+            const score = Math.round((count / maxCount) * 100);
+            genreAffinity[genre] = Math.max(genreAffinity[genre] || 0, score);
+          }
+        });
+      }
 
-      const attributes: Record<string, number> = {
-        'Lyrics': 85,
-        'Production': 92,
-        'Vocals': 78,
-        'Innovation': 88,
-        'Emotion': 75,
-        'Replay': 90
-      };
+      const decadeResult = await pool.query(
+        `SELECT 
+          mi.metadata->>'release_date' as release_date,
+          COUNT(*) as count,
+          AVG(r.rating) as avg_rating
+         FROM ratings r
+         JOIN music_items mi ON r.music_item_id = mi.id
+         WHERE r.user_id = $1 AND mi.metadata->>'release_date' IS NOT NULL
+         GROUP BY mi.metadata->>'release_date'
+         ORDER BY count DESC`,
+        [req.userId]
+      );
+
+      const decadePreference: Record<string, number> = {};
+      const decadeCounts: Record<string, number> = {};
+      
+      decadeResult.rows.forEach((row: any) => {
+        const releaseDate = row.release_date;
+        if (releaseDate && typeof releaseDate === 'string') {
+          const yearMatch = releaseDate.match(/^(\d{4})/);
+          if (yearMatch) {
+            const year = parseInt(yearMatch[1]);
+            const decade = `${Math.floor(year / 10)}0s`;
+            const count = parseInt(row.count || '0');
+            decadeCounts[decade] = (decadeCounts[decade] || 0) + count;
+          }
+        }
+      });
+
+      if (Object.keys(decadeCounts).length > 0) {
+        const maxDecadeCount = Math.max(...Object.values(decadeCounts), 1);
+        Object.keys(decadeCounts).forEach(decade => {
+          decadePreference[decade] = Math.round((decadeCounts[decade] / maxDecadeCount) * 100);
+        });
+      }
+
+      const tagResult = await pool.query(
+        `SELECT 
+          jsonb_array_elements_text(r.tags) as tag,
+          COUNT(*) as count,
+          AVG(r.rating) as avg_rating
+         FROM ratings r
+         WHERE r.user_id = $1 AND r.tags IS NOT NULL AND jsonb_array_length(r.tags) > 0
+         GROUP BY tag
+         ORDER BY count DESC
+         LIMIT 20`,
+        [req.userId]
+      );
+
+      const attributes: Record<string, number> = {};
+      if (tagResult.rows.length > 0) {
+        const maxTagCount = Math.max(...tagResult.rows.map((r: any) => parseInt(r.count || '0')), 1);
+        tagResult.rows.forEach((row: any) => {
+          const tag = row.tag;
+          const count = parseInt(row.count || '0');
+          if (tag && typeof tag === 'string') {
+            attributes[tag] = Math.round((count / maxTagCount) * 100);
+          }
+        });
+      }
+
+      const controversyResult = await pool.query(
+        `SELECT 
+          STDDEV(r.rating) as rating_stddev,
+          COUNT(*) as total
+         FROM ratings r
+         WHERE r.user_id = $1`,
+        [req.userId]
+      );
+
+      const stddev = parseFloat(controversyResult.rows[0]?.rating_stddev || '0');
+      const controversyAffinity = Math.min(100, Math.max(0, Math.round(stddev * 10)));
 
       const influence = Math.round(parseInt(stats.total_ratings) * (parseFloat(stats.avg_rating) || 0) * 100);
 
@@ -99,7 +174,7 @@ router.get(
           genreAffinity,
           decadePreference,
           attributes,
-          controversyAffinity: 75 
+          controversyAffinity 
         }
       });
     } catch (error) {

@@ -11,7 +11,7 @@ class MusicService {
         )
         
         guard response.success, let data = response.data else {
-            return getMockFeedData()
+            return []
         }
         
         return data
@@ -42,52 +42,5 @@ class MusicService {
         }
         
         return data
-    }
-    
-    private func getMockFeedData() -> [MusicItem] {
-        return [
-            MusicItem(
-                id: "1",
-                type: .album,
-                title: "ASTROWORLD",
-                artist: "Travis Scott",
-                imageUrl: "https://i.scdn.co/image/placeholder",
-                rating: 8.7,
-                ratingCount: 234500,
-                trending: true,
-                trendingChange: 12,
-                spotifyId: nil,
-                appleMusicId: nil,
-                metadata: nil
-            ),
-            MusicItem(
-                id: "2",
-                type: .song,
-                title: "Blinding Lights",
-                artist: "The Weeknd",
-                imageUrl: "https://i.scdn.co/image/placeholder",
-                rating: 9.2,
-                ratingCount: 456000,
-                trending: true,
-                trendingChange: 8,
-                spotifyId: nil,
-                appleMusicId: nil,
-                metadata: nil
-            ),
-            MusicItem(
-                id: "3",
-                type: .album,
-                title: "Blonde",
-                artist: "Frank Ocean",
-                imageUrl: "https://i.scdn.co/image/placeholder",
-                rating: 9.5,
-                ratingCount: 567800,
-                trending: false,
-                trendingChange: nil,
-                spotifyId: nil,
-                appleMusicId: nil,
-                metadata: nil
-            )
-        ]
     }
 }
