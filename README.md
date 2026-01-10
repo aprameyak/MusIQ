@@ -9,7 +9,7 @@
 
 ## About
 
-**MusicRatingApp** is a native iOS app for rating and discovering music. Users rate albums, songs, and artists (1-10), see global rankings, build taste profiles, and connect with friends.
+**MusIQ** is a native iOS app for rating and discovering music. Users rate albums, songs, and artists (1-10), see global rankings, build taste profiles, and connect with friends.
 
 ---
 
