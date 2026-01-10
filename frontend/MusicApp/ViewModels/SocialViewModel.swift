@@ -31,11 +31,11 @@ class SocialViewModel: ObservableObject {
     
     func getCompatibilityColor(_ score: Int) -> Color {
         if score >= 80 {
-            return AppColors.primaryGreen
+            return AppColors.primary
         } else if score >= 60 {
-            return AppColors.accentYellow
+            return AppColors.secondary
         } else {
-            return AppColors.accentPink
+            return AppColors.accent
         }
     }
     

@@ -9,10 +9,9 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.musicapp</string>
+				<string>com.musiq</string>
 			</array>
 		</dict>
 	</array>
 </dict>
 </plist>
-

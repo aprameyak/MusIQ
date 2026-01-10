@@ -17,7 +17,7 @@ struct BottomNavView: View {
                             .font(.system(size: 24))
                             .foregroundColor(
                                 activeTab == tab ?
-                                AppColors.primaryGreen :
+                                AppColors.primary :
                                 AppColors.textSecondary
                             )
                         
@@ -25,7 +25,7 @@ struct BottomNavView: View {
                             .font(.system(size: 10))
                             .foregroundColor(
                                 activeTab == tab ?
-                                AppColors.primaryGreen :
+                                AppColors.primary :
                                 AppColors.textSecondary
                             )
                     }
@@ -35,16 +35,7 @@ struct BottomNavView: View {
                         Group {
                             if activeTab == tab {
                                 RoundedRectangle(cornerRadius: 12)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [
-                                                AppColors.primaryPurple.opacity(0.2),
-                                                AppColors.primaryGreen.opacity(0.2)
-                                            ],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
+                                    .fill(AppColors.accentLight.opacity(0.5))
                             }
                         }
                     )
@@ -58,7 +49,7 @@ struct BottomNavView: View {
         .overlay(
             Rectangle()
                 .frame(height: 1)
-                .foregroundColor(AppColors.borderPurple),
+                .foregroundColor(AppColors.border),
             alignment: .top
         )
         .overlay(
@@ -69,7 +60,7 @@ struct BottomNavView: View {
                         let xOffset = CGFloat(activeIndex) * tabWidth + tabWidth / 2 - 16
                         
                         Capsule()
-                            .fill(AppGradients.primary)
+                            .fill(AppColors.primary)
                             .frame(width: 32, height: 2)
                             .offset(x: xOffset, y: -1)
                             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: activeTab)

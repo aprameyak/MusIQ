@@ -1,7 +1,7 @@
 {
   "name": "music-rating-api",
   "version": "1.0.0",
-  "description": "Backend API for Music Rating App",
+  "description": "Backend API for MusIQ",
   "main": "dist/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
@@ -10,6 +10,7 @@
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
+    "etl": "ts-node src/scripts/run-etl.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -24,6 +25,7 @@
     "@azure/identity": "^4.0.1",
     "@azure/keyvault-secrets": "^4.7.0",
     "@neondatabase/serverless": "^0.9.0",
+    "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
     "connect-redis": "^7.1.0",
     "cors": "^2.8.5",
@@ -36,6 +38,7 @@
     "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
     "knex": "^3.0.1",
+    "node-cron": "^4.2.1",
     "passport": "^0.7.0",
     "passport-apple": "^2.0.0",
     "passport-google-oauth20": "^2.0.0",
@@ -58,6 +61,7 @@
     "@types/hpp": "^0.2.7",
     "@types/jsonwebtoken": "^9.0.5",
     "@types/node": "^20.10.6",
+    "@types/node-cron": "^3.0.11",
     "@types/passport": "^1.0.16",
     "@types/passport-apple": "^2.0.0",
     "@types/passport-google-oauth20": "^2.0.12",
@@ -68,4 +72,3 @@
     "prettier": "^3.1.1"
   }
 }
-

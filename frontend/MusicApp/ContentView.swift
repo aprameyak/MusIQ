@@ -88,7 +88,7 @@ struct AuthenticationView: View {
                 .overlay(
                     Rectangle()
                         .frame(height: 1)
-                        .foregroundColor(AppColors.borderPurple),
+                        .foregroundColor(AppColors.border),
                     alignment: .bottom
                 )
                 

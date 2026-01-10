@@ -10,7 +10,7 @@ struct SocialView: View {
             
             if viewModel.isLoading {
                 ProgressView()
-                    .tint(AppColors.primaryGreen)
+                    .tint(AppColors.primary)
             } else {
                 ScrollView {
                     VStack(spacing: 24) {
@@ -39,7 +39,7 @@ struct SocialView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, AppStyles.paddingMedium)
-                            .background(AppGradients.primary)
+                            .background(AppColors.primary)
                             .cornerRadius(AppStyles.cornerRadiusMedium)
                         }
                         .padding(.horizontal, AppStyles.paddingMedium)
@@ -48,7 +48,7 @@ struct SocialView: View {
                             HStack(spacing: 8) {
                                 Image(systemName: "person.2.fill")
                                     .font(.system(size: 20))
-                                    .foregroundColor(AppColors.primaryPurple)
+                                    .foregroundColor(AppColors.primary)
                                 
                                 Text("Your Friends")
                                     .font(.system(size: 18, weight: .semibold))
@@ -70,7 +70,7 @@ struct SocialView: View {
                         VStack(spacing: 16) {
                             Image(systemName: "person.2.fill")
                                 .font(.system(size: 48))
-                                .foregroundColor(AppColors.primaryPurple.opacity(0.5))
+                                .foregroundColor(AppColors.primary.opacity(0.5))
                             
                             Text("Invite Friends")
                                 .font(.system(size: 18, weight: .semibold))
@@ -87,7 +87,7 @@ struct SocialView: View {
                                     .foregroundColor(.white)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 12)
-                                    .background(AppGradients.primary)
+                                    .background(AppColors.primary)
                                     .cornerRadius(AppStyles.cornerRadiusMedium)
                             }
                         }
@@ -201,11 +201,7 @@ struct FriendCardView: View {
                         
                         Rectangle()
                             .fill(
-                                LinearGradient(
-                                    colors: [compatibilityColor, AppColors.primaryPurple],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
+                                compatibilityColor
                             )
                             .frame(width: geometry.size.width * CGFloat(friend.compatibility) / 100, height: 6)
                             .cornerRadius(3)

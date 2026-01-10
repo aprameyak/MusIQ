@@ -68,7 +68,7 @@ struct RatingModalView: View {
                             HStack(spacing: 4) {
                                 Image(systemName: "star.fill")
                                     .font(.system(size: 12))
-                                    .foregroundColor(AppColors.accentYellow)
+                                    .foregroundColor(AppColors.secondary)
                                 
                                 Text(String(format: "%.1f", item.rating))
                                     .font(.system(size: 12, weight: .medium))
@@ -102,7 +102,7 @@ struct RatingModalView: View {
                                         .font(.system(size: 28))
                                         .foregroundColor(
                                             star <= (viewModel.hoverRating > 0 ? viewModel.hoverRating : viewModel.rating) ?
-                                            AppColors.accentYellow :
+                                            AppColors.secondary :
                                             AppColors.secondaryBackground
                                         )
                                 }
@@ -119,7 +119,7 @@ struct RatingModalView: View {
                         if viewModel.rating > 0 {
                             Text("\(viewModel.rating)/10")
                                 .font(.system(size: 18, weight: .semibold))
-                                .foregroundColor(AppColors.primaryGreen)
+                                .foregroundColor(AppColors.primary)
                                 .transition(.opacity)
                         }
                     }
@@ -148,7 +148,7 @@ struct RatingModalView: View {
                                         .padding(.vertical, 8)
                                         .background(
                                             viewModel.selectedTags.contains(tag) ?
-                                            AppColors.primaryPurple :
+                                            AppColors.primary :
                                             AppColors.secondaryBackground
                                         )
                                         .cornerRadius(20)

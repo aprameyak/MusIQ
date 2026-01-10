@@ -1,4 +1,4 @@
-# Music Rating API - Backend
+# MusIQ API - Backend
 
 ## Setup
 
