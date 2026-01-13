@@ -8,6 +8,15 @@ export interface SessionData {
   userAgent?: string;
 }
 
+export interface ActiveSession {
+  id: string;
+  device_id: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  created_at: Date;
+  expires_at: Date;
+}
+
 export class SessionService {
   private pool = getDatabasePool();
   private readonly maxSessions = 5;
@@ -68,8 +77,8 @@ export class SessionService {
     }
   }
 
-  async getActiveSessions(userId: string): Promise<any[]> {
-    const result = await this.pool.query(
+  async getActiveSessions(userId: string): Promise<ActiveSession[]> {
+    const result = await this.pool.query<ActiveSession>(
       `SELECT id, device_id, ip_address, user_agent, created_at, expires_at
        FROM refresh_tokens
        WHERE user_id = $1 AND revoked_at IS NULL AND expires_at > NOW()

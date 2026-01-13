@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response, NextFunction } from 'express';
 import { authLimiter } from '../middleware/rate-limit.middleware';
 import { IdentityFederationService } from '../security/identity-federation';
 import { logger } from '../config/logger';
@@ -7,10 +7,19 @@ import { CustomError } from '../middleware/error.middleware';
 const router = Router();
 const identityService = new IdentityFederationService();
 
+interface OAuthRequestBody {
+  token?: string;
+  idToken?: string;
+  email?: string;
+  userId?: string;
+  userIdentifier?: string;
+  name?: string;
+}
+
 router.post(
   '/apple',
   authLimiter,
-  async (req, res, next) => {
+  async (req: Request<{}, {}, OAuthRequestBody>, res: Response, next: NextFunction) => {
     try {
       const { token, idToken: _idToken } = req.body;
 
@@ -19,18 +28,18 @@ router.post(
       }
 
       let email = req.body.email;
-      let userId = req.body.userIdentifier;
+      let userIdentifier = req.body.userIdentifier;
       
       if (!email) {
         email = `apple_${Date.now()}@privaterelay.appleid.com`;
       }
       
-      if (!userId) {
-        userId = `apple_${Date.now()}`;
+      if (!userIdentifier) {
+        userIdentifier = `apple_${Date.now()}`;
       }
       
       const oauthUser = {
-        id: userId,
+        id: userIdentifier,
         email: email,
         name: req.body.name,
         provider: 'apple' as const
@@ -45,7 +54,7 @@ router.post(
         data: tokens,
         message: 'Apple Sign In successful'
       });
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }
@@ -54,7 +63,7 @@ router.post(
 router.post(
   '/google',
   authLimiter,
-  async (req, res, next) => {
+  async (req: Request<{}, {}, OAuthRequestBody>, res: Response, next: NextFunction) => {
     try {
       const { token, idToken: _idToken } = req.body;
 
@@ -89,7 +98,7 @@ router.post(
         data: tokens,
         message: 'Google Sign In successful'
       });
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }
@@ -98,7 +107,7 @@ router.post(
 router.post(
   '/spotify',
   authLimiter,
-  async (req, res, next) => {
+  async (req: Request<{}, {}, OAuthRequestBody>, res: Response, next: NextFunction) => {
     try {
       const { token } = req.body;
 
@@ -133,7 +142,7 @@ router.post(
         data: tokens,
         message: 'Spotify OAuth successful'
       });
-    } catch (error) {
+    } catch (error: unknown) {
       next(error);
     }
   }
