@@ -31,18 +31,6 @@ interface SpotifyArtist {
   images?: Array<{ url: string }>;
 }
 
-interface SpotifyResponse {
-  tracks?: {
-    items: SpotifyTrack[];
-  };
-  albums?: {
-    items: SpotifyAlbum[];
-  };
-  artists?: {
-    items: SpotifyArtist[];
-  };
-}
-
 export class MusicETLService {
   private pool = getDatabasePool();
   private spotifyClientId: string;
@@ -158,7 +146,7 @@ export class MusicETLService {
   async fetchSpotifyTopTracks(limit: number = 50): Promise<SpotifyTrack[]> {
     try {
       const token = await this.getSpotifyAccessToken();
-      const response = await axios.get<{ items: SpotifyTrack[] }>(
+      const response = await axios.get<{ items: Array<{ track: SpotifyTrack | null }> }>(
         'https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF/tracks',
         {
           headers: {
@@ -170,7 +158,9 @@ export class MusicETLService {
         }
       );
 
-      return response.data.items.map((item: any) => item.track).filter(Boolean);
+      return response.data.items
+        .map((item: { track: SpotifyTrack | null }) => item.track)
+        .filter((track): track is SpotifyTrack => track !== null);
     } catch (error) {
       logger.error('Failed to fetch Spotify top tracks', { error });
       throw error;

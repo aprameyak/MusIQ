@@ -96,7 +96,8 @@ export class AuthService {
     }
 
     if (user.mfa_enabled) {
-      
+      // TODO: Implement MFA verification
+      logger.warn('User has MFA enabled but MFA verification is not implemented', { userId: user.id });
     }
 
     await this.pool.query(
@@ -117,7 +118,7 @@ export class AuthService {
     
     try {
       jwt.verify(refreshToken, this.jwtRefreshSecret);
-    } catch (error) {
+    } catch (error: unknown) {
       throw new CustomError('Invalid refresh token', 401);
     }
 
