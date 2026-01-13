@@ -151,10 +151,10 @@ jobs:
           ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             sleep 5
             if sudo pm2 list | grep -q "musiq-api.*online"; then
-              echo "✅ Application is running"
+              echo "Application is running"
               sudo pm2 status musiq-api
             else
-              echo "⚠️ Application may not be running. Check PM2 status."
+              echo "WARNING: Application may not be running. Check PM2 status."
               sudo pm2 list
             fi
           EOF
