@@ -27,13 +27,42 @@ export const errorMiddleware = (
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
 
-  logger.error({
+  const errorDetails: any = {
     error: message,
-    stack: err.stack,
     path: req.path,
     method: req.method,
-    statusCode
-  });
+    statusCode,
+    service: 'musiq-api'
+  };
+
+  if (err.stack) {
+    errorDetails.stack = err.stack;
+  }
+
+  if ((err as any).code) {
+    errorDetails.code = (err as any).code;
+  }
+
+  logger.error('Request error', errorDetails);
+
+  const isDatabaseError = 
+    (err as any).code === '57P01' || 
+    (err as any).code === '57P02' || 
+    (err as any).code === '57P03' ||
+    (err as any).code === 'ECONNRESET' ||
+    (err as any).code === 'ETIMEDOUT' ||
+    message.includes('Connection terminated') ||
+    message.includes('Connection closed');
+
+  if (isDatabaseError && statusCode === 500) {
+    return res.status(503).json({
+      success: false,
+      error: {
+        code: '503',
+        message: 'Database temporarily unavailable. Please try again.'
+      }
+    });
+  }
 
   res.status(statusCode).json({
     success: false,
