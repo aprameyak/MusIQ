@@ -122,7 +122,7 @@ export class IdentityFederationService {
       [newUser.id, tokens.refreshToken]
     );
 
-    logger.info('OAuth user created', { userId: newUser.id, provider: oauthUser.provider });
+    logger.info('OAuth user created', { userId: newUser.id });
     return { user: newUser, tokens };
   }
 }
