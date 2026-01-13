@@ -15,6 +15,9 @@ on:
       - '.github/workflows/backend-ci-cd.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   NODE_VERSION: '20.x'
 
