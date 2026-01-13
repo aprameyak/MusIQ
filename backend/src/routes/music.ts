@@ -143,7 +143,13 @@ router.get(
   authMiddleware,
   async (req, res, next) => {
     try {
-      const query = req.query.q as string;
+      const rawQuery = req.query.q;
+      const query =
+        typeof rawQuery === 'string'
+          ? rawQuery
+          : Array.isArray(rawQuery)
+            ? (rawQuery[0] ?? '')
+            : '';
 
       if (!query || query.length < 2) {
         res.json({
