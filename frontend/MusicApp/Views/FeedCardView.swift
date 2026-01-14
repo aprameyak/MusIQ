@@ -155,6 +155,7 @@ struct FeedCardView: View {
             type: .album,
             title: "ASTROWORLD",
             artist: "Travis Scott",
+            imageUrl: "https://upload.wikimedia.org/wikipedia/en/0/0b/Astroworld_by_Travis_Scott.jpg",
             rating: 8.7,
             ratingCount: 234500,
             trending: true,

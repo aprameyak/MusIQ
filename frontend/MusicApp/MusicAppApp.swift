@@ -28,8 +28,6 @@ struct MusIQApp: App {
         var provider: OAuthProviderType?
         if host.contains("google") {
             provider = .google
-        } else if host.contains("spotify") {
-            provider = .spotify
         } else if host.contains("apple") {
             provider = .apple
         }

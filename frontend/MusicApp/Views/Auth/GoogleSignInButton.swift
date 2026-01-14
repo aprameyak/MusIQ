@@ -29,51 +29,7 @@ struct GoogleSignInButton: View {
     
     @MainActor
     private func performGoogleSignIn() async {
-        #if canImport(AppAuth)
-            onError(NetworkError.invalidURL)
-            return
-        }
         
-        do {
-            let configuration = try await OIDAuthorizationService.discoverConfiguration(forIssuer: googleIssuer)
-            
-            let clientID = ProcessInfo.processInfo.environment["GOOGLE_CLIENT_ID"] ?? "YOUR_GOOGLE_CLIENT_ID"
-            
-            let request = OIDAuthorizationRequest(
-                configuration: configuration,
-                clientId: clientID,
-                scopes: [OIDScopeOpenID, OIDScopeProfile, OIDScopeEmail],
-                redirectURL: redirectURI,
-                responseType: OIDResponseTypeCode,
-                additionalParameters: nil
-            )
-            
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let rootViewController = windowScene.windows.first?.rootViewController else {
-                onError(NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not find root view controller"]))
-                return
-            }
-            
-            let authState = try await OIDAuthorizationService.present(
-                request,
-                presenting: rootViewController
-            )
-            
-            guard let authResponse = authState.lastAuthorizationResponse,
-                  let authorizationCode = authResponse.authorizationCode else {
-                onError(NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get authorization code"]))
-                return
-            }
-            
-            let idToken = authResponse.idToken
-            
-            onSuccess(authorizationCode, idToken)
-        } catch {
-            onError(error)
-        }
-        #else
-        onError(NSError(domain: "GoogleSignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "AppAuth not available. Add AppAuth-iOS package via SPM"]))
-        #endif
     }
 }
 

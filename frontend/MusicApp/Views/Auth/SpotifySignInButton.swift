@@ -29,52 +29,7 @@ struct SpotifySignInButton: View {
     
     @MainActor
     private func performSpotifySignIn() async {
-        #if canImport(AppAuth)
-            onError(NetworkError.invalidURL)
-            return
-        }
         
-        let clientID = ProcessInfo.processInfo.environment["SPOTIFY_CLIENT_ID"] ?? "YOUR_SPOTIFY_CLIENT_ID"
-        
-        let configuration = OIDServiceConfiguration(
-            authorizationEndpoint: spotifyAuthURL,
-            tokenEndpoint: tokenURL
-        )
-        
-        do {
-            let request = OIDAuthorizationRequest(
-                configuration: configuration,
-                clientId: clientID,
-                scopes: ["user-read-email", "user-read-private"],
-                redirectURL: redirectURI,
-                responseType: OIDResponseTypeCode,
-                additionalParameters: nil
-            )
-            
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                  let rootViewController = windowScene.windows.first?.rootViewController else {
-                onError(NSError(domain: "SpotifySignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not find root view controller"]))
-                return
-            }
-            
-            let authState = try await OIDAuthorizationService.present(
-                request,
-                presenting: rootViewController
-            )
-            
-            guard let authResponse = authState.lastAuthorizationResponse,
-                  let authorizationCode = authResponse.authorizationCode else {
-                onError(NSError(domain: "SpotifySignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to get authorization code"]))
-                return
-            }
-            
-            onSuccess(authorizationCode)
-        } catch {
-            onError(error)
-        }
-        #else
-        onError(NSError(domain: "SpotifySignIn", code: -1, userInfo: [NSLocalizedDescriptionKey: "AppAuth not available. Add AppAuth-iOS package via SPM"]))
-        #endif
     }
 }
 

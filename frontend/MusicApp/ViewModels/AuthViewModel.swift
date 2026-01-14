@@ -120,31 +120,6 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
     
-    func loginWithSpotify(authorizationCode: String) async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let oauthService = OAuthService(authService: authService)
-            let token = try await oauthService.handleOAuthCallback(
-                authorizationCode: authorizationCode,
-                provider: .spotify
-            )
-            
-            KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
-            KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
-            
-            let user = try await authService.getCurrentUser()
-            isAuthenticated = true
-            
-            let appState = getAppState()
-            appState.authenticate(user: user)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-        
-        isLoading = false
-    }
     
     private func getAppState() -> AppState {
         
