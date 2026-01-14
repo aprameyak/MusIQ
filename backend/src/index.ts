@@ -19,7 +19,7 @@ const corsOptions = {
   origin: process.env.CORS_ORIGIN === '*' ? true : (process.env.CORS_ORIGIN || '*'),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Device-ID']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Device-ID', 'X-Signature-Ed25519', 'X-Signature-Timestamp']
 };
 
 app.use(cors(corsOptions));
@@ -27,7 +27,15 @@ app.use(cors(corsOptions));
 import { applyHpp } from './middleware/security.middleware';
 app.use(applyHpp);
 
-app.use(express.json({ limit: '10mb' }));
+// JSON parser with raw body preservation for Discord webhook signature verification
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, res, buf) => {
+    if (req.path === '/api/webhooks/discord') {
+      (req as any).rawBody = buf;
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 app.use(rateLimitMiddleware);
@@ -45,6 +53,7 @@ import rankingRoutes from './routes/rankings';
 import socialRoutes from './routes/social';
 import notificationRoutes from './routes/notifications';
 import adminRoutes from './routes/admin';
+import webhookRoutes from './routes/webhooks';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/oauth', oauthRoutes);
@@ -55,6 +64,7 @@ app.use('/api/rankings', rankingRoutes);
 app.use('/api/social', socialRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/webhooks', webhookRoutes);
 
 app.use(errorMiddleware);
 

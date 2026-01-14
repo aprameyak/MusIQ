@@ -33,4 +33,12 @@ export const searchLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+export const webhookLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  message: 'Too many webhook requests, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export const rateLimitMiddleware = apiLimiter;
