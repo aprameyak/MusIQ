@@ -33,7 +33,6 @@ app.use(applyHpp);
 app.use(express.json({
   limit: '10mb',
   verify: (req: express.Request, _res: express.Response, buf: Buffer) => {
-    
     const url = req.url || req.originalUrl || req.path;
     if (url.includes('webhooks') || url.includes('interactions')) {
       (req as any).rawBody = buf;
@@ -78,9 +77,10 @@ import { testConnection } from './database/connection';
 import { startETLScheduler } from './jobs/music-etl.job';
 
 app.listen(PORT, async () => {
+  logger.info('Service: musiq-api');
   logger.info(`Server running on port ${PORT}`);
   logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  
+
   const dbConnected = await testConnection();
   if (dbConnected) {
     logger.info('Database connection established');

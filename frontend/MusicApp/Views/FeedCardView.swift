@@ -155,7 +155,6 @@ struct FeedCardView: View {
             type: .album,
             title: "ASTROWORLD",
             artist: "Travis Scott",
-            imageUrl: "https://i.scdn.co/image/placeholder",
             rating: 8.7,
             ratingCount: 234500,
             trending: true,

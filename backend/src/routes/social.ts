@@ -69,7 +69,6 @@ router.get(
           id: row.id,
           name: row.username,
           username: `@${row.username}`,
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.username}`,
           compatibility: Math.round(compatibility),
           topGenre,
           sharedArtists: parseInt(row.shared_artists) || 0,

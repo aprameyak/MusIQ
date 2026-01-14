@@ -18,8 +18,8 @@ export class GitHubService {
 
   constructor() {
     this.token = process.env.GITHUB_TOKEN || '';
-    this.owner = process.env.GITHUB_REPO_OWNER || '';
-    this.repo = process.env.GITHUB_REPO_NAME || '';
+    this.owner = process.env.GITHUB_OWNER || '';
+    this.repo = process.env.GITHUB_REPO || '';
 
     if (!this.token || !this.owner || !this.repo) {
       logger.warn('GitHub service not fully configured', {
@@ -30,7 +30,6 @@ export class GitHubService {
     }
 
     this.client = axios.create({
-      baseURL: 'https://api.github.com',
       headers: {
         'Authorization': `Bearer ${this.token}`,
         'Accept': 'application/vnd.github.v3+json',
@@ -70,7 +69,7 @@ export class GitHubService {
       if (axios.isAxiosError(error)) {
         const status = error.response?.status;
         const message = error.response?.data?.message || error.message;
-        
+
         logger.error('Failed to trigger repository dispatch', {
           status,
           message,
@@ -80,10 +79,10 @@ export class GitHubService {
         if (status === 401 || status === 403) {
           throw new CustomError('GitHub authentication failed', 500);
         }
-        
+
         throw new CustomError(`Failed to trigger repository dispatch: ${message}`, 500);
       }
-      
+
       logger.error('Unexpected error in repository dispatch', { error });
       throw new CustomError('Failed to trigger repository dispatch', 500);
     }
@@ -121,7 +120,7 @@ export class GitHubService {
       if (axios.isAxiosError(error)) {
         const status = error.response?.status;
         const message = error.response?.data?.message || error.message;
-        
+
         logger.error('Failed to create GitHub issue', {
           status,
           message,
@@ -131,10 +130,10 @@ export class GitHubService {
         if (status === 401 || status === 403) {
           throw new CustomError('GitHub authentication failed', 500);
         }
-        
+
         throw new CustomError(`Failed to create GitHub issue: ${message}`, 500);
       }
-      
+
       logger.error('Unexpected error creating issue', { error });
       throw new CustomError('Failed to create GitHub issue', 500);
     }

@@ -1,5 +1,5 @@
 {
-  "name": "music-rating-api",
+  "name": "musiq-api",
   "version": "1.0.0",
   "description": "Backend API for MusIQ",
   "main": "dist/index.js",

@@ -18,9 +18,7 @@ struct SplashScreenView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 32) {
-                
                 ZStack {
-                    
                     Circle()
                         .fill(AppColors.primary.opacity(glowOpacity * 0.3))
                         .frame(width: 140, height: 140)
@@ -85,7 +83,6 @@ struct SplashScreenView: View {
             }
         }
         .onAppear {
-            
             withAnimation(.spring(response: 0.8, dampingFraction: 0.6)) {
                 logoScale = 1
                 logoRotation = 0

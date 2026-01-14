@@ -7,7 +7,6 @@ class APIService {
     private let session: URLSession
     
     init(baseURL: String? = nil) {
-        let defaultURL = "http://127.0.0.1:3000/api"
         self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? defaultURL
         
         let configuration = URLSessionConfiguration.default
