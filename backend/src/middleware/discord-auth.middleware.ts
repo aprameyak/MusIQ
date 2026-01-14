@@ -26,7 +26,7 @@ export const discordAuthMiddleware = (
       throw new CustomError('Missing Discord signature headers', 401);
     }
 
-    // Get raw body (Buffer) for signature verification
+    
     const rawBody = req.rawBody;
     if (!rawBody || !Buffer.isBuffer(rawBody)) {
       throw new CustomError('Invalid request body - raw body required', 400);
@@ -64,7 +64,7 @@ export const discordAuthMiddleware = (
       throw new CustomError('Request timestamp too old', 401);
     }
 
-    // Body is already parsed by express.json(), no need to parse again
+    
 
     next();
   } catch (error) {

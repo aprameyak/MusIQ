@@ -27,11 +27,16 @@ app.use(cors(corsOptions));
 import { applyHpp } from './middleware/security.middleware';
 app.use(applyHpp);
 
-// JSON parser with raw body preservation for Discord webhook signature verification
+
 app.use(express.json({
   limit: '10mb',
   verify: (req: express.Request, _res: express.Response, buf: Buffer) => {
-    if (req.path === '/api/webhooks/discord') {
+    
+    const url = req.url || req.originalUrl || req.path;
+    if (url === '/interactions' || 
+        url === '/api/webhooks/discord' || 
+        url.startsWith('/interactions') ||
+        url.startsWith('/api/webhooks/discord')) {
       (req as any).rawBody = buf;
     }
   }
@@ -65,6 +70,8 @@ app.use('/api/social', socialRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/webhooks', webhookRoutes);
+
+app.use('/interactions', webhookRoutes);
 
 app.use(errorMiddleware);
 
