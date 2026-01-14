@@ -3,7 +3,6 @@ import { discordAuthMiddleware, DiscordRequest } from '../middleware/discord-aut
 import { webhookLimiter } from '../middleware/rate-limit.middleware';
 import { GitHubService } from '../services/github.service';
 import { logger } from '../config/logger';
-import { CustomError } from '../middleware/error.middleware';
 
 const router = Router();
 const githubService = new GitHubService();
@@ -44,15 +43,6 @@ const INTERACTION_TYPE = {
   MODAL_SUBMIT: 5
 };
 
-const RESPONSE_TYPE = {
-  PONG: 1,
-  CHANNEL_MESSAGE_WITH_SOURCE: 4,
-  DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE: 5,
-  DEFERRED_UPDATE_MESSAGE: 6,
-  UPDATE_MESSAGE: 7,
-  APPLICATION_COMMAND_AUTOCOMPLETE_RESULT: 8,
-  MODAL: 9
-};
 
 
 const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
@@ -83,82 +73,23 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
       });
 
       if (interaction.data?.name === 'create-issue') {
-        return res.json({
-          type: RESPONSE_TYPE.MODAL,
+        logger.info('create-issue command received', { interactionId: interaction.id });
+        return res.status(200).json({
+          type: 4,
           data: {
-            title: 'Create GitHub Issue',
-            custom_id: 'create_issue_modal',
-            components: [
-              {
-                type: 1,
-                components: [
-                  {
-                    type: 4,
-                    custom_id: 'issue_title',
-                    label: 'Issue Title',
-                    style: 1,
-                    min_length: 1,
-                    max_length: 200,
-                    placeholder: 'Enter a clear, descriptive title',
-                    required: true
-                  }
-                ]
-              },
-              {
-                type: 1,
-                components: [
-                  {
-                    type: 4,
-                    custom_id: 'issue_description',
-                    label: 'Description',
-                    style: 2,
-                    min_length: 1,
-                    max_length: 4000,
-                    placeholder: 'Describe the issue in detail...',
-                    required: true
-                  }
-                ]
-              },
-              {
-                type: 1,
-                components: [
-                  {
-                    type: 3,
-                    custom_id: 'issue_type',
-                    label: 'Issue Type',
-                    placeholder: 'Select issue type',
-                    min_values: 1,
-                    max_values: 1,
-                    required: true,
-                    options: [
-                      {
-                        label: 'Bug',
-                        value: 'bug',
-                        description: 'Something is broken or not working'
-                      },
-                      {
-                        label: 'Feature',
-                        value: 'feature',
-                        description: 'New functionality or capability'
-                      },
-                      {
-                        label: 'Enhancement',
-                        value: 'enhancement',
-                        description: 'Improvement to existing feature'
-                      },
-                      {
-                        label: 'Documentation',
-                        value: 'documentation',
-                        description: 'Documentation update or improvement'
-                      }
-                    ]
-                  }
-                ]
-              }
-            ]
+            content: '✅ create-issue command received'
           }
         });
       }
+
+      logger.info('Unknown command received', { commandName, interactionId: interaction.id });
+      return res.status(200).json({
+        type: 4,
+        data: {
+          content: `Command "${commandName}" received.`,
+          flags: 64
+        }
+      });
     }
 
     if (interaction.type === INTERACTION_TYPE.MODAL_SUBMIT) {
@@ -181,8 +112,8 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
         }
 
         if (!title || !description || !type) {
-          return res.json({
-            type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+          return res.status(200).json({
+            type: 4,
             data: {
               content: 'Error: All fields are required. Please try again.',
               flags: 64
@@ -192,8 +123,8 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
 
         const validTypes = ['bug', 'feature', 'enhancement', 'documentation'];
         if (!validTypes.includes(type)) {
-          return res.json({
-            type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+          return res.status(200).json({
+            type: 4,
             data: {
               content: 'Error: Invalid issue type. Please try again.',
               flags: 64
@@ -203,7 +134,14 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
 
         const user = interaction.member?.user || interaction.user;
         if (!user) {
-          throw new CustomError('User information not found', 400);
+          logger.error('User information not found in modal submit');
+          return res.status(200).json({
+            type: 4,
+            data: {
+              content: 'Error: User information not found.',
+              flags: 64
+            }
+          });
         }
 
         const discordUserId = user.id;
@@ -227,8 +165,8 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
             discordUsername
           });
 
-          return res.json({
-            type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+          return res.status(200).json({
+            type: 4,
             data: {
               content: `Issue creation request received! Your issue "${title}" will be created shortly.`,
               flags: 64
@@ -242,8 +180,8 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
             discordUserId
           });
 
-          return res.json({
-            type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+          return res.status(200).json({
+            type: 4,
             data: {
               content: 'Sorry, there was an error creating the issue. Please try again later or contact an administrator.',
               flags: 64
@@ -251,6 +189,14 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
           });
         }
       }
+
+      return res.status(200).json({
+        type: 4,
+        data: {
+          content: 'Modal submitted successfully.',
+          flags: 64
+        }
+      });
     }
 
     logger.warn('Unhandled interaction type', {
@@ -259,7 +205,7 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
     });
 
     return res.status(200).json({
-      type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+      type: 4,
       data: {
         content: 'Interaction received but not handled.',
         flags: 64
@@ -271,8 +217,8 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
       stack: error instanceof Error ? error.stack : undefined
     });
 
-    return res.status(500).json({
-      type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
+    return res.status(200).json({
+      type: 4,
       data: {
         content: 'An error occurred processing the interaction.',
         flags: 64
