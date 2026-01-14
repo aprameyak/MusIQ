@@ -72,10 +72,14 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
       return res.status(400).json({ error: 'Missing interaction metadata' });
     }
 
+    console.log('Step 1: Sending Deferral to Discord...');
     res.status(200).json({ type: RESPONSE_TYPE.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE });
 
     (async () => {
       try {
+        console.log('Step 2: Calling GitHub API...');
+        console.log(`Target: ${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}`);
+
         const githubResponse = await axios.post(
           `https://api.github.com/repos/${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}/issues`,
           {
@@ -86,30 +90,36 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
             headers: {
               'Authorization': `Bearer ${process.env.GITHUB_TOKEN}`,
               'Accept': 'application/vnd.github.v3+json',
-              'User-Agent': 'discord-bot',
+              'User-Agent': 'musiq-discord-bot',
               'Content-Type': 'application/json'
             }
           }
         );
 
+        console.log('Step 3: GitHub Success! Status:', githubResponse.status);
+
         logger.info('GitHub issue creation successful', {
           status: githubResponse.status,
-          data: githubResponse.data
+          url: githubResponse.data.html_url
         });
 
+        console.log('Step 4: Sending Follow-up to Discord...');
         await sendDiscordFollowup(
           applicationId,
           interactionToken,
-          `GitHub issue created! ${githubResponse.data.html_url}`
+          `✅ **GitHub Issue Created!**\n${githubResponse.data.html_url}`
         );
+        console.log('Done!');
       } catch (error) {
+        console.log('Step X: FAILED');
         if (axios.isAxiosError(error)) {
+          console.log('GitHub Error Detail:', error.response?.data);
           logger.error('GitHub API error', {
             status: error.response?.status,
             data: error.response?.data
           });
         }
-        await sendDiscordFollowup(applicationId, interactionToken, 'Failed to create GitHub issue.');
+        await sendDiscordFollowup(applicationId, interactionToken, '❌ Failed to create GitHub issue. Check server logs.');
       }
     })();
 
