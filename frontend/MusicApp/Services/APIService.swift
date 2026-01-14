@@ -7,7 +7,7 @@ class APIService {
     private let session: URLSession
     
     init(baseURL: String? = nil) {
-        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? defaultURL
+        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "https://musiq-api.onrender.com/api"
         
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30

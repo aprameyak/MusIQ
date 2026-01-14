@@ -7,13 +7,11 @@ import AppAuth
 enum OAuthProviderType {
     case apple
     case google
-    case spotify
     
     var rawValue: String {
         switch self {
         case .apple: return "apple"
         case .google: return "google"
-        case .spotify: return "spotify"
         }
     }
 }
@@ -25,53 +23,9 @@ class OAuthService {
         self.authService = authService
     }
     
-    #if canImport(AppAuth)
     func signInWithGoogle() async throws -> AuthToken {
-            throw NetworkError.invalidURL
-        }
-        
-        let configuration = try await OIDAuthorizationService.discoverConfiguration(forIssuer: googleIssuer)
-        
-        let request = OIDAuthorizationRequest(
-            configuration: configuration,
-            clientId: "YOUR_GOOGLE_CLIENT_ID", 
-            scopes: [OIDScopeOpenID, OIDScopeProfile, OIDScopeEmail, "openid"],
-            redirectURL: redirectURI,
-            responseType: OIDResponseTypeCode,
-            additionalParameters: nil
-        )
-        
-        throw NetworkError.unknown(NSError(domain: "OAuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Google Sign In requires AppAuth view controller"]))
+        throw NetworkError.unauthorized
     }
-    #else
-    func signInWithGoogle() async throws -> AuthToken {
-        throw NetworkError.unknown(NSError(domain: "OAuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "AppAuth not available. Add AppAuth-iOS via SPM"]))
-    }
-    #endif
-    
-    #if canImport(AppAuth)
-    func signInWithSpotify() async throws -> AuthToken {
-            throw NetworkError.invalidURL
-        }
-        
-        let configuration = try await OIDAuthorizationService.discoverConfiguration(forIssuer: spotifyIssuer)
-        
-        let request = OIDAuthorizationRequest(
-            configuration: configuration,
-            clientId: "YOUR_SPOTIFY_CLIENT_ID", 
-            scopes: ["user-read-email", "user-read-private"],
-            redirectURL: redirectURI,
-            responseType: OIDResponseTypeCode,
-            additionalParameters: nil
-        )
-        
-        throw NetworkError.unknown(NSError(domain: "OAuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Spotify OAuth requires AppAuth view controller"]))
-    }
-    #else
-    func signInWithSpotify() async throws -> AuthToken {
-        throw NetworkError.unknown(NSError(domain: "OAuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "AppAuth not available. Add AppAuth-iOS via SPM"]))
-    }
-    #endif
     
     func handleOAuthCallback(authorizationCode: String, provider: OAuthProviderType, idToken: String? = nil, email: String? = nil, name: String? = nil, userIdentifier: String? = nil) async throws -> AuthToken {
         

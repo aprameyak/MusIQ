@@ -9,7 +9,6 @@ enum UserRole: String, Codable {
 enum OAuthProvider: String, Codable {
     case apple
     case google
-    case spotify
 }
 
 struct User: Identifiable, Codable {

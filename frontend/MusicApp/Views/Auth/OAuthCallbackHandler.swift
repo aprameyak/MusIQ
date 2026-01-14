@@ -39,10 +39,6 @@ struct OAuthCallbackHandler: ViewModifier {
                                     authorizationCode: code,
                                     idToken: idToken
                                 )
-                            case "spotify":
-                                await viewModel.loginWithSpotify(
-                                    authorizationCode: code
-                                )
                             default:
                                 break
                             }

@@ -125,16 +125,12 @@ struct OnboardingView: View {
                         
                         VStack(spacing: 12) {
                             AppleSignInButton(
-                                onSuccess: { code, idToken in
-                                    
-                                },
+                                onSuccess: { code, idToken in },
                                 onError: { _ in }
                             )
                             
-                            SpotifySignInButton(
-                                onSuccess: { code in
-                                    
-                                },
+                            GoogleSignInButton(
+                                onSuccess: { code, idToken in },
                                 onError: { _ in }
                             )
                         }
