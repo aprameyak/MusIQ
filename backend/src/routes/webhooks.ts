@@ -49,6 +49,9 @@ const sendDiscordFollowup = async (applicationId: string, interactionToken: stri
 };
 
 const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
+  console.log('--- NEW DISCORD INTERACTION ---');
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+
   const interaction = req.body as DiscordInteraction;
 
   if (interaction.type === 1) {
