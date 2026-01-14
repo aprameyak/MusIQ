@@ -40,7 +40,8 @@ const INTERACTION_TYPE = {
   APPLICATION_COMMAND: 2,
   MESSAGE_COMPONENT: 3,
   APPLICATION_COMMAND_AUTOCOMPLETE: 4,
-  MODAL_SUBMIT: 5
+  MODAL_SUBMIT: 5,
+  MODAL: 9
 };
 
 
@@ -73,11 +74,59 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
       });
 
       if (interaction.data?.name === 'create-issue') {
-        logger.info('create-issue command received', { interactionId: interaction.id });
+        logger.info('create-issue command received, sending modal', { interactionId: interaction.id });
         return res.status(200).json({
-          type: 4,
+          type: INTERACTION_TYPE.MODAL,
           data: {
-            content: '✅ create-issue command received'
+            title: 'Create GitHub Issue',
+            custom_id: 'create_issue_modal',
+            components: [
+              {
+                type: 1,
+                components: [
+                  {
+                    type: 4,
+                    custom_id: 'issue_title',
+                    label: 'Issue Title',
+                    style: 1,
+                    min_length: 1,
+                    max_length: 100,
+                    placeholder: 'Enter a descriptive title for the issue',
+                    required: true
+                  }
+                ]
+              },
+              {
+                type: 1,
+                components: [
+                  {
+                    type: 4,
+                    custom_id: 'issue_description',
+                    label: 'Description',
+                    style: 2,
+                    min_length: 1,
+                    max_length: 1000,
+                    placeholder: 'Describe the issue or feature request in detail',
+                    required: true
+                  }
+                ]
+              },
+              {
+                type: 1,
+                components: [
+                  {
+                    type: 4,
+                    custom_id: 'issue_type',
+                    label: 'Type',
+                    style: 1,
+                    min_length: 1,
+                    max_length: 20,
+                    placeholder: 'bug, feature, enhancement, or documentation',
+                    required: true
+                  }
+                ]
+              }
+            ]
           }
         });
       }
@@ -122,15 +171,20 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
         }
 
         const validTypes = ['bug', 'feature', 'enhancement', 'documentation'];
-        if (!validTypes.includes(type)) {
+        const normalizedType = type.toLowerCase();
+
+        if (!validTypes.includes(normalizedType)) {
+          logger.warn('Invalid issue type received', { type, normalizedType });
           return res.status(200).json({
             type: 4,
             data: {
-              content: 'Error: Invalid issue type. Please try again.',
+              content: `Error: "${type}" is not a valid issue type. Use one of: ${validTypes.join(', ')}.`,
               flags: 64
             }
           });
         }
+
+        const finalType = normalizedType;
 
         const user = interaction.member?.user || interaction.user;
         if (!user) {
@@ -145,22 +199,22 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
         }
 
         const discordUserId = user.id;
-        const discordUsername = user.discriminator === '0' 
-          ? user.username 
+        const discordUsername = user.discriminator === '0'
+          ? user.username
           : `${user.username}#${user.discriminator}`;
 
         try {
           await githubService.triggerRepositoryDispatch({
             title,
             description,
-            type,
+            type: finalType,
             discordUserId,
             discordUsername
           });
 
           logger.info('Issue creation request processed', {
             title,
-            type,
+            type: finalType,
             discordUserId,
             discordUsername
           });

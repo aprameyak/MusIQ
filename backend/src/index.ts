@@ -35,10 +35,7 @@ app.use(express.json({
   verify: (req: express.Request, _res: express.Response, buf: Buffer) => {
     
     const url = req.url || req.originalUrl || req.path;
-    if (url === '/interactions' || 
-        url === '/api/webhooks/discord' || 
-        url.startsWith('/interactions') ||
-        url.startsWith('/api/webhooks/discord')) {
+    if (url.includes('webhooks') || url.includes('interactions')) {
       (req as any).rawBody = buf;
     }
   }
