@@ -23,7 +23,7 @@ export const errorMiddleware = (
   req: Request,
   res: Response,
   _next: NextFunction
-) => {
+): void => {
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
 
@@ -55,13 +55,14 @@ export const errorMiddleware = (
     message.includes('Connection closed');
 
   if (isDatabaseError && statusCode === 500) {
-    return res.status(503).json({
+    res.status(503).json({
       success: false,
       error: {
         code: '503',
         message: 'Database temporarily unavailable. Please try again.'
       }
     });
+    return;
   }
 
   res.status(statusCode).json({

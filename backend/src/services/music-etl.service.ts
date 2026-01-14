@@ -25,12 +25,6 @@ interface SpotifyAlbum {
   };
 }
 
-interface SpotifyArtist {
-  id: string;
-  name: string;
-  images?: Array<{ url: string }>;
-}
-
 export class MusicETLService {
   private pool = getDatabasePool();
   private spotifyClientId: string;
@@ -64,10 +58,15 @@ export class MusicETLService {
         }
       );
 
-      this.spotifyAccessToken = response.data.access_token;
+      const accessToken = response.data.access_token;
+      if (!accessToken || typeof accessToken !== 'string') {
+        throw new Error('Failed to get Spotify access token');
+      }
+
+      this.spotifyAccessToken = accessToken;
       this.spotifyTokenExpiry = Date.now() + (response.data.expires_in * 1000) - 60000;
       
-      return this.spotifyAccessToken;
+      return accessToken;
     } catch (error) {
       logger.error('Failed to get Spotify access token', { error });
       throw error;

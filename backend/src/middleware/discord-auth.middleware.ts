@@ -3,13 +3,13 @@ import nacl from 'tweetnacl';
 import { CustomError } from './error.middleware';
 import { logger } from '../config/logger';
 
-interface DiscordRequest extends Request {
+export interface DiscordRequest extends Request {
   rawBody?: Buffer;
 }
 
 export const discordAuthMiddleware = (
   req: DiscordRequest,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ): void => {
   try {
