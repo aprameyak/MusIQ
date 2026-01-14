@@ -44,9 +44,10 @@ export class MusicETLService {
 
     try {
       const response = await axios.post(
+        'https://accounts.spotify.com/api/token',
         new URLSearchParams({
           grant_type: 'client_credentials',
-        }),
+        }).toString(),
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -64,7 +65,7 @@ export class MusicETLService {
 
       this.spotifyAccessToken = accessToken;
       this.spotifyTokenExpiry = Date.now() + (response.data.expires_in * 1000) - 60000;
-      
+
       return accessToken;
     } catch (error) {
       logger.error('Failed to get Spotify access token', { error });
@@ -76,6 +77,7 @@ export class MusicETLService {
     try {
       const token = await this.getSpotifyAccessToken();
       const response = await axios.get<{ albums: { items: SpotifyAlbum[] } }>(
+        'https://api.spotify.com/v1/browse/new-releases',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -97,8 +99,9 @@ export class MusicETLService {
   async fetchSpotifyFeaturedPlaylists(limit: number = 50): Promise<SpotifyTrack[]> {
     try {
       const token = await this.getSpotifyAccessToken();
-      
+
       const playlistsResponse = await axios.get<{ playlists: { items: Array<{ id: string }> } }>(
+        'https://api.spotify.com/v1/browse/featured-playlists',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -111,10 +114,11 @@ export class MusicETLService {
       );
 
       const tracks: SpotifyTrack[] = [];
-      
+
       for (const playlist of playlistsResponse.data.playlists.items.slice(0, 5)) {
         try {
           const tracksResponse = await axios.get<{ items: Array<{ track: SpotifyTrack }> }>(
+            `https://api.spotify.com/v1/playlists/${playlist.id}/tracks`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -142,6 +146,7 @@ export class MusicETLService {
     try {
       const token = await this.getSpotifyAccessToken();
       const response = await axios.get<{ items: Array<{ track: SpotifyTrack | null }> }>(
+        'https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwfc2tq/tracks',
         {
           headers: {
             Authorization: `Bearer ${token}`,
