@@ -10,6 +10,7 @@ const githubService = new GitHubService();
 
 interface DiscordInteraction {
   type: number;
+  id?: string;
   data?: {
     name?: string;
     custom_id?: string;
@@ -58,15 +59,29 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
   try {
     const interaction = req.body as DiscordInteraction;
 
+    logger.info('Discord interaction received', {
+      type: interaction.type,
+      id: interaction.id,
+      commandName: interaction.data?.name
+    });
+
     if (!interaction || typeof interaction.type !== 'number') {
-      throw new CustomError('Invalid interaction payload', 400);
+      logger.warn('Invalid interaction payload', { body: req.body });
+      return res.status(400).json({ error: 'Invalid interaction payload' });
     }
 
     if (interaction.type === INTERACTION_TYPE.PING) {
-      return res.json({ type: RESPONSE_TYPE.PONG });
+      logger.info('Handling PING - responding with type 1', { interactionId: interaction.id });
+      return res.status(200).json({ type: 1 });
     }
 
     if (interaction.type === INTERACTION_TYPE.APPLICATION_COMMAND) {
+      const commandName = interaction.data?.name || 'unknown';
+      logger.info('Handling APPLICATION_COMMAND', {
+        interactionId: interaction.id,
+        commandName
+      });
+
       if (interaction.data?.name === 'create-issue') {
         return res.json({
           type: RESPONSE_TYPE.MODAL,
@@ -238,30 +253,28 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
       }
     }
 
-    return res.json({
+    logger.warn('Unhandled interaction type', {
+      type: interaction.type,
+      interactionId: interaction.id
+    });
+
+    return res.status(200).json({
       type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
-        content: 'Unknown interaction type',
+        content: 'Interaction received but not handled.',
         flags: 64
       }
     });
   } catch (error) {
-    logger.error('Webhook handler error', { error });
-    
-    if (error instanceof CustomError) {
-      return res.status(error.statusCode || 500).json({
-        type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content: `Error: ${error.message}`,
-          flags: 64
-        }
-      });
-    }
+    logger.error('Error handling Discord interaction', {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined
+    });
 
     return res.status(500).json({
       type: RESPONSE_TYPE.CHANNEL_MESSAGE_WITH_SOURCE,
       data: {
-        content: 'An unexpected error occurred',
+        content: 'An error occurred processing the interaction.',
         flags: 64
       }
     });

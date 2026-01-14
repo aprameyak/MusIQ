@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import nacl from 'tweetnacl';
-import { CustomError } from './error.middleware';
 import { logger } from '../config/logger';
 
 export interface DiscordRequest extends Request {
@@ -9,7 +8,7 @@ export interface DiscordRequest extends Request {
 
 export const discordAuthMiddleware = (
   req: DiscordRequest,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ): void => {
   try {
@@ -19,17 +18,21 @@ export const discordAuthMiddleware = (
 
     if (!publicKey) {
       logger.error('DISCORD_PUBLIC_KEY not configured');
-      throw new CustomError('Discord authentication not configured', 500);
+      res.status(500).json({ error: 'Server configuration error' });
+      return;
     }
 
     if (!signature || !timestamp) {
-      throw new CustomError('Missing Discord signature headers', 401);
+      logger.warn('Missing Discord signature headers');
+      res.status(401).json({ error: 'Missing signature headers' });
+      return;
     }
 
-    
     const rawBody = req.rawBody;
     if (!rawBody || !Buffer.isBuffer(rawBody)) {
-      throw new CustomError('Invalid request body - raw body required', 400);
+      logger.warn('Invalid request body - raw body required');
+      res.status(400).json({ error: 'Invalid request body' });
+      return;
     }
 
     const bodyString = rawBody.toString('utf8');
@@ -48,7 +51,8 @@ export const discordAuthMiddleware = (
         signature: signature.substring(0, 10) + '...',
         timestamp
       });
-      throw new CustomError('Invalid Discord signature', 401);
+      res.status(401).json({ error: 'Invalid signature' });
+      return;
     }
 
     const requestTimestamp = parseInt(timestamp, 10);
@@ -61,18 +65,13 @@ export const discordAuthMiddleware = (
         currentTimestamp,
         timeDifference
       });
-      throw new CustomError('Request timestamp too old', 401);
+      res.status(401).json({ error: 'Request timestamp too old' });
+      return;
     }
-
-    
 
     next();
   } catch (error) {
-    if (error instanceof CustomError) {
-      next(error);
-    } else {
-      logger.error('Discord auth middleware error', { error });
-      next(new CustomError('Discord authentication failed', 500));
-    }
+    logger.error('Discord auth middleware error', { error });
+    res.status(500).json({ error: 'Authentication failed' });
   }
 };
