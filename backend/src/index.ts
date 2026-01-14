@@ -30,7 +30,7 @@ app.use(applyHpp);
 // JSON parser with raw body preservation for Discord webhook signature verification
 app.use(express.json({
   limit: '10mb',
-  verify: (req, res, buf) => {
+  verify: (req: express.Request, _res: express.Response, buf: Buffer) => {
     if (req.path === '/api/webhooks/discord') {
       (req as any).rawBody = buf;
     }

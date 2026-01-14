@@ -25,7 +25,7 @@ export const getDatabasePool = (): Pool => {
 
     pool = new Pool(config);
 
-    pool.on('error', (err) => {
+    pool.on('error', (err: NodeJS.ErrnoException) => {
       logger.error('Unexpected database pool error', {
         message: err.message,
         code: err.code,
@@ -39,7 +39,7 @@ export const getDatabasePool = (): Pool => {
       }
     });
 
-    pool.on('connect', (client) => {
+    pool.on('connect', (_client) => {
       logger.debug('Database connection established', {
         totalCount: pool?.totalCount,
         idleCount: pool?.idleCount,

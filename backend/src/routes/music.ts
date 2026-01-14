@@ -151,7 +151,7 @@ router.get(
             ? (rawQuery[0] ?? '')
             : '';
 
-      if (!query || query.length < 2) {
+      if (!query || (typeof query === 'string' && query.length < 2)) {
         res.json({
           success: true,
           data: []

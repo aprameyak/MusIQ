@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Response } from 'express';
 import { discordAuthMiddleware, DiscordRequest } from '../middleware/discord-auth.middleware';
 import { webhookLimiter } from '../middleware/rate-limit.middleware';
 import { GitHubService } from '../services/github.service';
