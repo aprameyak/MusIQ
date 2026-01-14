@@ -96,7 +96,7 @@ export class AuthService {
     }
 
     if (user.mfa_enabled) {
-      // TODO: Implement MFA verification
+      
       logger.warn('User has MFA enabled but MFA verification is not implemented', { userId: user.id });
     }
 
