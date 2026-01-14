@@ -30,8 +30,6 @@ struct GoogleSignInButton: View {
     @MainActor
     private func performGoogleSignIn() async {
         #if canImport(AppAuth)
-        guard let googleIssuer = URL(string: "https://accounts.google.com"),
-              let redirectURI = URL(string: "com.musiq://oauth/google/callback") else {
             onError(NetworkError.invalidURL)
             return
         }

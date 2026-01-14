@@ -44,7 +44,6 @@ export class MusicETLService {
 
     try {
       const response = await axios.post(
-        'https://accounts.spotify.com/api/token',
         new URLSearchParams({
           grant_type: 'client_credentials',
         }),
@@ -77,7 +76,6 @@ export class MusicETLService {
     try {
       const token = await this.getSpotifyAccessToken();
       const response = await axios.get<{ albums: { items: SpotifyAlbum[] } }>(
-        'https://api.spotify.com/v1/browse/new-releases',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -101,7 +99,6 @@ export class MusicETLService {
       const token = await this.getSpotifyAccessToken();
       
       const playlistsResponse = await axios.get<{ playlists: { items: Array<{ id: string }> } }>(
-        'https://api.spotify.com/v1/browse/featured-playlists',
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -118,7 +115,6 @@ export class MusicETLService {
       for (const playlist of playlistsResponse.data.playlists.items.slice(0, 5)) {
         try {
           const tracksResponse = await axios.get<{ items: Array<{ track: SpotifyTrack }> }>(
-            `https://api.spotify.com/v1/playlists/${playlist.id}/tracks`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -146,7 +142,6 @@ export class MusicETLService {
     try {
       const token = await this.getSpotifyAccessToken();
       const response = await axios.get<{ items: Array<{ track: SpotifyTrack | null }> }>(
-        'https://api.spotify.com/v1/playlists/37i9dQZEVXbMDoHDwVN2tF/tracks',
         {
           headers: {
             Authorization: `Bearer ${token}`,
