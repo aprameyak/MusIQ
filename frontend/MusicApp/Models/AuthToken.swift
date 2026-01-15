@@ -15,12 +15,11 @@ struct AuthToken: Codable {
 }
 
 struct LoginRequest: Codable {
-    let email: String
+    let username: String
     let password: String
 }
 
 struct SignupRequest: Codable {
-    let email: String
     let username: String
     let password: String
 }

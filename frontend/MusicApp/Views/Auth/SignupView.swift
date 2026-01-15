@@ -29,25 +29,6 @@ struct SignupView: View {
                     
                     VStack(spacing: 20) {
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Email")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(AppColors.textSecondary)
-                            
-                            TextField("", text: $viewModel.email)
-                                .textFieldStyle(PlainTextFieldStyle())
-                                .padding()
-                                .background(AppColors.cardBackground)
-                                .cornerRadius(AppStyles.cornerRadiusMedium)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                                        .stroke(AppColors.border, lineWidth: 1)
-                                )
-                                .foregroundColor(AppColors.textPrimary)
-                                .autocapitalization(.none)
-                                .keyboardType(.emailAddress)
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 8) {
                             Text("Username")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(AppColors.textSecondary)
@@ -63,6 +44,10 @@ struct SignupView: View {
                                 )
                                 .foregroundColor(AppColors.textPrimary)
                                 .autocapitalization(.none)
+                            
+                            Text("3-30 characters, letters, numbers, and underscores only")
+                                .font(.system(size: 11))
+                                .foregroundColor(AppColors.textSecondary)
                         }
                         
                         VStack(alignment: .leading, spacing: 8) {
@@ -80,6 +65,52 @@ struct SignupView: View {
                                         .stroke(AppColors.border, lineWidth: 1)
                                 )
                                 .foregroundColor(AppColors.textPrimary)
+                                .onChange(of: viewModel.password) { newValue in
+                                    viewModel.passwordErrors = viewModel.validatePassword(newValue)
+                                }
+                            
+                            if !viewModel.passwordErrors.isEmpty {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    ForEach(viewModel.passwordErrors, id: \.self) { error in
+                                        Text("• \(error)")
+                                            .font(.system(size: 11))
+                                            .foregroundColor(AppColors.accent)
+                                    }
+                                }
+                            } else if !viewModel.password.isEmpty {
+                                Text("✓ Password meets all requirements")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Confirm Password")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(AppColors.textSecondary)
+                            
+                            SecureField("", text: $viewModel.confirmPassword)
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .padding()
+                                .background(AppColors.cardBackground)
+                                .cornerRadius(AppStyles.cornerRadiusMedium)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
+                                        .stroke(AppColors.border, lineWidth: 1)
+                                )
+                                .foregroundColor(AppColors.textPrimary)
+                            
+                            if !viewModel.confirmPassword.isEmpty {
+                                if viewModel.password == viewModel.confirmPassword {
+                                    Text("✓ Passwords match")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.green)
+                                } else {
+                                    Text("Passwords do not match")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(AppColors.accent)
+                                }
+                            }
                         }
                         
                         if let error = viewModel.errorMessage {
@@ -107,60 +138,11 @@ struct SignupView: View {
                     }
                     .padding(.horizontal, AppStyles.paddingLarge)
                     
-                    VStack(spacing: 16) {
-                        HStack {
-                            Rectangle()
-                                .fill(AppColors.secondaryBackground)
-                                .frame(height: 1)
-                            
-                            Text("or continue with")
-                                .font(.system(size: 12))
-                                .foregroundColor(AppColors.textSecondary)
-                            
-                            Rectangle()
-                                .fill(AppColors.secondaryBackground)
-                                .frame(height: 1)
-                        }
-                        .padding(.horizontal, AppStyles.paddingLarge)
-                        
-                        HStack(spacing: 12) {
-                            AppleSignInButton(
-                                onSuccess: { code, idToken in
-                                    Task {
-                                        await viewModel.loginWithApple(
-                                            authorizationCode: code,
-                                            identityToken: idToken
-                                        )
-                                    }
-                                },
-                                onError: { error in
-                                    viewModel.errorMessage = error.localizedDescription
-                                }
-                            )
-                            
-                            GoogleSignInButton(
-                                onSuccess: { code, idToken in
-                                    Task {
-                                        await viewModel.loginWithGoogle(
-                                            authorizationCode: code,
-                                            idToken: idToken
-                                        )
-                                    }
-                                },
-                                onError: { error in
-                                    viewModel.errorMessage = error.localizedDescription
-                                }
-                            )
-                        }
-                        .padding(.horizontal, AppStyles.paddingLarge)
-                    }
-                    
                     Spacer()
                         .frame(height: 40)
                 }
             }
         }
-        .handleOAuthCallbacks(viewModel: viewModel)
     }
 }
 

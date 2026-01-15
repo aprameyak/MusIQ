@@ -21,10 +21,6 @@ export const validate = (validations: ValidationChain[]) => {
 };
 
 export const signupValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Valid email is required')
-    .normalizeEmail(),
   body('username')
     .trim()
     .isLength({ min: 3, max: 30 })
@@ -32,17 +28,27 @@ export const signupValidation = [
     .matches(/^[a-zA-Z0-9_]+$/)
     .withMessage('Username can only contain letters, numbers, and underscores'),
   body('password')
-    .isLength({ min: 8 })
-    .withMessage('Password must be at least 8 characters')
-    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number')
+    .isLength({ min: 8, max: 128 })
+    .withMessage('Password must be between 8 and 128 characters')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'),
+  body('confirmPassword')
+    .custom((value, { req }) => {
+      if (value !== req.body.password) {
+        throw new Error('Passwords do not match');
+      }
+      return true;
+    })
+    .withMessage('Passwords must match')
 ];
 
 export const loginValidation = [
-  body('email')
-    .isEmail()
-    .withMessage('Valid email is required')
-    .normalizeEmail(),
+  body('username')
+    .trim()
+    .notEmpty()
+    .withMessage('Username is required')
+    .isLength({ min: 3, max: 30 })
+    .withMessage('Username must be between 3 and 30 characters'),
   body('password')
     .notEmpty()
     .withMessage('Password is required')

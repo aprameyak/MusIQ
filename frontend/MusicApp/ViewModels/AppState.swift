@@ -31,14 +31,40 @@ class AppState: ObservableObject {
     @MainActor
     init() {
         hasCompletedOnboarding = userDefaults.bool(forKey: onboardingKey)
-        isAuthenticated = userDefaults.bool(forKey: authKey)
+        
+        let hasAccessToken = KeychainHelper.retrieve(forKey: "accessToken") != nil
+        isAuthenticated = hasAccessToken
+        
+        if !hasAccessToken {
+            userDefaults.set(false, forKey: authKey)
+        }
         
         if !hasCompletedOnboarding {
             currentScreen = .onboarding
         } else if !isAuthenticated {
             currentScreen = .authentication
         } else {
+            Task {
+                await verifyAuthentication()
+            }
             currentScreen = .main
+        }
+    }
+    
+    @MainActor
+    private func verifyAuthentication() async {
+        let authService = AuthService()
+        do {
+            let user = try await authService.getCurrentUser()
+            self.currentUser = user
+            self.isAuthenticated = true
+            userDefaults.set(true, forKey: authKey)
+        } catch {
+            self.isAuthenticated = false
+            self.currentUser = nil
+            userDefaults.set(false, forKey: authKey)
+            KeychainHelper.clearAll()
+            self.currentScreen = .authentication
         }
     }
     
@@ -62,6 +88,7 @@ class AppState: ObservableObject {
         isAuthenticated = false
         currentUser = nil
         userDefaults.set(false, forKey: authKey)
+        KeychainHelper.clearAll()
         currentScreen = .authentication
     }
     
