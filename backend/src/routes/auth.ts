@@ -13,8 +13,8 @@ router.post(
   validate(signupValidation),
   async (req, res, next) => {
     try {
-      const { email, username, password } = req.body;
-      const tokens = await authService.signup(email, username, password);
+      const { username, password } = req.body;
+      const tokens = await authService.signup(username, password);
       
       res.json({
         success: true,
@@ -33,12 +33,12 @@ router.post(
   validate(loginValidation),
   async (req, res, next) => {
     try {
-      const { email, password } = req.body;
+      const { username, password } = req.body;
       const deviceId = req.headers['x-device-id'] as string;
       const ipAddress = req.ip || req.socket.remoteAddress || undefined;
       const userAgent = req.headers['user-agent'] || undefined;
 
-      const tokens = await authService.login(email, password, deviceId, ipAddress, userAgent);
+      const tokens = await authService.login(username, password, deviceId, ipAddress, userAgent);
       
       res.json({
         success: true,

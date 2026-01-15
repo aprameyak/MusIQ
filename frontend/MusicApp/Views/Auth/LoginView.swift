@@ -29,11 +29,11 @@ struct LoginView: View {
                 
                 VStack(spacing: 20) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Email")
+                        Text("Username")
                             .font(.system(size: 14, weight: .medium))
                             .foregroundColor(AppColors.textSecondary)
                         
-                        TextField("", text: $viewModel.email)
+                        TextField("", text: $viewModel.username)
                             .textFieldStyle(PlainTextFieldStyle())
                             .padding()
                             .background(AppColors.cardBackground)
@@ -44,7 +44,6 @@ struct LoginView: View {
                             )
                             .foregroundColor(AppColors.textPrimary)
                             .autocapitalization(.none)
-                            .keyboardType(.emailAddress)
                     }
                     
                     VStack(alignment: .leading, spacing: 8) {
@@ -89,58 +88,10 @@ struct LoginView: View {
                 }
                 .padding(.horizontal, AppStyles.paddingLarge)
                 
-                VStack(spacing: 16) {
-                    HStack {
-                        Rectangle()
-                            .fill(AppColors.secondaryBackground)
-                            .frame(height: 1)
-                        
-                        Text("or continue with")
-                            .font(.system(size: 12))
-                            .foregroundColor(AppColors.textSecondary)
-                        
-                        Rectangle()
-                            .fill(AppColors.secondaryBackground)
-                            .frame(height: 1)
-                    }
-                    .padding(.horizontal, AppStyles.paddingLarge)
-                    
-                    HStack(spacing: 12) {
-                        AppleSignInButton(
-                            onSuccess: { code, idToken in
-                                Task {
-                                    await viewModel.loginWithApple(
-                                        authorizationCode: code,
-                                        identityToken: idToken
-                                    )
-                                }
-                            },
-                            onError: { error in
-                                viewModel.errorMessage = error.localizedDescription
-                            }
-                        )
-                        
-                        GoogleSignInButton(
-                            onSuccess: { code, idToken in
-                                Task {
-                                    await viewModel.loginWithGoogle(
-                                        authorizationCode: code,
-                                        idToken: idToken
-                                    )
-                                }
-                            },
-                            onError: { error in
-                                viewModel.errorMessage = error.localizedDescription
-                            }
-                        )
-                    }
-                    .padding(.horizontal, AppStyles.paddingLarge)
-                }
                 
                 Spacer()
             }
         }
-        .handleOAuthCallbacks(viewModel: viewModel)
     }
 }
 

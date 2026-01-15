@@ -1,0 +1,168 @@
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://musiq-sc2d.onrender.com/api';
+
+export interface AuthTokens {
+  accessToken: string;
+  refreshToken: string;
+}
+
+export interface SignupData {
+  username: string;
+  password: string;
+  confirmPassword: string;
+}
+
+export interface LoginData {
+  username: string;
+  password: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+class ApiClient {
+  private baseUrl: string;
+
+  constructor() {
+    this.baseUrl = API_BASE_URL;
+  }
+
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${this.baseUrl}${endpoint}`;
+    const token = this.getAccessToken();
+
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        headers,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data.error || {
+            code: response.status.toString(),
+            message: data.message || 'An error occurred',
+          },
+        };
+      }
+
+      return {
+        success: true,
+        data: data.data || data,
+        message: data.message,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          code: 'NETWORK_ERROR',
+          message: error instanceof Error ? error.message : 'Network error occurred',
+        },
+      };
+    }
+  }
+
+  async signup(data: SignupData): Promise<ApiResponse<AuthTokens>> {
+    const { confirmPassword, ...signupPayload } = data;
+    return this.request<AuthTokens>('/auth/signup', {
+      method: 'POST',
+      body: JSON.stringify(signupPayload),
+    });
+  }
+
+  async login(data: LoginData): Promise<ApiResponse<AuthTokens>> {
+    return this.request<AuthTokens>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async refreshToken(refreshToken: string): Promise<ApiResponse<AuthTokens>> {
+    return this.request<AuthTokens>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    });
+  }
+
+  async logout(refreshToken?: string): Promise<ApiResponse<void>> {
+    return this.request<void>('/auth/logout', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+    });
+  }
+
+  async getCurrentUser(): Promise<ApiResponse<any>> {
+    return this.request<any>('/auth/me', {
+      method: 'GET',
+    });
+  }
+
+  async oauthGoogle(token: string, email?: string, name?: string, userId?: string): Promise<ApiResponse<AuthTokens>> {
+    return this.request<AuthTokens>('/auth/oauth/google', {
+      method: 'POST',
+      body: JSON.stringify({ token, email, name, userId }),
+    });
+  }
+
+  async oauthApple(token: string, email?: string, name?: string, userIdentifier?: string): Promise<ApiResponse<AuthTokens>> {
+    return this.request<AuthTokens>('/auth/oauth/apple', {
+      method: 'POST',
+      body: JSON.stringify({ token, idToken: token, email, name, userIdentifier }),
+    });
+  }
+
+  setTokens(tokens: AuthTokens): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('accessToken', tokens.accessToken);
+      localStorage.setItem('refreshToken', tokens.refreshToken);
+    }
+  }
+
+  getAccessToken(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('accessToken');
+    }
+    return null;
+  }
+
+  getRefreshToken(): string | null {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('refreshToken');
+    }
+    return null;
+  }
+
+  clearTokens(): void {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.getAccessToken();
+  }
+}
+
+export const apiClient = new ApiClient();

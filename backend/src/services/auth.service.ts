@@ -42,57 +42,59 @@ export class AuthService {
     this.bcryptRounds = parseInt(process.env.BCRYPT_ROUNDS || '10');
   }
 
-  async signup(email: string, username: string, password: string): Promise<AuthTokens> {
+  async signup(username: string, password: string): Promise<AuthTokens> {
     
     const existingUser = await this.pool.query(
-      'SELECT id FROM users WHERE email = $1 OR username = $2',
-      [email, username]
+      'SELECT id FROM users WHERE username = $1',
+      [username]
     );
 
     if (existingUser.rows.length > 0) {
-      throw new CustomError('User with this email or username already exists', 409);
+      throw new CustomError('Username already exists', 409);
     }
 
     const passwordHash = await bcrypt.hash(password, this.bcryptRounds);
+
+    const placeholderEmail = `${username}@musiq.local`;
 
     const result = await this.pool.query(
       `INSERT INTO users (email, username, password_hash, role)
        VALUES ($1, $2, $3, $4)
        RETURNING id, email, username, role, created_at, updated_at`,
-      [email, username, passwordHash, 'user']
+      [placeholderEmail, username, passwordHash, 'user']
     );
 
     const user = result.rows[0];
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    const tokens = await this.generateTokens(user.id, user.username, user.role);
 
     await this.storeRefreshToken(user.id, tokens.refreshToken, null, null, null);
 
-    logger.info('User signed up', { userId: user.id, email });
+    logger.info('User signed up', { userId: user.id, username });
 
     return tokens;
   }
 
-  async login(email: string, password: string, deviceId?: string, ipAddress?: string, userAgent?: string): Promise<AuthTokens> {
+  async login(username: string, password: string, deviceId?: string, ipAddress?: string, userAgent?: string): Promise<AuthTokens> {
     
     const result = await this.pool.query(
-      'SELECT id, email, username, password_hash, role, mfa_enabled FROM users WHERE email = $1 AND deleted_at IS NULL',
-      [email]
+      'SELECT id, email, username, password_hash, role, mfa_enabled FROM users WHERE username = $1 AND deleted_at IS NULL',
+      [username]
     );
 
     if (result.rows.length === 0) {
-      throw new CustomError('Invalid email or password', 401);
+      throw new CustomError('Invalid username or password', 401);
     }
 
     const user = result.rows[0];
 
     if (!user.password_hash) {
-      throw new CustomError('Invalid email or password', 401);
+      throw new CustomError('Invalid username or password', 401);
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
     if (!isValidPassword) {
-      throw new CustomError('Invalid email or password', 401);
+      throw new CustomError('Invalid username or password', 401);
     }
 
     if (user.mfa_enabled) {
@@ -105,11 +107,11 @@ export class AuthService {
       [user.id]
     );
 
-    const tokens = await this.generateTokens(user.id, user.email, user.role);
+    const tokens = await this.generateTokens(user.id, user.username, user.role);
 
     await this.storeRefreshToken(user.id, tokens.refreshToken, deviceId, ipAddress, userAgent);
 
-    logger.info('User logged in', { userId: user.id, email });
+    logger.info('User logged in', { userId: user.id, username });
 
     return tokens;
   }
@@ -123,7 +125,7 @@ export class AuthService {
     }
 
     const tokenResult = await this.pool.query(
-      `SELECT rt.*, u.id as user_id, u.email, u.role
+      `SELECT rt.*, u.id as user_id, u.username, u.role
        FROM refresh_tokens rt
        JOIN users u ON rt.user_id = u.id
        WHERE rt.token = $1 AND rt.revoked_at IS NULL AND rt.expires_at > NOW() AND u.deleted_at IS NULL`,
@@ -141,7 +143,7 @@ export class AuthService {
       [tokenData.id]
     );
 
-    const tokens = await this.generateTokens(tokenData.user_id, tokenData.email, tokenData.role);
+    const tokens = await this.generateTokens(tokenData.user_id, tokenData.username, tokenData.role);
 
     await this.storeRefreshToken(
       tokenData.user_id,
@@ -193,10 +195,10 @@ export class AuthService {
     return result.rows[0];
   }
 
-  async generateTokens(userId: string, email: string, role: string): Promise<AuthTokens> {
+  async generateTokens(userId: string, identifier: string, role: string): Promise<AuthTokens> {
     const payload = {
       userId,
-      email,
+      identifier,
       role,
       iat: Math.floor(Date.now() / 1000)
     };
