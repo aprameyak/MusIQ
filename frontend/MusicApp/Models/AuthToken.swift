@@ -22,6 +22,7 @@ struct LoginRequest: Codable {
 struct SignupRequest: Codable {
     let username: String
     let password: String
+    let confirmPassword: String
 }
 
 struct RefreshTokenRequest: Codable {
