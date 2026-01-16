@@ -9,17 +9,8 @@ enum AppScreen {
     case main
 }
 
-enum ActiveTab: String, CaseIterable {
-    case pulse = "pulse"
-    case charts = "charts"
-    case profile = "profile"
-    case social = "social"
-    case notifications = "notifications"
-}
-
 class AppState: ObservableObject {
     @Published var currentScreen: AppScreen = .splash
-    @Published var activeTab: ActiveTab = .pulse
     @Published var hasCompletedOnboarding: Bool = false
     @Published var isAuthenticated: Bool = false
     @Published var currentUser: User?
@@ -90,11 +81,6 @@ class AppState: ObservableObject {
         userDefaults.set(false, forKey: authKey)
         KeychainHelper.clearAll()
         currentScreen = .authentication
-    }
-    
-    @MainActor
-    func setActiveTab(_ tab: ActiveTab) {
-        activeTab = tab
     }
 }
 

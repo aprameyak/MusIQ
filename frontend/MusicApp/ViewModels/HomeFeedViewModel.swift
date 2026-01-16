@@ -2,24 +2,9 @@ import Foundation
 import Combine
 import SwiftUI
 
-enum FeedFilter: String, CaseIterable {
-    case trending = "trending"
-    case forYou = "forYou"
-    case following = "following"
-    
-    var displayName: String {
-        switch self {
-        case .trending: return "Trending"
-        case .forYou: return "For You"
-        case .following: return "Following"
-        }
-    }
-}
-
 @MainActor
 class HomeFeedViewModel: ObservableObject {
     @Published var feedItems: [MusicItem] = []
-    @Published var activeFilter: FeedFilter = .trending
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
     @Published var selectedItem: MusicItem?
@@ -36,19 +21,12 @@ class HomeFeedViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            feedItems = try await musicService.getFeed(filter: activeFilter.rawValue)
+            feedItems = try await musicService.getFeed(filter: "forYou")
         } catch {
             errorMessage = error.localizedDescription
         }
         
         isLoading = false
-    }
-    
-    func setFilter(_ filter: FeedFilter) {
-        activeFilter = filter
-        Task {
-            await loadFeed()
-        }
     }
     
     func selectItemForRating(_ item: MusicItem) {

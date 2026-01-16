@@ -3,6 +3,8 @@ import SwiftUI
 struct HomeFeedView: View {
     @StateObject private var viewModel = HomeFeedViewModel()
     @StateObject private var ratingViewModel = RatingViewModel()
+    @ObservedObject var appState = AppState.shared
+    @State private var showProfile = false
     
     var body: some View {
         ZStack {
@@ -20,59 +22,14 @@ struct HomeFeedView: View {
                         
                         Spacer()
                         
-                        Button(action: {}) {
-                            Image(systemName: "line.3.horizontal.decrease")
-                                .font(.system(size: 20))
+                        Button(action: {
+                            showProfile = true
+                        }) {
+                            Image(systemName: "person.circle.fill")
+                                .font(.system(size: 24))
                                 .foregroundColor(AppColors.textSecondary)
                                 .frame(width: 40, height: 40)
-                                .background(AppColors.cardBackground)
-                                .cornerRadius(AppStyles.cornerRadiusMedium)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                                        .stroke(AppColors.border, lineWidth: 1)
-                                )
                         }
-                    }
-                    
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            ForEach(FeedFilter.allCases, id: \.self) { filter in
-                                Button(action: {
-                                    viewModel.setFilter(filter)
-                                }) {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: iconName(for: filter))
-                                            .font(.system(size: 14))
-                                        
-                                        Text(filter.displayName)
-                                            .font(.system(size: 14, weight: .medium))
-                                    }
-                                    .foregroundColor(
-                                        viewModel.activeFilter == filter ?
-                                        AppColors.textPrimary :
-                                        AppColors.textSecondary
-                                    )
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 8)
-                                    .background(
-                                        viewModel.activeFilter == filter ?
-                                        AppColors.primary :
-                                        AppColors.cardBackground
-                                    )
-                                    .cornerRadius(AppStyles.cornerRadiusMedium)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
-                                            .stroke(
-                                                viewModel.activeFilter == filter ?
-                                                Color.clear :
-                                                AppColors.border,
-                                                lineWidth: 1
-                                            )
-                                    )
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 4)
                     }
                 }
                 .padding(.horizontal, AppStyles.paddingMedium)
@@ -112,7 +69,7 @@ struct HomeFeedView: View {
                             }
                         }
                         .padding(.top, 8)
-                        .padding(.bottom, 100)
+                        .padding(.bottom, 20)
                     }
                 }
             }
@@ -135,16 +92,11 @@ struct HomeFeedView: View {
                 )
             }
         }
+        .sheet(isPresented: $showProfile) {
+            ProfileView(appState: appState)
+        }
         .task {
             await viewModel.loadFeed()
-        }
-    }
-    
-    private func iconName(for filter: FeedFilter) -> String {
-        switch filter {
-        case .trending: return "arrow.up"
-        case .forYou: return "sparkles"
-        case .following: return "person.2.fill"
         }
     }
 }
