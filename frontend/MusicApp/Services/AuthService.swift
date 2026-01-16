@@ -14,7 +14,6 @@ class AuthService {
             
             guard response.success, let data = response.data else {
                 if let error = response.error {
-                    print("Login Error: \(error.code) - \(error.message)")
                     throw NetworkError.unknown(NSError(domain: "AuthService", code: Int(error.code) ?? 401, userInfo: [NSLocalizedDescriptionKey: error.message]))
                 }
                 throw NetworkError.unauthorized
@@ -24,7 +23,6 @@ class AuthService {
         } catch let error as NetworkError {
             throw error
         } catch {
-            print("Login Unexpected Error: \(error)")
             throw NetworkError.unknown(error)
         }
     }
@@ -40,7 +38,6 @@ class AuthService {
             
             guard response.success, let data = response.data else {
                 if let error = response.error {
-                    print("Signup Error: \(error.code) - \(error.message)")
                     throw NetworkError.unknown(NSError(domain: "AuthService", code: Int(error.code) ?? 400, userInfo: [NSLocalizedDescriptionKey: error.message]))
                 }
                 throw NetworkError.unknown(NSError(domain: "AuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Signup failed"]))
@@ -50,7 +47,6 @@ class AuthService {
         } catch let error as NetworkError {
             throw error
         } catch {
-            print("Signup Unexpected Error: \(error)")
             throw NetworkError.unknown(error)
         }
     }

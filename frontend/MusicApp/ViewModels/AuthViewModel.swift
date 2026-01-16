@@ -60,9 +60,8 @@ class AuthViewModel: ObservableObject {
             let user = try await authService.getCurrentUser()
             isAuthenticated = true
             
-            if let appState = try? await getAppState() {
-                appState.authenticate(user: user)
-            }
+            let appState = getAppState()
+            appState.authenticate(user: user)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -102,7 +101,7 @@ class AuthViewModel: ObservableObject {
         }
         
         do {
-            let request = SignupRequest(username: username, password: password)
+            let request = SignupRequest(username: username, password: password, confirmPassword: confirmPassword)
             let token = try await authService.signup(request: request)
             
             KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
