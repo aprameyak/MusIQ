@@ -42,7 +42,7 @@ export const getDatabasePool = (): Pool => {
       }
     });
 
-    pool.on('connect', (_client) => {
+    pool.on('connect', (_client: any) => {
       logger.debug('Database connection established', {
         totalCount: pool?.totalCount,
         idleCount: pool?.idleCount,

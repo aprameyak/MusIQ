@@ -28,9 +28,66 @@ export interface ApiResponse<T> {
 
 class ApiClient {
   private baseUrl: string;
+  private readonly ENCRYPTION_PREFIX = 'enc:';
 
   constructor() {
     this.baseUrl = API_BASE_URL;
+  }
+
+  private getEncryptionKey(): string {
+    if (typeof window === 'undefined') return '';
+    
+    let key = sessionStorage.getItem('encryptionKey');
+    if (!key) {
+      key = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      sessionStorage.setItem('encryptionKey', key);
+    }
+    return key;
+  }
+
+  private encrypt(text: string): string {
+    if (typeof window === 'undefined') return text;
+    
+    try {
+      const key = this.getEncryptionKey();
+      const keyBytes = new TextEncoder().encode(key);
+      const textBytes = new TextEncoder().encode(text);
+      
+      const encrypted = textBytes.map((byte, i) => 
+        byte ^ keyBytes[i % keyBytes.length]
+      );
+      
+      return this.ENCRYPTION_PREFIX + btoa(String.fromCharCode(...encrypted));
+    } catch (error) {
+      console.error('Encryption error:', error);
+      return text;
+    }
+  }
+
+  private decrypt(encryptedText: string): string {
+    if (typeof window === 'undefined') return encryptedText;
+    
+    if (!encryptedText.startsWith(this.ENCRYPTION_PREFIX)) {
+      return encryptedText;
+    }
+    
+    try {
+      const encrypted = encryptedText.slice(this.ENCRYPTION_PREFIX.length);
+      const encryptedBytes = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
+      const key = this.getEncryptionKey();
+      const keyBytes = new TextEncoder().encode(key);
+      
+      const decrypted = encryptedBytes.map((byte, i) => 
+        byte ^ keyBytes[i % keyBytes.length]
+      );
+      
+      return new TextDecoder().decode(decrypted);
+    } catch (error) {
+      console.error('Decryption error:', error);
+      return encryptedText;
+    }
   }
 
   private async request<T>(
@@ -38,7 +95,7 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
-    const token = this.getAccessToken();
+    const token = await this.getAccessToken();
 
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
@@ -134,21 +191,27 @@ class ApiClient {
 
   setTokens(tokens: AuthTokens): void {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('accessToken', tokens.accessToken);
-      localStorage.setItem('refreshToken', tokens.refreshToken);
+      const encryptedAccess = this.encrypt(tokens.accessToken);
+      const encryptedRefresh = this.encrypt(tokens.refreshToken);
+      localStorage.setItem('accessToken', encryptedAccess);
+      localStorage.setItem('refreshToken', encryptedRefresh);
     }
   }
 
-  getAccessToken(): string | null {
+  async getAccessToken(): Promise<string | null> {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('accessToken');
+      const encrypted = localStorage.getItem('accessToken');
+      if (!encrypted) return null;
+      return this.decrypt(encrypted);
     }
     return null;
   }
 
   getRefreshToken(): string | null {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('refreshToken');
+      const encrypted = localStorage.getItem('refreshToken');
+      if (!encrypted) return null;
+      return this.decrypt(encrypted);
     }
     return null;
   }
@@ -160,8 +223,9 @@ class ApiClient {
     }
   }
 
-  isAuthenticated(): boolean {
-    return !!this.getAccessToken();
+  async isAuthenticated(): Promise<boolean> {
+    const token = await this.getAccessToken();
+    return !!token;
   }
 }
 

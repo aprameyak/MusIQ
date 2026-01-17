@@ -70,9 +70,9 @@ router.get(
       );
       const newItemIds = new Set(newItemsResult.rows.map((r: any) => r.id));
 
-      const rankings = result.rows.map((row, index) => {
+      const rankings = result.rows.map((row: any, index: number) => {
         const currentRank = index + 1;
-        const previousRank = previousRankMap.get(row.id);
+        const previousRank: number | undefined = previousRankMap.get(row.id);
         const change = previousRank ? previousRank - currentRank : 0;
         const isNew = newItemIds.has(row.id);
 
@@ -164,9 +164,9 @@ router.get(
       );
       const newItemIds = new Set(newItemsResult.rows.map((r: any) => r.id));
 
-      const rankings = result.rows.map((row, index) => {
+      const rankings = result.rows.map((row: any, index: number) => {
         const currentRank = index + 1;
-        const previousRank = previousRankMap.get(row.id);
+        const previousRank: number | undefined = previousRankMap.get(row.id);
         const change = previousRank ? previousRank - currentRank : 0;
         const isNew = newItemIds.has(row.id);
 
@@ -258,9 +258,9 @@ router.get(
       );
       const newItemIds = new Set(newItemsResult.rows.map((r: any) => r.id));
 
-      const rankings = result.rows.map((row, index) => {
+      const rankings = result.rows.map((row: any, index: number) => {
         const currentRank = index + 1;
-        const previousRank = previousRankMap.get(row.id);
+        const previousRank: number | undefined = previousRankMap.get(row.id);
         const change = previousRank ? previousRank - currentRank : 0;
         const isNew = newItemIds.has(row.id);
 

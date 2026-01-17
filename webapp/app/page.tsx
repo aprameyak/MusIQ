@@ -12,7 +12,7 @@ export default function Home() {
 
   useEffect(() => {
     const checkAuth = async () => {
-      if (apiClient.isAuthenticated()) {
+      if (await apiClient.isAuthenticated()) {
         try {
           const response = await apiClient.getCurrentUser();
           if (response.success && response.data) {

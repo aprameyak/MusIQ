@@ -48,7 +48,7 @@ router.get(
 
       const result = await pool.query(query, queryParams);
 
-      const items = await Promise.all(result.rows.map(async (row) => {
+      const items = await Promise.all(result.rows.map(async (row: any) => {
         let trendingChange: number | null = null;
         if (parseInt(row.recent_ratings) > 10) {
           const previousPeriodResult = await pool.query(
@@ -175,7 +175,7 @@ router.get(
         [`%${query}%`]
       );
 
-      const items = result.rows.map(row => ({
+      const items = result.rows.map((row: any) => ({
         id: row.id,
         type: row.type,
         title: row.title,
