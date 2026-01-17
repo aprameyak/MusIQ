@@ -175,17 +175,28 @@ export class MusicBrainzExtractService {
     }
   }
 
-  async extractAllGenres(genres: string[], albumsPerGenre: number): Promise<MusicBrainzReleaseGroup[]> {
+  async extractAllGenres(genres: string[], albumsPerGenre: number, maxTotalAlbums: number = 2000): Promise<MusicBrainzReleaseGroup[]> {
     const allAlbums: MusicBrainzReleaseGroup[] = [];
     const seenIds = new Set<string>();
 
     for (const genre of genres) {
+      if (allAlbums.length >= maxTotalAlbums) {
+        logger.info(`Reached max total albums limit (${maxTotalAlbums}). Stopping extraction.`);
+        break;
+      }
+      
       logger.info(`Extracting albums for genre: ${genre}`);
       
+      const remainingSlots = maxTotalAlbums - allAlbums.length;
+      const albumsToExtract = Math.min(albumsPerGenre, remainingSlots);
+      
       try {
-        const albums = await this.extractTopAlbumsByGenre(genre, albumsPerGenre);
+        const albums = await this.extractTopAlbumsByGenre(genre, albumsToExtract);
         
         for (const album of albums) {
+          if (allAlbums.length >= maxTotalAlbums) {
+            break;
+          }
           if (!seenIds.has(album.id)) {
             seenIds.add(album.id);
             allAlbums.push(album);
@@ -198,7 +209,7 @@ export class MusicBrainzExtractService {
       }
     }
 
-    return allAlbums;
+    return allAlbums.slice(0, maxTotalAlbums);
   }
 }
 

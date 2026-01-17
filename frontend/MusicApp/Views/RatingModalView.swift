@@ -6,6 +6,28 @@ struct RatingModalView: View {
     let onClose: () -> Void
     let onSubmit: (Int, [String]) -> Void
     
+    private func iconName(for type: MusicItemType) -> String {
+        switch type {
+        case .album:
+            return "opticaldisc.fill"
+        case .song:
+            return "music.note"
+        case .artist:
+            return "person.fill"
+        }
+    }
+    
+    private func iconColor(for type: MusicItemType) -> Color {
+        switch type {
+        case .album:
+            return AppColors.primary
+        case .song:
+            return AppColors.secondary
+        case .artist:
+            return AppColors.accent
+        }
+    }
+    
     var body: some View {
         ZStack {
             Color.black.opacity(0.8)
@@ -39,17 +61,14 @@ struct RatingModalView: View {
                 
                 if let item = item {
                     HStack(spacing: 16) {
-                        AsyncImage(url: URL(string: item.imageUrl)) { image in
-                            image
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                        } placeholder: {
-                            Rectangle()
-                                .fill(AppColors.secondaryBackground)
-                        }
-                        .frame(width: 80, height: 80)
-                        .cornerRadius(AppStyles.cornerRadiusMedium)
-                        .clipped()
+                        RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
+                            .fill(AppColors.secondaryBackground)
+                            .frame(width: 80, height: 80)
+                            .overlay(
+                                Image(systemName: iconName(for: item.type))
+                                    .font(.system(size: 32))
+                                    .foregroundColor(iconColor(for: item.type))
+                            )
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text(item.title)
@@ -239,26 +258,4 @@ struct FlowLayout: Layout {
             self.size = CGSize(width: maxWidth, height: currentY + lineHeight)
         }
     }
-}
-
-#Preview {
-    RatingModalView(
-        viewModel: RatingViewModel(),
-        item: MusicItem(
-            id: "1",
-            type: .album,
-            title: "ASTROWORLD",
-            artist: "Travis Scott",
-            imageUrl: "https://upload.wikimedia.org/wikipedia/en/0/0b/Astroworld_by_Travis_Scott.jpg",
-            rating: 8.7,
-            ratingCount: 234500,
-            trending: true,
-            trendingChange: 12,
-            spotifyId: nil,
-            appleMusicId: nil,
-            metadata: nil
-        ),
-        onClose: {},
-        onSubmit: { _, _ in }
-    )
 }

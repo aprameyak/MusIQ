@@ -1,6 +1,7 @@
 import { MusicBrainzExtractService } from './musicbrainz-extract.service';
 import { MusicBrainzTransformService } from './musicbrainz-transform.service';
 import { MusicBrainzLoadService } from './musicbrainz-load.service';
+import { MusicBrainzSyncService } from './musicbrainz-sync.service';
 import { CoverArtEnrichmentService } from './cover-art-enrichment.service';
 import { MusicBrainzConfig } from '../config/musicbrainz.config';
 import { logger } from '../config/logger';
@@ -8,6 +9,9 @@ import { logger } from '../config/logger';
 interface ETLOptions {
   albumsPerGenre?: number;
   genres?: string[];
+  maxTotalAlbums?: number;
+  maxTotalArtists?: number;
+  maxTotalTracks?: number;
   skipArtists?: boolean;
   skipAlbums?: boolean;
   skipTracks?: boolean;
@@ -18,12 +22,14 @@ export class MusicBrainzETLService {
   private extractService: MusicBrainzExtractService;
   private transformService: MusicBrainzTransformService;
   private loadService: MusicBrainzLoadService;
+  private syncService: MusicBrainzSyncService;
   private coverArtService: CoverArtEnrichmentService;
 
   constructor() {
     this.extractService = new MusicBrainzExtractService();
     this.transformService = new MusicBrainzTransformService();
     this.loadService = new MusicBrainzLoadService();
+    this.syncService = new MusicBrainzSyncService();
     this.coverArtService = new CoverArtEnrichmentService();
   }
 
@@ -37,19 +43,20 @@ export class MusicBrainzETLService {
         ...MusicBrainzConfig.nicheGenres
       ];
       
-      const genresToProcess = options.genres || allGenres;
-      const albumsPerGenre = options.albumsPerGenre || 
-        (genresToProcess.some(g => MusicBrainzConfig.majorGenres.includes(g)) 
-          ? MusicBrainzConfig.albumsPerMajorGenre 
-          : MusicBrainzConfig.albumsPerNicheGenre);
+      const top5Genres = ['hip-hop', 'pop', 'rock', 'electronic', 'jazz'];
+      const genresToProcess = options.genres || top5Genres;
+      const maxTotalAlbums = options.maxTotalAlbums || 2000;
+      const maxTotalArtists = options.maxTotalArtists || 2000;
+      const maxTotalTracks = options.maxTotalTracks || 2000;
+      const albumsPerGenre = options.albumsPerGenre || Math.ceil(maxTotalAlbums / genresToProcess.length);
 
-      logger.info(`Processing ${genresToProcess.length} genres with ${albumsPerGenre} albums per genre`);
+      logger.info(`Processing ${genresToProcess.length} genres with ${albumsPerGenre} albums per genre (max: ${maxTotalAlbums} albums, ${maxTotalArtists} artists, ${maxTotalTracks} tracks)`);
 
       let allAlbums: any[] = [];
       
       if (!options.skipAlbums) {
         logger.info('=== EXTRACT PHASE: Albums ===');
-        allAlbums = await this.extractService.extractAllGenres(genresToProcess, albumsPerGenre);
+        allAlbums = await this.extractService.extractAllGenres(genresToProcess, albumsPerGenre, maxTotalAlbums);
         logger.info(`Extracted ${allAlbums.length} total albums`);
       }
 
@@ -59,10 +66,13 @@ export class MusicBrainzETLService {
       }
 
       logger.info('=== TRANSFORM PHASE ===');
-      const { artists, albumArtists } = this.transformService.transformArtists(allAlbums);
+      const { artists: allArtists, albumArtists: allAlbumArtists } = this.transformService.transformArtists(allAlbums);
       const albums = this.transformService.transformAlbums(allAlbums);
 
-      logger.info(`Transformed: ${artists.length} artists, ${albums.length} albums`);
+      const artists = allArtists.slice(0, maxTotalArtists);
+      const albumArtists = allAlbumArtists.filter(rel => artists.some(a => a.mbid === rel.artist_mbid));
+
+      logger.info(`Transformed: ${artists.length}/${allArtists.length} artists (limited to ${maxTotalArtists}), ${albums.length} albums`);
 
       if (options.enrichCoverArt) {
         logger.info('=== ENRICHMENT PHASE: Cover Art ===');
@@ -101,15 +111,23 @@ export class MusicBrainzETLService {
         const allAlbumTracks: any[] = [];
 
         for (let i = 0; i < albums.length; i++) {
+          if (allTracks.length >= maxTotalTracks) {
+            logger.info(`Reached max tracks limit (${maxTotalTracks}). Stopping track extraction.`);
+            break;
+          }
+          
           const album = albums[i];
           logger.info(`Extracting tracks for album ${i + 1}/${albums.length}: ${album.title}`);
           
           const recordings = await this.extractService.extractRecordingsForReleaseGroup(album.mbid);
           
           if (recordings.length > 0) {
-            const positions = recordings.map((_, idx) => idx + 1);
+            const remainingSlots = maxTotalTracks - allTracks.length;
+            const recordingsToProcess = recordings.slice(0, remainingSlots);
+            
+            const positions = recordingsToProcess.map((_, idx) => idx + 1);
             const { tracks, albumTracks } = this.transformService.transformTracks(
-              recordings,
+              recordingsToProcess,
               album.mbid,
               positions
             );
@@ -118,19 +136,31 @@ export class MusicBrainzETLService {
             allAlbumTracks.push(...albumTracks);
           }
 
+          if (allTracks.length >= maxTotalTracks) {
+            logger.info(`Reached max tracks limit (${maxTotalTracks}). Stopping track extraction.`);
+            break;
+          }
+
           if ((i + 1) % 10 === 0) {
-            logger.info(`Processed ${i + 1}/${albums.length} albums for tracks`);
+            logger.info(`Processed ${i + 1}/${albums.length} albums for tracks. Total tracks: ${allTracks.length}`);
           }
         }
 
-        logger.info(`Transformed ${allTracks.length} tracks`);
+        const finalTracks = allTracks.slice(0, maxTotalTracks);
+        const finalAlbumTracks = allAlbumTracks.slice(0, maxTotalTracks);
         
-        const tracksLoaded = await this.loadService.loadTracks(allTracks);
+        logger.info(`Transformed ${finalTracks.length}/${allTracks.length} tracks (limited to ${maxTotalTracks})`);
+        
+        const tracksLoaded = await this.loadService.loadTracks(finalTracks);
         logger.info(`Loaded ${tracksLoaded} tracks`);
         
-        const albumTracksLoaded = await this.loadService.loadAlbumTracks(allAlbumTracks);
+        const albumTracksLoaded = await this.loadService.loadAlbumTracks(finalAlbumTracks);
         logger.info(`Loaded ${albumTracksLoaded} album-track relations`);
       }
+
+      logger.info('=== SYNC PHASE: music_items ===');
+      const syncResults = await this.syncService.syncAll();
+      logger.info(`Sync completed: ${syncResults.albums} albums, ${syncResults.tracks} tracks, ${syncResults.artists} artists synced to music_items`);
 
       const duration = ((Date.now() - startTime) / 1000 / 60).toFixed(2);
       logger.info(`ETL pipeline completed successfully in ${duration} minutes`);
