@@ -3,7 +3,6 @@ import { MusicBrainzTransformService } from './musicbrainz-transform.service';
 import { MusicBrainzLoadService } from './musicbrainz-load.service';
 import { MusicBrainzSyncService } from './musicbrainz-sync.service';
 import { CoverArtEnrichmentService } from './cover-art-enrichment.service';
-import { MusicBrainzConfig } from '../config/musicbrainz.config';
 import { logger } from '../config/logger';
 
 interface ETLOptions {
@@ -38,11 +37,6 @@ export class MusicBrainzETLService {
     logger.info('Starting MusicBrainz ETL pipeline...');
 
     try {
-      const allGenres = [
-        ...MusicBrainzConfig.majorGenres,
-        ...MusicBrainzConfig.nicheGenres
-      ];
-      
       const top5Genres = ['hip-hop', 'pop', 'rock', 'electronic', 'jazz'];
       const genresToProcess = options.genres || top5Genres;
       const maxTotalAlbums = options.maxTotalAlbums || 2000;
