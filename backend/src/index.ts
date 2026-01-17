@@ -17,8 +17,22 @@ app.set('trust proxy', 1);
 app.use(helmet());
 app.use(securityMiddleware);
 
+const getAllowedOrigins = (): string[] | boolean => {
+  const corsOrigin = process.env.CORS_ORIGIN;
+  
+  if (!corsOrigin || corsOrigin === '*') {
+    if (process.env.NODE_ENV === 'production') {
+      logger.warn('CORS_ORIGIN is not set or set to * in production. This is insecure.');
+      return false;
+    }
+    return true;
+  }
+  
+  return corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean);
+};
+
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN === '*' ? true : (process.env.CORS_ORIGIN || '*'),
+  origin: getAllowedOrigins(),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Device-ID', 'X-Signature-Ed25519', 'X-Signature-Timestamp']

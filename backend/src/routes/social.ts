@@ -31,7 +31,7 @@ router.get(
         [req.userId]
       );
 
-      const friends = await Promise.all(result.rows.map(async (row) => {
+      const friends = await Promise.all(result.rows.map(async (row: any) => {
         const compatibilityResult = await pool.query(
           `SELECT 
             COUNT(*) as shared_ratings,

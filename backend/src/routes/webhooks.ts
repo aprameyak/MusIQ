@@ -37,14 +37,35 @@ const RESPONSE_TYPE = {
   DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE: 5
 };
 
+const isValidDiscordId = (id: string): boolean => {
+  return /^\d{17,19}$/.test(id);
+};
+
+const isValidDiscordToken = (token: string): boolean => {
+  return /^[a-zA-Z0-9._-]+$/.test(token) && token.length >= 50 && token.length <= 200;
+};
+
 const sendDiscordFollowup = async (applicationId: string, interactionToken: string, content: string) => {
+  if (!isValidDiscordId(applicationId) || !isValidDiscordToken(interactionToken)) {
+    logger.error('Invalid Discord application ID or interaction token', {
+      applicationId: applicationId?.substring(0, 10),
+      tokenLength: interactionToken?.length
+    });
+    throw new Error('Invalid Discord credentials');
+  }
+
   try {
     await axios.post(
       `https://discord.com/api/v10/webhooks/${applicationId}/${interactionToken}`,
-      { content }
+      { content },
+      {
+        timeout: 5000,
+        validateStatus: (status) => status < 500
+      }
     );
   } catch (error) {
     logger.error('Failed to send Discord follow-up', { error });
+    throw error;
   }
 };
 
@@ -70,6 +91,14 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
 
     if (!applicationId || !interactionToken) {
       return res.status(400).json({ error: 'Missing interaction metadata' });
+    }
+
+    if (!isValidDiscordId(applicationId) || !isValidDiscordToken(interactionToken)) {
+      logger.warn('Invalid Discord interaction credentials', {
+        applicationId: applicationId?.substring(0, 10),
+        tokenLength: interactionToken?.length
+      });
+      return res.status(400).json({ error: 'Invalid interaction metadata' });
     }
 
     console.log('Step 1: Sending Deferral to Discord...');

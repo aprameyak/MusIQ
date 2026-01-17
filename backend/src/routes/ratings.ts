@@ -113,7 +113,7 @@ router.get(
         [musicItemId, limit, offset]
       );
 
-      const ratings = result.rows.map(row => ({
+      const ratings = result.rows.map((row: any) => ({
         id: row.id,
         userId: row.user_id,
         musicItemId: row.music_item_id,
@@ -162,7 +162,7 @@ router.get(
         [userId, limit, offset]
       );
 
-      const ratings = result.rows.map(row => ({
+      const ratings = result.rows.map((row: any) => ({
         id: row.id,
         userId: row.user_id,
         musicItemId: row.music_item_id,

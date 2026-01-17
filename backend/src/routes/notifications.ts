@@ -27,7 +27,7 @@ router.get(
         [req.userId, limit, offset]
       );
 
-      const notifications = result.rows.map(row => ({
+      const notifications = result.rows.map((row: any) => ({
         id: row.id,
         userId: row.user_id,
         type: row.type,

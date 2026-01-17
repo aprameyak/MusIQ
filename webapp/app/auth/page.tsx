@@ -13,10 +13,13 @@ export default function AuthPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (apiClient.isAuthenticated()) {
-      router.push('/');
-      return;
-    }
+    const checkAuth = async () => {
+      if (await apiClient.isAuthenticated()) {
+        router.push('/');
+        return;
+      }
+    };
+    checkAuth();
   }, [router]);
 
   const [password, setPassword] = useState('');
