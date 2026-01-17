@@ -13,9 +13,12 @@ export function getDatabasePool(): Pool {
       throw new Error('DATABASE_URL environment variable is required');
     }
     
+    const isSupabase = connectionString.includes('supabase.co');
     pool = new Pool({
       connectionString,
-      ssl: connectionString.includes('sslmode=require') ? {
+      ssl: isSupabase ? {
+        rejectUnauthorized: false
+      } : connectionString.includes('sslmode=require') ? {
         rejectUnauthorized: false
       } : undefined,
       max: 10,

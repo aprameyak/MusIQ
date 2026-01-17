@@ -10,7 +10,6 @@
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
     "seed": "knex seed:run",
-    "etl": "ts-node src/scripts/run-etl.ts",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -24,7 +23,6 @@
   "dependencies": {
     "@azure/identity": "^4.0.1",
     "@azure/keyvault-secrets": "^4.7.0",
-    "@neondatabase/serverless": "^0.9.0",
     "axios": "^1.13.2",
     "bcrypt": "^5.1.1",
     "connect-redis": "^7.1.0",

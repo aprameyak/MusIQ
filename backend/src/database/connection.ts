@@ -11,11 +11,14 @@ export const getDatabasePool = (): Pool => {
       throw new Error('DATABASE_URL environment variable is not set');
     }
 
+    const isSupabase = connectionString.includes('supabase.co');
     const config: PoolConfig = {
       connectionString,
-      ssl: {
-        rejectUnauthorized: false 
-      },
+      ssl: isSupabase ? {
+        rejectUnauthorized: false
+      } : connectionString.includes('sslmode=require') ? {
+        rejectUnauthorized: false
+      } : undefined,
       max: parseInt(process.env.DB_POOL_MAX || '10'),
       min: parseInt(process.env.DB_POOL_MIN || '2'),
       idleTimeoutMillis: 30000,

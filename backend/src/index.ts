@@ -74,7 +74,6 @@ app.use('/interactions', webhookRoutes);
 app.use(errorMiddleware);
 
 import { testConnection } from './database/connection';
-import { startETLScheduler } from './jobs/music-etl.job';
 
 app.listen(PORT, async () => {
   logger.info('Service: musiq-api');
@@ -86,10 +85,6 @@ app.listen(PORT, async () => {
     logger.info('Database connection established');
   } else {
     logger.error('Database connection failed - check DATABASE_URL');
-  }
-
-  if (process.env.ENABLE_ETL === 'true') {
-    startETLScheduler();
   }
 });
 

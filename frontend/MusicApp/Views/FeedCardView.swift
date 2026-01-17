@@ -8,36 +8,39 @@ struct FeedCardView: View {
     
     @State private var isFavorited = false
     
+    private var iconName: String {
+        switch item.type {
+        case .album:
+            return "opticaldisc.fill"
+        case .song:
+            return "music.note"
+        case .artist:
+            return "person.fill"
+        }
+    }
+    
+    private var iconColor: Color {
+        switch item.type {
+        case .album:
+            return AppColors.primary
+        case .song:
+            return AppColors.secondary
+        case .artist:
+            return AppColors.accent
+        }
+    }
+    
     var body: some View {
         HStack(spacing: 16) {
             ZStack(alignment: .topTrailing) {
-                AsyncImage(url: URL(string: item.imageUrl)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Rectangle()
-                        .fill(AppColors.secondaryBackground)
-                        .overlay(
-                            ProgressView()
-                                .tint(AppColors.primary)
-                        )
-                }
-                .frame(width: 96, height: 96)
-                .cornerRadius(AppStyles.cornerRadiusMedium)
-                .clipped()
-                
-                if item.type == .song {
-                    ZStack {
-                        Color.black.opacity(0.4)
-                            .frame(width: 96, height: 96)
-                            .cornerRadius(AppStyles.cornerRadiusMedium)
-                        
-                        Image(systemName: "play.fill")
-                            .font(.system(size: 32))
-                            .foregroundColor(.white)
-                    }
-                }
+                RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
+                    .fill(AppColors.secondaryBackground)
+                    .frame(width: 96, height: 96)
+                    .overlay(
+                        Image(systemName: iconName)
+                            .font(.system(size: 40))
+                            .foregroundColor(iconColor)
+                    )
                 
                 if item.trending == true {
                     ZStack {
@@ -146,28 +149,4 @@ struct FeedCardView: View {
         .padding(AppStyles.paddingMedium)
         .cardStyle()
     }
-}
-
-#Preview {
-    FeedCardView(
-        item: MusicItem(
-            id: "1",
-            type: .album,
-            title: "ASTROWORLD",
-            artist: "Travis Scott",
-            imageUrl: "https://upload.wikimedia.org/wikipedia/en/0/0b/Astroworld_by_Travis_Scott.jpg",
-            rating: 8.7,
-            ratingCount: 234500,
-            trending: true,
-            trendingChange: 12,
-            spotifyId: nil,
-            appleMusicId: nil,
-            metadata: nil
-        ),
-        onRate: {},
-        onFavorite: {},
-        onComment: {}
-    )
-    .padding()
-    .background(AppColors.background)
 }
