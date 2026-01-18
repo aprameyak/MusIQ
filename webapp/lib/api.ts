@@ -59,7 +59,7 @@ class ApiClient {
         byte ^ keyBytes[i % keyBytes.length]
       );
       
-      return this.ENCRYPTION_PREFIX + btoa(String.fromCharCode(...encrypted));
+      return this.ENCRYPTION_PREFIX + btoa(String.fromCharCode.apply(null, Array.from(encrypted)));
     } catch (error) {
       console.error('Encryption error:', error);
       return text;
@@ -97,9 +97,9 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
     const token = await this.getAccessToken();
 
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     if (token) {

@@ -71,6 +71,7 @@ import socialRoutes from './routes/social';
 import notificationRoutes from './routes/notifications';
 import adminRoutes from './routes/admin';
 import webhookRoutes from './routes/webhooks';
+import postRoutes from './routes/posts';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/oauth', oauthRoutes);
@@ -82,6 +83,7 @@ app.use('/api/social', socialRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/posts', postRoutes);
 
 app.use('/interactions', webhookRoutes);
 

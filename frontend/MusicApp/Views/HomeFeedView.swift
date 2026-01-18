@@ -3,8 +3,10 @@ import SwiftUI
 struct HomeFeedView: View {
     @StateObject private var viewModel = HomeFeedViewModel()
     @StateObject private var ratingViewModel = RatingViewModel()
+    @StateObject private var createPostViewModel = CreatePostViewModel()
     @ObservedObject var appState = AppState.shared
     @State private var showProfile = false
+    @State private var showCreatePostModal = false
     
     var body: some View {
         ZStack {
@@ -44,11 +46,11 @@ struct HomeFeedView: View {
                 } else if viewModel.feedItems.isEmpty {
                     Spacer()
                     VStack(spacing: 16) {
-                        Image(systemName: "music.note.list")
+                        Image(systemName: "bubble.left.and.bubble.right")
                             .font(.system(size: 48))
                             .foregroundColor(AppColors.textSecondary)
                         
-                        Text("No music found")
+                        Text("No posts yet")
                             .font(.system(size: 18, weight: .medium))
                             .foregroundColor(AppColors.textSecondary)
                     }
@@ -56,19 +58,14 @@ struct HomeFeedView: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 16) {
-                            ForEach(viewModel.feedItems) { item in
-                                FeedCardView(
-                                    item: item,
-                                    onRate: {
-                                        viewModel.selectItemForRating(item)
+                            ForEach(viewModel.feedItems) { post in
+                                PostCardView(post: post)
+                                    .padding(.horizontal, AppStyles.paddingMedium)
+                                    .onAppear {
+                                        Task {
+                                            await viewModel.loadMoreIfNeeded(currentItem: post)
+                                        }
                                     }
-                                )
-                                .padding(.horizontal, AppStyles.paddingMedium)
-                                .onAppear {
-                                    Task {
-                                        await viewModel.loadMoreIfNeeded(currentItem: item)
-                                    }
-                                }
                             }
                             
                             if viewModel.isLoadingMore {
@@ -82,6 +79,40 @@ struct HomeFeedView: View {
                     }
                 }
             }
+            
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button(action: {
+                        showCreatePostModal = true
+                    }) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 24, weight: .semibold))
+                            .foregroundColor(.white)
+                            .frame(width: 56, height: 56)
+                            .background(AppColors.primary)
+                            .clipShape(Circle())
+                            .shadow(color: AppColors.primary.opacity(0.3), radius: 8, x: 0, y: 4)
+                    }
+                    .padding(.trailing, AppStyles.paddingLarge)
+                    .padding(.bottom, AppStyles.paddingLarge)
+                }
+            }
+        }
+        .sheet(isPresented: $showCreatePostModal) {
+            CreatePostModalView(
+                viewModel: createPostViewModel,
+                onClose: {
+                    showCreatePostModal = false
+                    createPostViewModel.reset()
+                },
+                onSubmit: {
+                    Task {
+                        await viewModel.refreshFeed()
+                    }
+                }
+            )
         }
         .sheet(isPresented: $viewModel.showRatingModal) {
             if let item = viewModel.selectedItem {
@@ -92,7 +123,7 @@ struct HomeFeedView: View {
                         viewModel.showRatingModal = false
                         ratingViewModel.reset()
                     },
-                    onSubmit: { rating in
+                    onSubmit: { _ in
                         Task {
                             await viewModel.refreshFeed()
                         }

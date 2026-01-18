@@ -160,6 +160,22 @@ struct RatingModalView: View {
                     .padding(.horizontal, AppStyles.paddingLarge)
                     .padding(.top, AppStyles.paddingLarge)
                     
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Add a comment (optional)")
+                            .font(.system(size: 14))
+                            .foregroundColor(AppColors.textPrimary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        TextField("Share your thoughts...", text: $viewModel.postText, axis: .vertical)
+                            .textFieldStyle(.plain)
+                            .padding(AppStyles.paddingMedium)
+                            .background(AppColors.secondaryBackground)
+                            .cornerRadius(AppStyles.cornerRadiusSmall)
+                            .lineLimit(3...6)
+                    }
+                    .padding(.horizontal, AppStyles.paddingLarge)
+                    .padding(.top, AppStyles.paddingMedium)
+                    
                     Button(action: {
                         Task {
                             if await viewModel.submitRating(for: item.id) {
@@ -168,22 +184,14 @@ struct RatingModalView: View {
                             }
                         }
                     }) {
-                        Text("Submit Rating")
+                        Text("Post")
                             .font(.system(size: 16, weight: .semibold))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, AppStyles.paddingMedium)
                     }
-                    .gradientButton(isEnabled: viewModel.rating > 0)
+                    .gradientButton(isEnabled: viewModel.rating > 0 && !viewModel.isSubmitting)
                     .padding(.horizontal, AppStyles.paddingLarge)
                     .padding(.top, AppStyles.paddingLarge)
-                    
-                    if viewModel.rating > 0 {
-                        Text("Your rating will update the global score")
-                            .font(.system(size: 12))
-                            .foregroundColor(AppColors.textSecondary)
-                            .padding(.top, 8)
-                            .transition(.opacity)
-                    }
                 }
             }
             .background(AppColors.cardBackground)

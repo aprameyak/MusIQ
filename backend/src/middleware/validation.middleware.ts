@@ -70,3 +70,38 @@ export const ratingValidation = [
     .isString()
     .withMessage('Each tag must be a string')
 ];
+
+export const postValidation = [
+  body('musicItemId')
+    .isUUID()
+    .withMessage('Valid music item ID is required'),
+  body('rating')
+    .isInt({ min: 1, max: 10 })
+    .withMessage('Rating must be between 1 and 10'),
+  body('text')
+    .optional()
+    .isString()
+    .isLength({ max: 500 })
+    .withMessage('Post text must be 500 characters or less')
+];
+
+export const createPostWithMusicItemValidation = [
+  body('name')
+    .trim()
+    .notEmpty()
+    .withMessage('Music item name is required')
+    .isLength({ min: 1, max: 200 })
+    .withMessage('Music item name must be between 1 and 200 characters'),
+  body('category')
+    .isIn(['album', 'song', 'artist'])
+    .withMessage('Category must be album, song, or artist'),
+  body('rating')
+    .isInt({ min: 1, max: 10 })
+    .withMessage('Rating must be between 1 and 10'),
+  body('text')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('Post text must be 500 characters or less')
+];

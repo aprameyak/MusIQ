@@ -68,7 +68,13 @@
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
-			<!-- Allow your Mac's local IP -->
+			<!-- Allow your Mac's local IP (current) -->
+			<key>192.168.1.244</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<!-- Allow your Mac's local IP (old, for compatibility) -->
 			<key>192.168.86.133</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>

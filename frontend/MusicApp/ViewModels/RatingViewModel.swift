@@ -6,13 +6,14 @@ import SwiftUI
 class RatingViewModel: ObservableObject {
     @Published var rating: Int = 0
     @Published var hoverRating: Int = 0
+    @Published var postText: String = ""
     @Published var isSubmitting: Bool = false
     @Published var errorMessage: String?
     
-    private let ratingService: RatingService
+    private let postService: PostService
     
-    init(ratingService: RatingService = RatingService()) {
-        self.ratingService = ratingService
+    init(postService: PostService = PostService()) {
+        self.postService = postService
     }
     
     func setRating(_ value: Int) {
@@ -33,16 +34,18 @@ class RatingViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let request = CreateRatingRequest(
+            let text = postText.trimmingCharacters(in: .whitespacesAndNewlines)
+            let finalText = text.isEmpty ? nil : text
+            
+            _ = try await postService.createPost(
                 musicItemId: musicItemId,
                 rating: rating,
-                tags: nil
+                text: finalText
             )
-            
-            _ = try await ratingService.submitRating(request: request)
             
             rating = 0
             hoverRating = 0
+            postText = ""
             
             isSubmitting = false
             return true
@@ -56,6 +59,7 @@ class RatingViewModel: ObservableObject {
     func reset() {
         rating = 0
         hoverRating = 0
+        postText = ""
         errorMessage = nil
     }
 }
