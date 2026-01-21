@@ -1,6 +1,7 @@
 import { body, validationResult, ValidationChain } from 'express-validator';
 import { Request, Response, NextFunction } from 'express';
 import { CustomError } from './error.middleware';
+import { getDatabasePool } from '../database/connection';
 
 export const validate = (validations: ValidationChain[]) => {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
@@ -21,6 +22,35 @@ export const validate = (validations: ValidationChain[]) => {
 };
 
 export const signupValidation = [
+  body('email')
+    .trim()
+    .notEmpty()
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Valid email address is required')
+    .normalizeEmail()
+    .toLowerCase()
+    .custom(async (value) => {
+      const pool = getDatabasePool();
+      const result = await pool.query('SELECT id FROM users WHERE email = $1', [value]);
+      if (result.rows.length > 0) {
+        throw new Error('This email is already registered');
+      }
+      return true;
+    })
+    .withMessage('This email is already registered'),
+  body('firstName')
+    .trim()
+    .notEmpty()
+    .withMessage('First name is required')
+    .isLength({ min: 1, max: 50 })
+    .withMessage('First name must be between 1 and 50 characters'),
+  body('lastName')
+    .trim()
+    .notEmpty()
+    .withMessage('Last name is required')
+    .isLength({ min: 1, max: 50 })
+    .withMessage('Last name must be between 1 and 50 characters'),
   body('username')
     .trim()
     .isLength({ min: 3, max: 30 })
@@ -31,24 +61,18 @@ export const signupValidation = [
     .isLength({ min: 8, max: 128 })
     .withMessage('Password must be between 8 and 128 characters')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])/)
-    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)'),
-  body('confirmPassword')
-    .custom((value, { req }) => {
-      if (value !== req.body.password) {
-        throw new Error('Passwords do not match');
-      }
-      return true;
-    })
-    .withMessage('Passwords must match')
+    .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character (@$!%*?&)')
 ];
 
 export const loginValidation = [
-  body('username')
+  body('email')
     .trim()
     .notEmpty()
-    .withMessage('Username is required')
-    .isLength({ min: 3, max: 30 })
-    .withMessage('Username must be between 3 and 30 characters'),
+    .withMessage('Email is required')
+    .isEmail()
+    .withMessage('Valid email address is required')
+    .normalizeEmail()
+    .toLowerCase(),
   body('password')
     .notEmpty()
     .withMessage('Password is required')

@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { AuthService } from '../services/auth.service';
+import { supabaseService } from '../services/supabase.service';
 import { authLimiter } from '../middleware/rate-limit.middleware';
 import { validate, signupValidation, loginValidation } from '../middleware/validation.middleware';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
@@ -13,13 +14,12 @@ router.post(
   validate(signupValidation),
   async (req, res, next) => {
     try {
-      const { username, password } = req.body;
-      const tokens = await authService.signup(username, password);
-      
+      const { email, username, password, firstName, lastName } = req.body;
+      await authService.signup(email, username, password, firstName, lastName);
+
       res.json({
         success: true,
-        data: tokens,
-        message: 'User created successfully'
+        message: 'User created successfully. Please check your email to verify your account.'
       });
     } catch (error) {
       next(error);
@@ -33,17 +33,30 @@ router.post(
   validate(loginValidation),
   async (req, res, next) => {
     try {
-      const { username, password } = req.body;
-      const deviceId = req.headers['x-device-id'] as string;
-      const ipAddress = req.ip || req.socket.remoteAddress || undefined;
-      const userAgent = req.headers['user-agent'] || undefined;
+      const { email, password } = req.body;
+      const tokens = await authService.login(email, password);
 
-      const tokens = await authService.login(username, password, deviceId, ipAddress, userAgent);
-      
       res.json({
         success: true,
         data: tokens,
         message: 'Login successful'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post(
+  '/forgot-password',
+  authLimiter,
+  async (req, res, next) => {
+    try {
+      const { email } = req.body;
+      await authService.forgotPassword(email);
+      res.json({
+        success: true,
+        message: 'If an account with that email exists, a password reset link has been sent.'
       });
     } catch (error) {
       next(error);
@@ -69,7 +82,7 @@ router.post(
       }
 
       const tokens = await authService.refreshToken(refreshToken);
-      
+
       res.json({
         success: true,
         data: tokens,
@@ -84,14 +97,11 @@ router.post(
 router.post(
   '/logout',
   authMiddleware,
-  async (req, res, next) => {
+  async (_req, res, next) => {
     try {
-      const { refreshToken } = req.body;
-
-      if (refreshToken) {
-        await authService.logout(refreshToken);
-      }
-
+      // In a Supabase-only auth system, the client handles logging out.
+      // This endpoint can be used for custom server-side session invalidation if needed.
+      await authService.logout();
       res.json({
         success: true,
         message: 'Logout successful'
@@ -136,6 +146,147 @@ router.get(
       res.json({
         success: true,
         data: userData
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post(
+  '/reset-password',
+  authLimiter,
+  async (req, res, next) => {
+    try {
+      const { code, newPassword } = req.body;
+
+      if (!code || !newPassword) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: '400',
+            message: 'Code and new password are required'
+          }
+        });
+        return;
+      }
+
+      const { session } = await supabaseService.verifyOtp(code, 'recovery');
+
+      if (!session) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: '400',
+            message: 'Invalid or expired reset code'
+          }
+        });
+        return;
+      }
+
+      await supabaseService.updatePassword(session.access_token, newPassword);
+
+      res.json({
+        success: true,
+        message: 'Password updated successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post(
+  '/verify-email',
+  authLimiter,
+  async (req, res, next) => {
+    try {
+      const { code } = req.body;
+
+      if (!code) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: '400',
+            message: 'Verification code is required'
+          }
+        });
+        return;
+      }
+
+      const { user } = await supabaseService.verifyOtp(code, 'signup');
+
+      if (!user) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: '400',
+            message: 'Invalid or expired verification code'
+          }
+        });
+        return;
+      }
+
+      res.json({
+        success: true,
+        message: 'Email verified successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+
+
+router.post(
+  '/update-password',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      const { newPassword } = req.body;
+
+      if (!newPassword) {
+        res.status(400).json({
+          success: false,
+          error: {
+            code: '400',
+            message: 'New password is required'
+          }
+        });
+        return;
+      }
+
+      if (!req.userId) {
+        res.status(401).json({
+          success: false,
+          error: {
+            code: '401',
+            message: 'Unauthorized'
+          }
+        });
+        return;
+      }
+
+      // Get the auth ID from the user
+      const user = await authService.getUserById(req.userId);
+      if (!user || !user.supabase_auth_id) {
+        res.status(404).json({
+          success: false,
+          error: {
+            code: '404',
+            message: 'User not found'
+          }
+        });
+        return;
+      }
+
+      // Update password using admin client
+      await supabaseService.updateUserPassword(user.supabase_auth_id, newPassword);
+
+      res.json({
+        success: true,
+        message: 'Password updated successfully'
       });
     } catch (error) {
       next(error);

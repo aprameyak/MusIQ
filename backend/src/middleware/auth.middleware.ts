@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
 import { CustomError } from './error.middleware';
 import { getDatabasePool } from '../database/connection';
+import { supabaseService } from '../services/supabase.service';
 
 export interface AuthRequest extends Request {
   userId?: string;
@@ -22,19 +22,17 @@ export const authMiddleware = async (
     }
 
     const token = authHeader.substring(7);
-    const jwtSecret = process.env.JWT_SECRET || 'default-secret-change-in-production';
+    const pool = getDatabasePool();
 
-    let decoded: any;
-    try {
-      decoded = jwt.verify(token, jwtSecret);
-    } catch (error) {
+    const supabaseUser = await supabaseService.verifyAccessToken(token);
+
+    if (!supabaseUser) {
       throw new CustomError('Invalid or expired token', 401);
     }
 
-    const pool = getDatabasePool();
     const userResult = await pool.query(
-      'SELECT id, email, role FROM users WHERE id = $1 AND deleted_at IS NULL',
-      [decoded.userId]
+      'SELECT id, email, role, email_verified FROM users WHERE supabase_auth_id = $1 AND deleted_at IS NULL',
+      [supabaseUser.userId]
     );
 
     if (userResult.rows.length === 0) {
@@ -42,6 +40,14 @@ export const authMiddleware = async (
     }
 
     const user = userResult.rows[0];
+
+    // Sync email_verified status if Supabase says it's verified but local DB says it's not
+    if (supabaseUser.emailVerified && !user.email_verified) {
+      await pool.query(
+        'UPDATE users SET email_verified = true, updated_at = NOW() WHERE id = $1',
+        [user.id]
+      );
+    }
 
     req.userId = user.id;
     req.userEmail = user.email;

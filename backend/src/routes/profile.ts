@@ -2,9 +2,13 @@ import { Router } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { getDatabasePool } from '../database/connection';
 import { CustomError } from '../middleware/error.middleware';
+import { AuthService } from '../services/auth.service';
+import { body } from 'express-validator';
+import { validate } from '../middleware/validation.middleware';
 
 const router = Router();
 const pool = getDatabasePool();
+const authService = new AuthService();
 
 router.get(
   '/',
@@ -186,19 +190,47 @@ router.get(
 router.put(
   '/',
   authMiddleware,
+  validate([
+    body('email')
+      .optional()
+      .trim()
+      .isEmail()
+      .withMessage('Valid email address is required')
+      .normalizeEmail()
+      .toLowerCase(),
+    body('firstName')
+      .optional()
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .withMessage('First name must be between 1 and 50 characters'),
+    body('lastName')
+      .optional()
+      .trim()
+      .isLength({ min: 1, max: 50 })
+      .withMessage('Last name must be between 1 and 50 characters'),
+    body('username')
+      .optional()
+      .trim()
+      .isLength({ min: 3, max: 30 })
+      .withMessage('Username must be between 3 and 30 characters')
+      .matches(/^[a-zA-Z0-9_]+$/)
+      .withMessage('Username can only contain letters, numbers, and underscores')
+  ]),
   async (req: AuthRequest, res, next) => {
     try {
       if (!req.userId) {
         throw new CustomError('Unauthorized', 401);
       }
 
-      const { username } = req.body;
-      const updates: string[] = [];
-      const values: any[] = [];
-      let paramCount = 1;
+      const { email, firstName, lastName, username } = req.body;
+
+      if (!email && firstName === undefined && lastName === undefined && !username) {
+        throw new CustomError('At least one field must be provided for update', 400);
+      }
+
+      await authService.updateProfile(req.userId, email, firstName, lastName);
 
       if (username) {
-        
         const existingUser = await pool.query(
           'SELECT id FROM users WHERE username = $1 AND id != $2',
           [username, req.userId]
@@ -208,24 +240,14 @@ router.put(
           throw new CustomError('Username already taken', 409);
         }
 
-        updates.push(`username = $${paramCount++}`);
-        values.push(username);
+        await pool.query(
+          'UPDATE users SET username = $1, updated_at = NOW() WHERE id = $2',
+          [username, req.userId]
+        );
       }
-
-      if (updates.length === 0) {
-        throw new CustomError('No valid fields to update', 400);
-      }
-
-      updates.push(`updated_at = NOW()`);
-      values.push(req.userId);
-
-      await pool.query(
-        `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount}`,
-        values
-      );
 
       const userResult = await pool.query(
-        `SELECT id, email, username, email_verified, mfa_enabled, role, oauth_provider, oauth_id, last_login_at, created_at, updated_at
+        `SELECT id, email, username, first_name, last_name, email_verified, mfa_enabled, role, oauth_provider, oauth_id, last_login_at, created_at, updated_at
          FROM users WHERE id = $1 AND deleted_at IS NULL`,
         [req.userId]
       );
