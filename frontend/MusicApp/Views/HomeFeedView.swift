@@ -14,7 +14,6 @@ struct HomeFeedView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                
                 VStack(spacing: 16) {
                     HStack {
                         Text("MusIQ")
@@ -35,7 +34,7 @@ struct HomeFeedView: View {
                     }
                 }
                 .padding(.horizontal, AppStyles.paddingMedium)
-                .padding(.top, AppStyles.paddingLarge)
+                .padding(.top, AppStyles.paddingMedium)
                 .padding(.bottom, AppStyles.paddingMedium)
                 
                 if viewModel.isLoading {

@@ -20,6 +20,8 @@ struct User: Identifiable, Codable {
     let role: UserRole
     let oauthProvider: OAuthProvider?
     let oauthId: String?
+    let firstName: String?
+    let lastName: String?
     let lastLoginAt: Date?
     let createdAt: Date
     let updatedAt: Date
@@ -33,6 +35,8 @@ struct User: Identifiable, Codable {
         case role
         case oauthProvider = "oauth_provider"
         case oauthId = "oauth_id"
+        case firstName = "first_name"
+        case lastName = "last_name"
         case lastLoginAt = "last_login_at"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
@@ -48,6 +52,8 @@ struct User: Identifiable, Codable {
         role = try container.decode(UserRole.self, forKey: .role)
         oauthProvider = try container.decodeIfPresent(OAuthProvider.self, forKey: .oauthProvider)
         oauthId = try container.decodeIfPresent(String.self, forKey: .oauthId)
+        firstName = try container.decodeIfPresent(String.self, forKey: .firstName)
+        lastName = try container.decodeIfPresent(String.self, forKey: .lastName)
         
         if let lastLoginString = try? container.decode(String.self, forKey: .lastLoginAt) {
             let formatter = ISO8601DateFormatter()
@@ -75,6 +81,8 @@ struct User: Identifiable, Codable {
         try container.encode(role, forKey: .role)
         try container.encodeIfPresent(oauthProvider, forKey: .oauthProvider)
         try container.encodeIfPresent(oauthId, forKey: .oauthId)
+        try container.encodeIfPresent(firstName, forKey: .firstName)
+        try container.encodeIfPresent(lastName, forKey: .lastName)
         
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]

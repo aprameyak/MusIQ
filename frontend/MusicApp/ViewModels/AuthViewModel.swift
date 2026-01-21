@@ -3,6 +3,9 @@ import SwiftUI
 import Combine
 
 class AuthViewModel: ObservableObject {
+    @Published var email: String = ""
+    @Published var firstName: String = ""
+    @Published var lastName: String = ""
     @Published var username: String = ""
     @Published var password: String = ""
     @Published var confirmPassword: String = ""
@@ -10,11 +13,52 @@ class AuthViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isAuthenticated: Bool = false
     @Published var passwordErrors: [String] = []
+    @Published var emailError: String?
+    @Published var firstNameError: String?
+    @Published var lastNameError: String?
     
     private let authService: AuthService
     
     init(authService: AuthService = AuthService()) {
         self.authService = authService
+        
+        $email
+            .debounce(for: .milliseconds(500), scheduler: RunLoop.main)
+            .map { email in
+                if email.isEmpty {
+                    return nil
+                }
+                let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+                let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+                return emailPredicate.evaluate(with: email) ? nil : "Invalid email format"
+            }
+            .assign(to: &$emailError)
+        
+        $firstName
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .map { firstName in
+                if firstName.isEmpty {
+                    return nil
+                }
+                if firstName.count < 1 || firstName.count > 50 {
+                    return "First name must be between 1 and 50 characters"
+                }
+                return nil
+            }
+            .assign(to: &$firstNameError)
+        
+        $lastName
+            .debounce(for: .milliseconds(300), scheduler: RunLoop.main)
+            .map { lastName in
+                if lastName.isEmpty {
+                    return nil
+                }
+                if lastName.count < 1 || lastName.count > 50 {
+                    return "Last name must be between 1 and 50 characters"
+                }
+                return nil
+            }
+            .assign(to: &$lastNameError)
     }
     
     func validatePassword(_ password: String) -> [String] {
@@ -44,15 +88,14 @@ class AuthViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        guard !username.isEmpty, !password.isEmpty else {
-            errorMessage = "Username and password are required"
+        guard !email.isEmpty, !password.isEmpty else {
+            errorMessage = "Email and password are required"
             isLoading = false
             return
         }
         
         do {
-            let request = LoginRequest(username: username, password: password)
-            let token = try await authService.login(request: request)
+            let token = try await authService.login(email: email, password: password)
             
             KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
             KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
@@ -60,8 +103,7 @@ class AuthViewModel: ObservableObject {
             let user = try await authService.getCurrentUser()
             isAuthenticated = true
             
-            let appState = getAppState()
-            appState.authenticate(user: user)
+            getAppState().authenticate(user: user)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -73,6 +115,48 @@ class AuthViewModel: ObservableObject {
         isLoading = true
         errorMessage = nil
         passwordErrors = []
+        emailError = nil
+        firstNameError = nil
+        lastNameError = nil
+        
+        if email.isEmpty {
+            emailError = "Email is required"
+            errorMessage = "Please fill in all required fields"
+            isLoading = false
+            return
+        }
+        
+        if emailError != nil {
+            errorMessage = "Please fix email validation errors"
+            isLoading = false
+            return
+        }
+        
+        if firstName.isEmpty {
+            firstNameError = "First name is required"
+            errorMessage = "Please fill in all required fields"
+            isLoading = false
+            return
+        }
+        
+        if firstNameError != nil {
+            errorMessage = "Please fix first name validation errors"
+            isLoading = false
+            return
+        }
+        
+        if lastName.isEmpty {
+            lastNameError = "Last name is required"
+            errorMessage = "Please fill in all required fields"
+            isLoading = false
+            return
+        }
+        
+        if lastNameError != nil {
+            errorMessage = "Please fix last name validation errors"
+            isLoading = false
+            return
+        }
         
         if username.count < 3 || username.count > 30 {
             errorMessage = "Username must be between 3 and 30 characters"
@@ -86,12 +170,6 @@ class AuthViewModel: ObservableObject {
             return
         }
         
-        if password != confirmPassword {
-            errorMessage = "Passwords do not match"
-            isLoading = false
-            return
-        }
-        
         let pwdErrors = validatePassword(password)
         if !pwdErrors.isEmpty {
             passwordErrors = pwdErrors
@@ -100,18 +178,20 @@ class AuthViewModel: ObservableObject {
             return
         }
         
+        guard password == confirmPassword else {
+            errorMessage = "Passwords do not match."
+            isLoading = false
+            return
+        }
+
         do {
-            let request = SignupRequest(username: username, password: password, confirmPassword: confirmPassword)
-            let token = try await authService.signup(request: request)
+            try await authService.signup(email: email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased(),
+                                         password: password,
+                                         firstName: firstName.trimmingCharacters(in: .whitespacesAndNewlines),
+                                         lastName: lastName.trimmingCharacters(in: .whitespacesAndNewlines),
+                                         username: username)
             
-            KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
-            KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
-            
-            let user = try await authService.getCurrentUser()
-            isAuthenticated = true
-            
-            let appState = getAppState()
-            appState.authenticate(user: user)
+            errorMessage = "Signup successful. You can now log in."
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -119,66 +199,28 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
     
-    func loginWithApple(authorizationCode: String, identityToken: String?, email: String? = nil, name: String? = nil, userIdentifier: String? = nil) async {
+    func forgotPassword() async {
         isLoading = true
         errorMessage = nil
-        
+
+        guard !email.isEmpty else {
+            errorMessage = "Email is required."
+            isLoading = false
+            return
+        }
+
         do {
-            let oauthService = OAuthService(authService: authService)
-            let token = try await oauthService.handleOAuthCallback(
-                authorizationCode: authorizationCode,
-                provider: .apple,
-                idToken: identityToken,
-                email: email,
-                name: name,
-                userIdentifier: userIdentifier
-            )
-            
-            KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
-            KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
-            
-            let user = try await authService.getCurrentUser()
-            isAuthenticated = true
-            
-            let appState = getAppState()
-            appState.authenticate(user: user)
+            try await authService.forgotPassword(email: email)
+            errorMessage = "If an account with that email exists, a password reset link has been sent."
         } catch {
             errorMessage = error.localizedDescription
         }
-        
+
         isLoading = false
     }
     
-    func loginWithGoogle(authorizationCode: String, idToken: String?) async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            let oauthService = OAuthService(authService: authService)
-            let token = try await oauthService.handleOAuthCallback(
-                authorizationCode: authorizationCode,
-                provider: .google,
-                idToken: idToken
-            )
-            
-            KeychainHelper.store(token: token.accessToken, forKey: "accessToken")
-            KeychainHelper.store(token: token.refreshToken, forKey: "refreshToken")
-            
-            let user = try await authService.getCurrentUser()
-            isAuthenticated = true
-            
-            let appState = getAppState()
-            appState.authenticate(user: user)
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-        
-        isLoading = false
-    }
-    
-    
+    // Helper to get shared AppState
     private func getAppState() -> AppState {
-        
         return AppState.shared
     }
 }

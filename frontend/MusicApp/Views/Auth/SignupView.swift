@@ -29,6 +29,91 @@ struct SignupView: View {
                     
                     VStack(spacing: 20) {
                         VStack(alignment: .leading, spacing: 8) {
+                            Text("Email")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(AppColors.textSecondary)
+                            
+                            TextField("", text: $viewModel.email)
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .padding()
+                                .background(AppColors.cardBackground)
+                                .cornerRadius(AppStyles.cornerRadiusMedium)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
+                                        .stroke(viewModel.emailError != nil ? AppColors.accent : AppColors.border, lineWidth: 1)
+                                )
+                                .foregroundColor(AppColors.textPrimary)
+                                .autocapitalization(.none)
+                                .keyboardType(.emailAddress)
+                            
+                            if let emailError = viewModel.emailError {
+                                Text(emailError)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(AppColors.accent)
+                            } else if !viewModel.email.isEmpty && viewModel.emailError == nil {
+                                Text("Valid email")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("First Name")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(AppColors.textSecondary)
+                            
+                            TextField("", text: $viewModel.firstName)
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .padding()
+                                .background(AppColors.cardBackground)
+                                .cornerRadius(AppStyles.cornerRadiusMedium)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
+                                        .stroke(viewModel.firstNameError != nil ? AppColors.accent : AppColors.border, lineWidth: 1)
+                                )
+                                .foregroundColor(AppColors.textPrimary)
+                                .autocapitalization(.words)
+                            
+                            if let firstNameError = viewModel.firstNameError {
+                                Text(firstNameError)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(AppColors.accent)
+                            } else if !viewModel.firstName.isEmpty && viewModel.firstNameError == nil {
+                                Text("Valid")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Last Name")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(AppColors.textSecondary)
+                            
+                            TextField("", text: $viewModel.lastName)
+                                .textFieldStyle(PlainTextFieldStyle())
+                                .padding()
+                                .background(AppColors.cardBackground)
+                                .cornerRadius(AppStyles.cornerRadiusMedium)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppStyles.cornerRadiusMedium)
+                                        .stroke(viewModel.lastNameError != nil ? AppColors.accent : AppColors.border, lineWidth: 1)
+                                )
+                                .foregroundColor(AppColors.textPrimary)
+                                .autocapitalization(.words)
+                            
+                            if let lastNameError = viewModel.lastNameError {
+                                Text(lastNameError)
+                                    .font(.system(size: 11))
+                                    .foregroundColor(AppColors.accent)
+                            } else if !viewModel.lastName.isEmpty && viewModel.lastNameError == nil {
+                                Text("Valid")
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.green)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
                             Text("Username")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(AppColors.textSecondary)
@@ -54,7 +139,7 @@ struct SignupView: View {
                             Text("Password")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(AppColors.textSecondary)
-                            
+
                             SecureField("", text: $viewModel.password)
                                 .textFieldStyle(PlainTextFieldStyle())
                                 .padding()
@@ -68,7 +153,7 @@ struct SignupView: View {
                                 .onChange(of: viewModel.password) { newValue in
                                     viewModel.passwordErrors = viewModel.validatePassword(newValue)
                                 }
-                            
+
                             if !viewModel.passwordErrors.isEmpty {
                                 VStack(alignment: .leading, spacing: 4) {
                                     ForEach(viewModel.passwordErrors, id: \.self) { error in
@@ -77,18 +162,18 @@ struct SignupView: View {
                                             .foregroundColor(AppColors.accent)
                                     }
                                 }
-                            } else if !viewModel.password.isEmpty {
-                                Text("✓ Password meets all requirements")
+                            } else if !viewModel.password.isEmpty && viewModel.passwordErrors.isEmpty {
+                                Text("Password meets all requirements")
                                     .font(.system(size: 11))
                                     .foregroundColor(.green)
                             }
                         }
-                        
+
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Confirm Password")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(AppColors.textSecondary)
-                            
+
                             SecureField("", text: $viewModel.confirmPassword)
                                 .textFieldStyle(PlainTextFieldStyle())
                                 .padding()
@@ -99,27 +184,15 @@ struct SignupView: View {
                                         .stroke(AppColors.border, lineWidth: 1)
                                 )
                                 .foregroundColor(AppColors.textPrimary)
-                            
-                            if !viewModel.confirmPassword.isEmpty {
-                                if viewModel.password == viewModel.confirmPassword {
-                                    Text("✓ Passwords match")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(.green)
-                                } else {
-                                    Text("Passwords do not match")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(AppColors.accent)
-                                }
-                            }
                         }
                         
-                        if let error = viewModel.errorMessage {
-                            Text(error)
+                                                if let errorMessage = viewModel.errorMessage {
+                            Text(errorMessage)
                                 .font(.system(size: 14))
                                 .foregroundColor(AppColors.accent)
                                 .frame(maxWidth: .infinity, alignment: .leading)
                         }
-                        
+
                         Button(action: {
                             Task {
                                 await viewModel.signup()
@@ -133,7 +206,7 @@ struct SignupView: View {
                                     .font(.system(size: 16, weight: .semibold))
                             }
                         }
-                        .gradientButton(isEnabled: !viewModel.isLoading)
+                        .gradientButton(isEnabled: !viewModel.isLoading && viewModel.emailError == nil && viewModel.firstNameError == nil && viewModel.lastNameError == nil && viewModel.passwordErrors.isEmpty && viewModel.password == viewModel.confirmPassword)
                         .disabled(viewModel.isLoading)
                     }
                     .padding(.horizontal, AppStyles.paddingLarge)

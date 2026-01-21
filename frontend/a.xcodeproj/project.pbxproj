@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C92695892F1F365E005937E8 /* Auth in Frameworks */ = {isa = PBXBuildFile; productRef = C92695882F1F365E005937E8 /* Auth */; };
+		C926958B2F1F3661005937E8 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = C926958A2F1F3661005937E8 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		C9C0A09C2F0C4962002E48B2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -65,6 +70,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C926958B2F1F3661005937E8 /* Supabase in Frameworks */,
+				C92695892F1F365E005937E8 /* Auth in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,12 +92,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		C92695872F1F365E005937E8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		C9C0A0852F0C4960002E48B2 = {
 			isa = PBXGroup;
 			children = (
 				C9C0A0902F0C4960002E48B2 /* MusicApp */,
 				C9C0A09E2F0C4962002E48B2 /* MusicAppTests */,
 				C9C0A0A82F0C4962002E48B2 /* MusicAppUITests */,
+				C92695872F1F365E005937E8 /* Frameworks */,
 				C9C0A08F2F0C4960002E48B2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -127,6 +142,8 @@
 			);
 			name = MusicApp;
 			packageProductDependencies = (
+				C92695882F1F365E005937E8 /* Auth */,
+				C926958A2F1F3661005937E8 /* Supabase */,
 			);
 			productName = MusicApp;
 			productReference = C9C0A08E2F0C4960002E48B2 /* MusicApp.app */;
@@ -201,7 +218,7 @@
 					};
 				};
 			};
-			buildConfigurationList = C9C0A0892F0C4960002E48B2 /* Build configuration list for PBXProject "MusicApp" */;
+			buildConfigurationList = C9C0A0892F0C4960002E48B2 /* Build configuration list for PBXProject "a" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -563,7 +580,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		C9C0A0892F0C4960002E48B2 /* Build configuration list for PBXProject "MusicApp" */ = {
+		C9C0A0892F0C4960002E48B2 /* Build configuration list for PBXProject "a" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				C9C0A0AD2F0C4962002E48B2 /* Debug */,
@@ -622,6 +639,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = C908B2E22F1EE94D0045DFB6 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Auth;
+		};
+		C92695882F1F365E005937E8 /* Auth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C908B2E22F1EE94D0045DFB6 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Auth;
+		};
+		C926958A2F1F3661005937E8 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C908B2E22F1EE94D0045DFB6 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

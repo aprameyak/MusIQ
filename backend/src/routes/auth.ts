@@ -19,7 +19,7 @@ router.post(
 
       res.json({
         success: true,
-        message: 'User created successfully. Please check your email to verify your account.'
+        message: 'User created successfully'
       });
     } catch (error) {
       next(error);
@@ -208,20 +208,7 @@ router.post(
           success: false,
           error: {
             code: '400',
-            message: 'Verification code is required'
-          }
-        });
-        return;
-      }
-
-      const { user } = await supabaseService.verifyOtp(code, 'signup');
-
-      if (!user) {
-        res.status(400).json({
-          success: false,
-          error: {
-            code: '400',
-            message: 'Invalid or expired verification code'
+            message: 'Code is required'
           }
         });
         return;
@@ -229,7 +216,7 @@ router.post(
 
       res.json({
         success: true,
-        message: 'Email verified successfully'
+        message: 'Code processed successfully'
       });
     } catch (error) {
       next(error);
