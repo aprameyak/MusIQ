@@ -136,7 +136,7 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
         await sendDiscordFollowup(
           applicationId,
           interactionToken,
-          `✅ **GitHub Issue Created!**\n${githubResponse.data.html_url}`
+          `GitHub Issue Created!\n${githubResponse.data.html_url}`
         );
         console.log('Done!');
       } catch (error) {

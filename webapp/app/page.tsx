@@ -1,105 +1,52 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { apiClient } from '@/lib/api';
 
 export default function Home() {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [user, setUser] = useState<any>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      if (await apiClient.isAuthenticated()) {
-        try {
-          const response = await apiClient.getCurrentUser();
-          if (response.success && response.data) {
-            setIsAuthenticated(true);
-            setUser(response.data);
-          } else {
-            setIsAuthenticated(false);
-            apiClient.clearTokens();
-            router.push('/auth');
-          }
-        } catch (error) {
-          setIsAuthenticated(false);
-          apiClient.clearTokens();
-          router.push('/auth');
-        }
-      } else {
-        setIsAuthenticated(false);
-        router.push('/auth');
-      }
-    };
-
-    checkAuth();
+    // If the user lands on the homepage with a Supabase auth hash (access_token, etc.),
+    // immediately redirect them to the auth page so it can be handled.
+    if (window.location.hash) {
+      router.replace('/auth' + window.location.hash);
+    }
   }, [router]);
 
-  const handleLogout = async () => {
-    const refreshToken = apiClient.getRefreshToken();
-    if (refreshToken) {
-      await apiClient.logout(refreshToken);
-    }
-    apiClient.clearTokens();
-    setIsAuthenticated(false);
-    setUser(null);
-  };
-
-  if (isAuthenticated === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-textSecondary">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-textSecondary">Redirecting...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-4xl mx-auto px-6 py-16">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-textPrimary mb-2">Welcome back!</h1>
-            <p className="text-textSecondary">
-              {user?.username || 'User'}
-            </p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm text-textSecondary hover:text-textPrimary border border-border rounded-lg hover:bg-secondaryBg transition"
-          >
-            Sign Out
-          </button>
-        </div>
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="max-w-md w-full text-center">
+        <h1 className="text-6xl font-black text-textPrimary mb-4 tracking-tighter">MusIQ</h1>
+        <p className="text-textSecondary text-xl font-medium mb-12">
+          The global music rating platform.
+        </p>
 
-        <div className="bg-card rounded-lg p-8 shadow-sm border border-border">
-          <h2 className="text-2xl font-semibold text-textPrimary mb-4">Your Dashboard</h2>
-          <p className="text-textSecondary leading-relaxed">
-            Start rating music and discover new sounds. Your ratings help shape global music rankings.
+        <div className="bg-card rounded-3xl p-10 shadow-2xl border border-border mb-12 transform hover:scale-[1.02] transition-transform duration-300">
+          <p className="text-textPrimary font-bold text-2xl mb-4">
+            Listen, Rate, Rank.
           </p>
+          <p className="text-textSecondary text-lg mb-10 leading-relaxed">
+            Please use the <strong>MusIQ iOS app</strong> to access your dashboard, rate music, and see global rankings.
+          </p>
+          <div className="flex flex-col gap-4">
+            <Link
+              href="/auth"
+              className="px-8 py-4 bg-primary text-white rounded-2xl hover:opacity-90 transition font-black text-lg shadow-lg shadow-primary/20"
+            >
+              Account Support
+            </Link>
+          </div>
         </div>
 
-        <div className="flex gap-4 justify-center mt-8">
-          <Link
-            href="/support"
-            className="px-6 py-3 bg-secondary text-white rounded-lg hover:opacity-90 transition"
-          >
+        <div className="flex gap-8 justify-center items-center">
+          <Link href="/support" className="text-textSecondary hover:text-primary transition font-bold text-sm uppercase tracking-widest">
             Support
           </Link>
-          <Link
-            href="/privacy"
-            className="px-6 py-3 bg-secondary text-white rounded-lg hover:opacity-90 transition"
-          >
-            Privacy
+          <div className="w-1.5 h-1.5 bg-border rounded-full" />
+          <Link href="/privacy" className="text-textSecondary hover:text-primary transition font-bold text-sm uppercase tracking-widest">
+            Privacy Policy
           </Link>
         </div>
       </div>

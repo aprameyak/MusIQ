@@ -7,6 +7,7 @@ import { securityMiddleware } from './middleware/security.middleware';
 import { rateLimitMiddleware } from './middleware/rate-limit.middleware';
 import { logger } from './config/logger';
 
+
 dotenv.config();
 
 const app = express();
@@ -61,8 +62,11 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+app.get('/', (_req, res) => {
+  res.send('<h1>Welcome to MusIQ API</h1>');
+});
+
 import authRoutes from './routes/auth';
-import oauthRoutes from './routes/oauth';
 import profileRoutes from './routes/profile';
 import musicRoutes from './routes/music';
 import ratingRoutes from './routes/ratings';
@@ -71,9 +75,10 @@ import socialRoutes from './routes/social';
 import notificationRoutes from './routes/notifications';
 import adminRoutes from './routes/admin';
 import webhookRoutes from './routes/webhooks';
+import postRoutes from './routes/posts';
 
 app.use('/api/auth', authRoutes);
-app.use('/api/auth/oauth', oauthRoutes);
+
 app.use('/api/profile', profileRoutes);
 app.use('/api/music', musicRoutes);
 app.use('/api/ratings', ratingRoutes);
@@ -82,6 +87,7 @@ app.use('/api/social', socialRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/webhooks', webhookRoutes);
+app.use('/api/posts', postRoutes);
 
 app.use('/interactions', webhookRoutes);
 

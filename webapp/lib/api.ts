@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://musiq-sc2d.onrender.com/api';
+const API_BASE_URL = 'http://localhost:3000/api'; //backend
 
 export interface AuthTokens {
   accessToken: string;
@@ -36,7 +36,7 @@ class ApiClient {
 
   private getEncryptionKey(): string {
     if (typeof window === 'undefined') return '';
-    
+
     let key = sessionStorage.getItem('encryptionKey');
     if (!key) {
       key = Array.from(crypto.getRandomValues(new Uint8Array(32)))
@@ -49,17 +49,17 @@ class ApiClient {
 
   private encrypt(text: string): string {
     if (typeof window === 'undefined') return text;
-    
+
     try {
       const key = this.getEncryptionKey();
       const keyBytes = new TextEncoder().encode(key);
       const textBytes = new TextEncoder().encode(text);
-      
-      const encrypted = textBytes.map((byte, i) => 
+
+      const encrypted = textBytes.map((byte, i) =>
         byte ^ keyBytes[i % keyBytes.length]
       );
-      
-      return this.ENCRYPTION_PREFIX + btoa(String.fromCharCode(...encrypted));
+
+      return this.ENCRYPTION_PREFIX + btoa(String.fromCharCode.apply(null, Array.from(encrypted)));
     } catch (error) {
       console.error('Encryption error:', error);
       return text;
@@ -68,21 +68,21 @@ class ApiClient {
 
   private decrypt(encryptedText: string): string {
     if (typeof window === 'undefined') return encryptedText;
-    
+
     if (!encryptedText.startsWith(this.ENCRYPTION_PREFIX)) {
       return encryptedText;
     }
-    
+
     try {
       const encrypted = encryptedText.slice(this.ENCRYPTION_PREFIX.length);
       const encryptedBytes = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0));
       const key = this.getEncryptionKey();
       const keyBytes = new TextEncoder().encode(key);
-      
-      const decrypted = encryptedBytes.map((byte, i) => 
+
+      const decrypted = encryptedBytes.map((byte, i) =>
         byte ^ keyBytes[i % keyBytes.length]
       );
-      
+
       return new TextDecoder().decode(decrypted);
     } catch (error) {
       console.error('Decryption error:', error);
@@ -97,9 +97,9 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
     const token = await this.getAccessToken();
 
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...(options.headers as Record<string, string>),
     };
 
     if (token) {
@@ -141,10 +141,9 @@ class ApiClient {
   }
 
   async signup(data: SignupData): Promise<ApiResponse<AuthTokens>> {
-    const { confirmPassword, ...signupPayload } = data;
     return this.request<AuthTokens>('/auth/signup', {
       method: 'POST',
-      body: JSON.stringify(signupPayload),
+      body: JSON.stringify(data),
     });
   }
 
@@ -152,6 +151,27 @@ class ApiClient {
     return this.request<AuthTokens>('/auth/login', {
       method: 'POST',
       body: JSON.stringify(data),
+    });
+  }
+
+  async forgotPassword(email: string): Promise<ApiResponse<void>> {
+    return this.request<void>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  }
+
+  async updatePassword(newPassword: string): Promise<ApiResponse<void>> {
+    return this.request<void>('/auth/update-password', {
+      method: 'POST',
+      body: JSON.stringify({ newPassword }),
+    });
+  }
+
+  async resetPasswordWithCode(code: string, newPassword: string): Promise<ApiResponse<void>> {
+    return this.request<void>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ code, newPassword }),
     });
   }
 
