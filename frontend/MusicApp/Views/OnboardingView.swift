@@ -106,39 +106,7 @@ struct OnboardingView: View {
                 .padding(.horizontal, AppStyles.paddingLarge)
                 .padding(.bottom, 32)
                 
-                if currentSlide == slides.count - 1 {
-                    VStack(spacing: 16) {
-                        HStack {
-                            Rectangle()
-                                .fill(AppColors.secondaryBackground)
-                                .frame(height: 1)
-                            
-                            Text("or continue with")
-                                .font(.system(size: 12))
-                                .foregroundColor(AppColors.textSecondary)
-                            
-                            Rectangle()
-                                .fill(AppColors.secondaryBackground)
-                                .frame(height: 1)
-                        }
-                        .padding(.horizontal, AppStyles.paddingLarge)
-                        
-                        VStack(spacing: 12) {
-                            AppleSignInButton(
-                                onSuccess: { code, idToken in },
-                                onError: { _ in }
-                            )
-                            
-                            GoogleSignInButton(
-                                onSuccess: { code, idToken in },
-                                onError: { _ in }
-                            )
-                        }
-                        .padding(.horizontal, AppStyles.paddingLarge)
-                        .padding(.bottom, 32)
-                    }
-                    .transition(.opacity)
-                }
+
             }
         }
     }

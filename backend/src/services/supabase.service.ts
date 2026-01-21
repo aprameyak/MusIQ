@@ -77,7 +77,7 @@ class SupabaseService {
       const { data, error } = await this.client.auth.admin.createUser({
         email,
         password,
-        email_confirm: false, // Supabase will send verification email if configured
+        email_confirm: true,
         user_metadata: {
           first_name: metadata.first_name || '',
           last_name: metadata.last_name || ''
@@ -139,9 +139,6 @@ class SupabaseService {
 
         if (error.message.includes('Invalid login credentials') || error.message.includes('Invalid')) {
           throw new CustomError('Invalid email or password', 401);
-        }
-        if (error.message.includes('Email not confirmed') || error.message.includes('not confirmed')) {
-          throw new CustomError('Please verify your email address', 403);
         }
 
         throw new CustomError(`Login failed: ${error.message}`, 401);

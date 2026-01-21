@@ -76,7 +76,7 @@ export class AuthService {
         `INSERT INTO users (email, username, password_hash, role, first_name, last_name, supabase_auth_id, email_verified)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id, email, username, role, created_at, updated_at`,
-        [email.toLowerCase(), username, null, 'user', firstName, lastName, supabaseAuthId, false] // Set email_verified to false initially
+        [email.toLowerCase(), username, null, 'user', firstName, lastName, supabaseAuthId, true]
     );
 
     const user = result.rows[0];

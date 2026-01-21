@@ -48,19 +48,25 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- Allow HTTP connections for local development -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>musiq</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<!-- Allow local networking (localhost and LAN) -->
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
-		<!-- Allow arbitrary loads for local development -->
 		<key>NSAllowsArbitraryLoadsInWebContent</key>
 		<true/>
-		<!-- Explicit exception domains -->
 		<key>NSExceptionDomains</key>
 		<dict>
-			<!-- Allow localhost -->
 			<key>localhost</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
@@ -68,13 +74,11 @@
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
-			<!-- Allow your Mac's local IP (current) -->
 			<key>192.168.1.244</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>
 				<true/>
 			</dict>
-			<!-- Allow your Mac's local IP (old, for compatibility) -->
 			<key>192.168.86.133</key>
 			<dict>
 				<key>NSExceptionAllowsInsecureHTTPLoads</key>

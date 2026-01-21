@@ -51,8 +51,7 @@ class APIService {
                 throw NetworkError.unknown(NSError(domain: "APIService", code: -1))
             }
             
-            switch httpResponse.statusCode {
-            case 200...299:
+            if (200...299).contains(httpResponse.statusCode) {
                 do {
                     let decoder = JSONDecoder()
                     decoder.dateDecodingStrategy = .iso8601
@@ -64,17 +63,24 @@ class APIService {
                     print("Decoding Error Details: \(decodingError)")
                     throw NetworkError.unknown(decodingError)
                 }
-            case 401:
-                throw NetworkError.unauthorized
-            case 403:
-                throw NetworkError.forbidden
-            case 404:
-                throw NetworkError.notFound
-            case 500...599:
-                throw NetworkError.serverError(httpResponse.statusCode)
-            default:
-                throw NetworkError.serverError(httpResponse.statusCode)
             }
+            
+            var message: String = "Server error: \(httpResponse.statusCode)"
+            if !data.isEmpty {
+                if let jsonObject = try? JSONSerialization.jsonObject(with: data, options: []),
+                   let json = jsonObject as? [String: Any] {
+                    if let errorDict = json["error"] as? [String: Any],
+                       let serverMessage = errorDict["message"] as? String,
+                       !serverMessage.isEmpty {
+                        message = serverMessage
+                    } else if let serverMessage = json["message"] as? String,
+                              !serverMessage.isEmpty {
+                        message = serverMessage
+                    }
+                }
+            }
+            
+            throw NetworkError.unknown(NSError(domain: "APIService", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: message]))
         } catch let error as NetworkError {
             throw error
         } catch {

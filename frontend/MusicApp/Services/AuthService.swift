@@ -1,24 +1,47 @@
 import Foundation
+import Supabase
 
 class AuthService {
+    private let supabase = SupabaseClient(supabaseURL: URL(string: "https://mehxapfmnzalknthnzpy.supabase.co")!, supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1laHhhcGZtbnphbGtudGhuenB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MzAwMTAsImV4cCI6MjA4NDEwNjAxMH0.AIwgjmaPgoIm87iHu_ugzx0mTc1wD9TekIH3_Z0M7gQ")
     private let apiService = APIService.shared
-    
-    func login(request: LoginRequest) async throws -> AuthToken {
+
+    func signup(email: String, password: String, firstName: String, lastName: String, username: String) async throws {
+        do {
+            let response: APIResponse<EmptyResponse> = try await apiService.request(
+                endpoint: "/auth/signup",
+                method: .post,
+                body: SignupRequest(email: email, username: username, password: password, firstName: firstName, lastName: lastName),
+                requiresAuth: false
+            )
+
+            guard response.success else {
+                if let error = response.error {
+                    throw NetworkError.unknown(NSError(domain: "AuthService", code: Int(error.code) ?? 400, userInfo: [NSLocalizedDescriptionKey: error.message]))
+                }
+                throw NetworkError.unknown(NSError(domain: "AuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Signup failed"]))
+            }
+        } catch let error as NetworkError {
+            throw error
+        } catch {
+            throw NetworkError.unknown(error)
+        }
+    }
+
+    func login(email: String, password: String) async throws -> AuthToken {
         do {
             let response: APIResponse<AuthToken> = try await apiService.request(
                 endpoint: "/auth/login",
                 method: .post,
-                body: request,
+                body: LoginRequest(email: email, password: password),
                 requiresAuth: false
             )
-            
+
             guard response.success, let data = response.data else {
                 if let error = response.error {
                     throw NetworkError.unknown(NSError(domain: "AuthService", code: Int(error.code) ?? 401, userInfo: [NSLocalizedDescriptionKey: error.message]))
                 }
                 throw NetworkError.unauthorized
             }
-            
             return data
         } catch let error as NetworkError {
             throw error
@@ -26,45 +49,16 @@ class AuthService {
             throw NetworkError.unknown(error)
         }
     }
-    
-    func signup(request: SignupRequest) async throws -> AuthToken {
+
+    func forgotPassword(email: String) async throws {
         do {
-            let response: APIResponse<AuthToken> = try await apiService.request(
-                endpoint: "/auth/signup",
-                method: .post,
-                body: request,
-                requiresAuth: false
-            )
-            
-            guard response.success, let data = response.data else {
-                if let error = response.error {
-                    throw NetworkError.unknown(NSError(domain: "AuthService", code: Int(error.code) ?? 400, userInfo: [NSLocalizedDescriptionKey: error.message]))
-                }
-                throw NetworkError.unknown(NSError(domain: "AuthService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Signup failed"]))
-            }
-            
-            return data
-        } catch let error as NetworkError {
-            throw error
+            try await supabase.auth.resetPasswordForEmail(email)
         } catch {
             throw NetworkError.unknown(error)
         }
     }
-    
-    func refreshToken(request: RefreshTokenRequest) async throws -> AuthToken {
-        let response: APIResponse<AuthToken> = try await apiService.request(
-            endpoint: "/auth/refresh",
-            method: .post,
-            body: request,
-            requiresAuth: false
-        )
-        
-        guard response.success, let data = response.data else {
-            throw NetworkError.unauthorized
-        }
-        
-        return data
-    }
+
+
     
     func getCurrentUser() async throws -> User {
         let response: APIResponse<User> = try await apiService.request(
@@ -80,13 +74,7 @@ class AuthService {
     }
     
     func logout() async throws {
-        _ = try await apiService.request(
-            endpoint: "/auth/logout",
-            method: .post,
-            body: EmptyBody(),
-            requiresAuth: true
-        ) as APIResponse<EmptyResponse>
-        
+        try await supabase.auth.signOut()
         KeychainHelper.clearAll()
     }
 }
