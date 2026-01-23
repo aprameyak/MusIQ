@@ -146,6 +146,36 @@ router.post(
   }
 );
 
+router.delete(
+  '/unfollow/:userId',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const { userId } = req.params;
+
+      const result = await pool.query(
+        'DELETE FROM friendships WHERE user_id = $1 AND friend_id = $2 RETURNING *',
+        [req.userId, userId]
+      );
+
+      if (result.rows.length === 0) {
+        throw new CustomError('Not following this user', 404);
+      }
+
+      res.json({
+        success: true,
+        message: 'Unfollowed successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 router.get(
   '/compatibility/:userId',
   authMiddleware,
@@ -246,6 +276,62 @@ router.get(
           sharedArtists: parseInt(sharedResult.rows[0]?.shared_count || '0'),
           sharedGenres: Array.from(sharedGenresSet)
         }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  '/following',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const result = await pool.query(
+        `SELECT u.id, u.username, u.email, f.status, f.created_at
+         FROM friendships f
+         JOIN users u ON f.friend_id = u.id
+         WHERE f.user_id = $1 AND u.deleted_at IS NULL
+         ORDER BY f.created_at DESC`,
+        [req.userId]
+      );
+
+      res.json({
+        success: true,
+        data: result.rows
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  '/followers',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const result = await pool.query(
+        `SELECT u.id, u.username, u.email, f.status, f.created_at
+         FROM friendships f
+         JOIN users u ON f.user_id = u.id
+         WHERE f.friend_id = $1 AND u.deleted_at IS NULL
+         ORDER BY f.created_at DESC`,
+        [req.userId]
+      );
+
+      res.json({
+        success: true,
+        data: result.rows
       });
     } catch (error) {
       next(error);

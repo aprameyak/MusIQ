@@ -109,7 +109,7 @@ router.get(
 
       const decadePreference: Record<string, number> = {};
       const decadeCounts: Record<string, number> = {};
-      
+
       decadeResult.rows.forEach((row: any) => {
         const releaseDate = row.release_date;
         if (releaseDate && typeof releaseDate === 'string') {
@@ -178,7 +178,7 @@ router.get(
           genreAffinity,
           decadePreference,
           attributes,
-          controversyAffinity 
+          controversyAffinity
         }
       });
     } catch (error) {
@@ -256,6 +256,40 @@ router.put(
         success: true,
         data: userResult.rows[0],
         message: 'Profile updated successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  '/search',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const query = req.query.q as string;
+      if (!query || query.length < 2) {
+        throw new CustomError('Search query must be at least 2 characters', 400);
+      }
+
+      const result = await pool.query(
+        `SELECT id, username, email
+         FROM users
+         WHERE username ILIKE $1 
+         AND id != $2 
+         AND deleted_at IS NULL
+         LIMIT 20`,
+        [`%${query}%`, req.userId]
+      );
+
+      res.json({
+        success: true,
+        data: result.rows
       });
     } catch (error) {
       next(error);

@@ -30,14 +30,6 @@ export default function Home() {
           <p className="text-textSecondary text-lg mb-10 leading-relaxed">
             Please use the <strong>MusIQ iOS app</strong> to access your dashboard, rate music, and see global rankings.
           </p>
-          <div className="flex flex-col gap-4">
-            <Link
-              href="/auth"
-              className="px-8 py-4 bg-primary text-white rounded-2xl hover:opacity-90 transition font-black text-lg shadow-lg shadow-primary/20"
-            >
-              Account Support
-            </Link>
-          </div>
         </div>
 
         <div className="flex gap-8 justify-center items-center">

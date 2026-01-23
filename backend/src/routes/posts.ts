@@ -128,7 +128,7 @@ router.post(
       );
 
       let musicItemId: string;
-      
+
       if (musicItemResult.rows.length > 0) {
         musicItemId = musicItemResult.rows[0].id;
       } else {
@@ -288,6 +288,259 @@ router.get(
             nextPage
           }
         }
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post(
+  '/:id/like',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const { id } = req.params;
+
+      const postResult = await pool.query(
+        'SELECT user_id FROM posts WHERE id = $1',
+        [id]
+      );
+
+      if (postResult.rows.length === 0) {
+        throw new CustomError('Post not found', 404);
+      }
+
+      try {
+        await pool.query(
+          'INSERT INTO post_likes (user_id, post_id) VALUES ($1, $2)',
+          [req.userId, id]
+        );
+
+        if (postResult.rows[0].user_id !== req.userId) {
+          const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
+          const username = userResult.rows[0]?.username || 'Someone';
+
+          await pool.query(
+            `INSERT INTO notifications (user_id, type, title, message, metadata)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [
+              postResult.rows[0].user_id,
+              'post_like',
+              'New Like',
+              `${username} liked your post`,
+              JSON.stringify({ postId: id, likedBy: req.userId })
+            ]
+          );
+        }
+      } catch (err: any) {
+        if (err.code === '23505') {
+          // Unique violation (already liked)
+          res.json({ success: true, message: 'Post already liked' });
+          return;
+        }
+        throw err;
+      }
+
+      res.json({
+        success: true,
+        message: 'Post liked successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete(
+  '/:id/like',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const { id } = req.params;
+
+      const result = await pool.query(
+        'DELETE FROM post_likes WHERE user_id = $1 AND post_id = $2 RETURNING *',
+        [req.userId, id]
+      );
+
+      if (result.rows.length === 0) {
+        throw new CustomError('Post not liked', 404);
+      }
+
+      res.json({
+        success: true,
+        message: 'Post unliked successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  '/:id/comments',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const { id } = req.params;
+
+      const result = await pool.query(
+        `SELECT pc.*, u.username
+         FROM post_comments pc
+         JOIN users u ON pc.user_id = u.id
+         WHERE pc.post_id = $1
+         ORDER BY pc.created_at ASC`,
+        [id]
+      );
+
+      const comments = result.rows.map((row: any) => ({
+        id: row.id,
+        userId: row.user_id,
+        username: row.username,
+        text: row.text,
+        createdAt: row.created_at
+      }));
+
+      res.json({
+        success: true,
+        data: comments
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post(
+  '/:id/comment',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const { id } = req.params;
+      const { text } = req.body;
+
+      if (!text || typeof text !== 'string' || text.trim().length === 0) {
+        throw new CustomError('Comment text is required', 400);
+      }
+
+      const postResult = await pool.query(
+        'SELECT user_id FROM posts WHERE id = $1',
+        [id]
+      );
+
+      if (postResult.rows.length === 0) {
+        throw new CustomError('Post not found', 404);
+      }
+
+      const commentResult = await pool.query(
+        `INSERT INTO post_comments (user_id, post_id, text)
+         VALUES ($1, $2, $3)
+         RETURNING *`,
+        [req.userId, id, text.trim()]
+      );
+
+      if (postResult.rows[0].user_id !== req.userId) {
+        const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
+        const username = userResult.rows[0]?.username || 'Someone';
+
+        await pool.query(
+          `INSERT INTO notifications (user_id, type, title, message, metadata)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [
+            postResult.rows[0].user_id,
+            'post_comment',
+            'New Comment',
+            `${username} commented on your post`,
+            JSON.stringify({ postId: id, commentId: commentResult.rows[0].id, commentedBy: req.userId })
+          ]
+        );
+      }
+
+      res.json({
+        success: true,
+        data: {
+          id: commentResult.rows[0].id,
+          text: commentResult.rows[0].text,
+          createdAt: commentResult.rows[0].created_at
+        },
+        message: 'Comment added successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.post(
+  '/:id/share',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const { id } = req.params;
+      const { text } = req.body;
+
+      const postResult = await pool.query(
+        'SELECT user_id FROM posts WHERE id = $1',
+        [id]
+      );
+
+      if (postResult.rows.length === 0) {
+        throw new CustomError('Post not found', 404);
+      }
+
+      const repostResult = await pool.query(
+        `INSERT INTO post_reposts (user_id, post_id, text)
+         VALUES ($1, $2, $3)
+         RETURNING *`,
+        [req.userId, id, text || null]
+      );
+
+      if (postResult.rows[0].user_id !== req.userId) {
+        const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
+        const username = userResult.rows[0]?.username || 'Someone';
+
+        await pool.query(
+          `INSERT INTO notifications (user_id, type, title, message, metadata)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [
+            postResult.rows[0].user_id,
+            'post_repost',
+            'New Repost',
+            `${username} reposted your post`,
+            JSON.stringify({ postId: id, repostId: repostResult.rows[0].id, repostedBy: req.userId })
+          ]
+        );
+      }
+
+      res.json({
+        success: true,
+        data: {
+          id: repostResult.rows[0].id,
+          text: repostResult.rows[0].text,
+          createdAt: repostResult.rows[0].created_at
+        },
+        message: 'Post shared successfully'
       });
     } catch (error) {
       next(error);
