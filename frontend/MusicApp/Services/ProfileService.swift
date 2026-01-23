@@ -42,4 +42,18 @@ class ProfileService {
         
         return data
     }
+
+    func searchUsers(query: String) async throws -> [UserSummary] {
+        let response: APIResponse<[UserSummary]> = try await apiService.request(
+            endpoint: "/profile/search?q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")",
+            method: .get
+        )
+        return response.data ?? []
+    }
+}
+
+struct UserSummary: Codable, Identifiable {
+    let id: String
+    let username: String
+    let email: String
 }

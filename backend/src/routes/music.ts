@@ -31,13 +31,51 @@ router.get(
       const queryParams: any[] = [];
       let paramCount = 1;
 
-      if (filter === 'forYou') {
-        
+      if (filter === 'forYou' && req.userId) {
+        query = `
+          WITH user_follows AS (
+            SELECT friend_id FROM friendships WHERE user_id = $1 AND status = 'accepted'
+          ),
+          user_top_genres AS (
+            SELECT DISTINCT jsonb_array_elements_text(mi.metadata->'genres') as genre
+            FROM ratings r
+            JOIN music_items mi ON r.music_item_id = mi.id
+            WHERE r.user_id = $1 AND r.rating >= 8
+          )
+          SELECT 
+            mi.*,
+            COALESCE(AVG(r.rating), 0) as rating,
+            COUNT(r.id) as rating_count,
+            COUNT(CASE WHEN r.created_at > NOW() - INTERVAL '7 days' THEN 1 END) as recent_ratings,
+            (
+              SELECT COUNT(*) FROM ratings r2 
+              WHERE r2.music_item_id = mi.id 
+              AND r2.user_id IN (SELECT friend_id FROM user_follows)
+            ) as friend_rating_count
+          FROM music_items mi
+          LEFT JOIN ratings r ON mi.id = r.music_item_id
+          WHERE 1=1
+          AND (
+            EXISTS (
+              SELECT 1 FROM user_follows uf 
+              JOIN ratings r3 ON r3.user_id = uf.friend_id 
+              WHERE r3.music_item_id = mi.id
+            )
+            OR EXISTS (
+              SELECT 1 FROM user_top_genres utg
+              WHERE mi.metadata->'genres' ? utg.genre
+            )
+          )
+        `;
+        queryParams.push(req.userId);
+        paramCount++;
       }
 
       query += ` GROUP BY mi.id ORDER BY `;
 
-      if (filter === 'trending') {
+      if (filter === 'forYou') {
+        query += `friend_rating_count DESC, rating DESC, recent_ratings DESC, mi.created_at DESC`;
+      } else if (filter === 'trending') {
         query += `recent_ratings DESC NULLS LAST, rating DESC, rating_count DESC, mi.created_at DESC`;
       } else {
         query += `rating DESC, rating_count DESC, mi.created_at DESC`;

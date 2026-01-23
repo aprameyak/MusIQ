@@ -25,6 +25,32 @@ class SocialService {
         ) as APIResponse<EmptyResponse>
     }
     
+    func unfollow(userId: String) async throws {
+        _ = try await apiService.request(
+            endpoint: "/social/unfollow/\(userId)",
+            method: .delete,
+            requiresAuth: true
+        ) as APIResponse<EmptyResponse>
+    }
+
+    func getFollowing() async throws -> [SocialUser] {
+        let response: APIResponse<[SocialUser]> = try await apiService.request(
+            endpoint: "/social/following",
+            method: .get,
+            requiresAuth: true
+        )
+        return response.data ?? []
+    }
+
+    func getFollowers() async throws -> [SocialUser] {
+        let response: APIResponse<[SocialUser]> = try await apiService.request(
+            endpoint: "/social/followers",
+            method: .get,
+            requiresAuth: true
+        )
+        return response.data ?? []
+    }
+    
     func getCompatibility(userId: String) async throws -> Int {
         let response: APIResponse<CompatibilityResponse> = try await apiService.request(
             endpoint: "/social/compatibility/\(userId)",
@@ -60,4 +86,12 @@ struct TasteComparison: Codable {
     let compatibility: Int
     let sharedArtists: Int
     let sharedGenres: [String]
+}
+
+struct SocialUser: Codable, Identifiable {
+    let id: String
+    let username: String
+    let email: String
+    let status: String
+    let createdAt: String
 }
