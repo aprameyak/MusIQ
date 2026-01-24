@@ -117,7 +117,7 @@ export class AuthService {
           emailVerified: !!supabaseSession.user.email_confirmed_at
         };
       } else {
-        // Fallback for legacy users if they exist, though we are moving to Supabase only
+
         throw new CustomError('Legacy user authentication not supported.', 400);
       }
     } catch (error) {
@@ -148,9 +148,9 @@ export class AuthService {
 
   async refreshToken(_refreshToken: string): Promise<AuthTokens> {
     try {
-      // Supabase handles refresh tokens automatically on the client-side
-      // The backend will mostly just validate the session token.
-      // If a new session token is needed, the client should use Supabase client's refresh mechanism.
+
+
+
       throw new CustomError('Refresh token handled by Supabase client', 400);
     } catch (error) {
       if (error instanceof CustomError) {
@@ -162,8 +162,8 @@ export class AuthService {
   }
 
   async logout(): Promise<void> {
-    // Supabase handles logout on the client side, revoking the session
-    // This backend logout might be used for specific server-side session invalidation if custom sessions are implemented
+
+
     logger.info('User logout initiated (backend only, client handles Supabase session)');
   }
 

@@ -41,7 +41,7 @@ export const authMiddleware = async (
 
     const user = userResult.rows[0];
 
-    // Sync email_verified status if Supabase says it's verified but local DB says it's not
+
     if (supabaseUser.emailVerified && !user.email_verified) {
       await pool.query(
         'UPDATE users SET email_verified = true, updated_at = NOW() WHERE id = $1',

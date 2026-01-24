@@ -129,53 +129,6 @@ router.get(
 );
 
 router.get(
-  '/:id',
-  authMiddleware,
-  async (req, res, next) => {
-    try {
-      const { id } = req.params;
-
-      const result = await pool.query(
-        `SELECT 
-          mi.*,
-          COALESCE(AVG(r.rating), 0) as rating,
-          COUNT(r.id) as rating_count
-         FROM music_items mi
-         LEFT JOIN ratings r ON mi.id = r.music_item_id
-         WHERE mi.id = $1
-         GROUP BY mi.id`,
-        [id]
-      );
-
-      if (result.rows.length === 0) {
-        throw new CustomError('Music item not found', 404);
-      }
-
-      const row = result.rows[0];
-      const item = {
-        id: row.id,
-        type: row.type,
-        title: row.title,
-        artist: row.artist,
-        imageUrl: row.image_url,
-        rating: parseFloat(row.rating) || 0,
-        ratingCount: parseInt(row.rating_count) || 0,
-        spotifyId: row.spotify_id,
-        appleMusicId: row.apple_music_id,
-        metadata: row.metadata
-      };
-
-      res.json({
-        success: true,
-        data: item
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.get(
   '/search',
   searchLimiter,
   authMiddleware,
@@ -235,5 +188,53 @@ router.get(
     }
   }
 );
+
+router.get(
+  '/:id',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      const { id } = req.params;
+
+      const result = await pool.query(
+        `SELECT 
+          mi.*,
+          COALESCE(AVG(r.rating), 0) as rating,
+          COUNT(r.id) as rating_count
+         FROM music_items mi
+         LEFT JOIN ratings r ON mi.id = r.music_item_id
+         WHERE mi.id = $1
+         GROUP BY mi.id`,
+        [id]
+      );
+
+      if (result.rows.length === 0) {
+        throw new CustomError('Music item not found', 404);
+      }
+
+      const row = result.rows[0];
+      const item = {
+        id: row.id,
+        type: row.type,
+        title: row.title,
+        artist: row.artist,
+        imageUrl: row.image_url,
+        rating: parseFloat(row.rating) || 0,
+        ratingCount: parseInt(row.rating_count) || 0,
+        spotifyId: row.spotify_id,
+        appleMusicId: row.apple_music_id,
+        metadata: row.metadata
+      };
+
+      res.json({
+        success: true,
+        data: item
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
 
 export default router;

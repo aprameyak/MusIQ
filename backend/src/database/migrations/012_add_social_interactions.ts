@@ -1,7 +1,7 @@
 import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
-    // Table for post likes
+
     await knex.schema.createTable('post_likes', (table) => {
         table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
         table.uuid('user_id').references('id').inTable('users').onDelete('CASCADE').notNullable().index();
@@ -10,7 +10,7 @@ export async function up(knex: Knex): Promise<void> {
         table.unique(['user_id', 'post_id']);
     });
 
-    // Table for post comments
+
     await knex.schema.createTable('post_comments', (table) => {
         table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
         table.uuid('user_id').references('id').inTable('users').onDelete('CASCADE').notNullable().index();
@@ -19,12 +19,12 @@ export async function up(knex: Knex): Promise<void> {
         table.timestamp('created_at').defaultTo(knex.fn.now());
     });
 
-    // Table for post reposts (shares)
+
     await knex.schema.createTable('post_reposts', (table) => {
         table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
         table.uuid('user_id').references('id').inTable('users').onDelete('CASCADE').notNullable().index();
         table.uuid('post_id').references('id').inTable('posts').onDelete('CASCADE').notNullable().index();
-        table.text('text').nullable(); // Optional commentary on the repost
+        table.text('text').nullable();
         table.timestamp('created_at').defaultTo(knex.fn.now());
     });
 }

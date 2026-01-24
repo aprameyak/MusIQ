@@ -339,7 +339,7 @@ router.post(
         }
       } catch (err: any) {
         if (err.code === '23505') {
-          // Unique violation (already liked)
+
           res.json({ success: true, message: 'Post already liked' });
           return;
         }
