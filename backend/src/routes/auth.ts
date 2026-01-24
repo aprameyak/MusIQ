@@ -99,8 +99,8 @@ router.post(
   authMiddleware,
   async (_req, res, next) => {
     try {
-      // In a Supabase-only auth system, the client handles logging out.
-      // This endpoint can be used for custom server-side session invalidation if needed.
+
+
       await authService.logout();
       res.json({
         success: true,
@@ -255,7 +255,7 @@ router.post(
         return;
       }
 
-      // Get the auth ID from the user
+
       const user = await authService.getUserById(req.userId);
       if (!user || !user.supabase_auth_id) {
         res.status(404).json({
@@ -268,7 +268,7 @@ router.post(
         return;
       }
 
-      // Update password using admin client
+
       await supabaseService.updateUserPassword(user.supabase_auth_id, newPassword);
 
       res.json({

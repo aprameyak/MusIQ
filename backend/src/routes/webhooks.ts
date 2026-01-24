@@ -148,7 +148,7 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
             data: error.response?.data
           });
         }
-        await sendDiscordFollowup(applicationId, interactionToken, '❌ Failed to create GitHub issue. Check server logs.');
+        await sendDiscordFollowup(applicationId, interactionToken, ' Failed to create GitHub issue. Check server logs.');
       }
     })();
 

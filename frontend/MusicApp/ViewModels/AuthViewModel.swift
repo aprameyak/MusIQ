@@ -219,7 +219,7 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
     
-    // Helper to get shared AppState
+
     private func getAppState() -> AppState {
         return AppState.shared
     }

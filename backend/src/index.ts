@@ -20,7 +20,7 @@ app.use(securityMiddleware);
 
 const getAllowedOrigins = (): string[] | boolean => {
   const corsOrigin = process.env.CORS_ORIGIN;
-  
+
   if (!corsOrigin || corsOrigin === '*') {
     if (process.env.NODE_ENV === 'production') {
       logger.warn('CORS_ORIGIN is not set or set to * in production. This is insecure.');
@@ -28,7 +28,7 @@ const getAllowedOrigins = (): string[] | boolean => {
     }
     return true;
   }
-  
+
   return corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean);
 };
 
@@ -95,17 +95,19 @@ app.use(errorMiddleware);
 
 import { testConnection } from './database/connection';
 
-app.listen(PORT, async () => {
-  logger.info('Service: musiq-api');
-  logger.info(`Server running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, async () => {
+    logger.info('Service: musiq-api');
+    logger.info(`Server running on port ${PORT}`);
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`);
 
-  const dbConnected = await testConnection();
-  if (dbConnected) {
-    logger.info('Database connection established');
-  } else {
-    logger.error('Database connection failed - check DATABASE_URL');
-  }
-});
+    const dbConnected = await testConnection();
+    if (dbConnected) {
+      logger.info('Database connection established');
+    } else {
+      logger.error('Database connection failed - check DATABASE_URL');
+    }
+  });
+}
 
 export default app;
