@@ -141,7 +141,7 @@ router.get(
         return;
       }
 
-      const { password_hash, ...userData } = user;
+      const { password_hash: _, ...userData } = user;
 
       res.json({
         success: true,

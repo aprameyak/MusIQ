@@ -1,6 +1,7 @@
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 const mockAuditService = {
-    log: jest.fn().mockResolvedValue({})
+    log: (jest.fn() as any).mockResolvedValue({})
 };
 
 jest.mock('../src/security/audit.service', () => ({
@@ -12,7 +13,7 @@ import { auditMiddleware } from '../src/middleware/audit.middleware';
 describe('Audit Middleware', () => {
     let req: any;
     let res: any;
-    let next: jest.Mock;
+    let next: any;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -28,7 +29,7 @@ describe('Audit Middleware', () => {
         };
         res = {
             statusCode: 200,
-            send: jest.fn().mockReturnThis()
+            send: (jest.fn() as any).mockReturnThis()
         };
         next = jest.fn();
     });
@@ -69,7 +70,7 @@ describe('Audit Middleware', () => {
         }));
     });
 
-    it('should extract resourceId from various places', async () => {
+    it('should handle various resourceId positions', async () => {
         req.params.id = 'param-id';
         const middleware = auditMiddleware('test-action');
         await middleware(req, res, next);
@@ -114,8 +115,8 @@ describe('Audit Middleware', () => {
     });
 
     it('should handle audit service error gracefully', async () => {
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-        mockAuditService.log.mockRejectedValueOnce(new Error('fail'));
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
+        (mockAuditService.log as any).mockRejectedValueOnce(new Error('fail'));
 
         const middleware = auditMiddleware('test-action');
         await middleware(req, res, next);

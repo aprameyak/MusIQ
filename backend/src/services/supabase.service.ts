@@ -42,7 +42,8 @@ class SupabaseService {
       let page = 1;
       const perPage = 1000;
 
-      while (true) {
+      let hasMore = true;
+      while (hasMore) {
         const { data, error } = await this.client.auth.admin.listUsers({
           page,
           perPage
@@ -53,16 +54,17 @@ class SupabaseService {
           return null;
         }
 
-        const user = data.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
+        const users = (data as any).users;
+        const user = users.find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
         if (user) {
           return { id: user.id, email: user.email || email };
         }
 
-        if (!data.users || data.users.length < perPage) {
-          break;
+        if (!users || users.length < perPage) {
+          hasMore = false;
+        } else {
+          page++;
         }
-
-        page++;
       }
 
       return null;

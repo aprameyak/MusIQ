@@ -122,7 +122,7 @@ router.post(
 
       const { name, category, rating, text } = req.body;
 
-      let musicItemResult = await pool.query(
+      const musicItemResult = await pool.query(
         'SELECT id FROM music_items WHERE LOWER(title) = LOWER($1) AND type = $2',
         [name.trim(), category]
       );
