@@ -98,6 +98,10 @@ router.post(
               appleMusicId: musicItem.apple_music_id,
               metadata: musicItem.metadata
             },
+            likesCount: 0,
+            commentsCount: 0,
+            repostsCount: 0,
+            isLiked: false,
             createdAt: postResult.rows[0].created_at
           }
         },
@@ -206,6 +210,10 @@ router.post(
               appleMusicId: musicItem.apple_music_id,
               metadata: musicItem.metadata
             },
+            likesCount: 0,
+            commentsCount: 0,
+            repostsCount: 0,
+            isLiked: false,
             createdAt: postResult.rows[0].created_at
           }
         },
@@ -240,14 +248,19 @@ router.get(
           mi.image_url,
           mi.spotify_id,
           mi.apple_music_id,
-          mi.metadata
+          mi.metadata,
+          (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) as likes_count,
+          (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) as comments_count,
+          (SELECT COUNT(*) FROM post_reposts WHERE post_id = p.id) as reposts_count,
+          EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = $3) as is_liked,
+          EXISTS(SELECT 1 FROM post_reposts WHERE post_id = p.id AND user_id = $3) as is_reposted
          FROM posts p
          JOIN users u ON p.user_id = u.id
          JOIN music_items mi ON p.music_item_id = mi.id
          WHERE u.deleted_at IS NULL
          ORDER BY p.created_at DESC
          LIMIT $1 OFFSET $2`,
-        [limit, offset]
+        [limit, offset, req.userId]
       );
 
       const countResult = await pool.query(
@@ -273,6 +286,11 @@ router.get(
           appleMusicId: row.apple_music_id,
           metadata: row.metadata
         },
+        likesCount: parseInt(row.likes_count) || 0,
+        commentsCount: parseInt(row.comments_count) || 0,
+        repostsCount: parseInt(row.reposts_count) || 0,
+        isLiked: row.is_liked || false,
+        isReposted: row.is_reposted || false,
         createdAt: row.created_at
       }));
 
@@ -541,6 +559,160 @@ router.post(
           createdAt: repostResult.rows[0].created_at
         },
         message: 'Post shared successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.delete(
+  '/:id/share',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const { id } = req.params;
+
+      const result = await pool.query(
+        'DELETE FROM post_reposts WHERE user_id = $1 AND post_id = $2 RETURNING *',
+        [req.userId, id]
+      );
+
+      if (result.rows.length === 0) {
+        throw new CustomError('Post not shared', 404);
+      }
+
+      res.json({
+        success: true,
+        message: 'Post unshared successfully'
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  '/user/:userId',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      const { userId } = req.params;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 20;
+      const offset = (page - 1) * limit;
+
+      const result = await pool.query(
+        `SELECT 
+          p.id,
+          p.rating,
+          p.text,
+          p.created_at,
+          u.username,
+          mi.id as music_item_id,
+          mi.type,
+          mi.title,
+          mi.artist,
+          mi.image_url,
+          mi.spotify_id,
+          mi.apple_music_id,
+          mi.metadata,
+          (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) as likes_count,
+          (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) as comments_count,
+          (SELECT COUNT(*) FROM post_reposts WHERE post_id = p.id) as reposts_count,
+          EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = $3) as is_liked,
+          EXISTS(SELECT 1 FROM post_reposts WHERE post_id = p.id AND user_id = $3) as is_reposted,
+          FALSE as is_repost_item
+         FROM posts p
+         JOIN users u ON p.user_id = u.id
+         JOIN music_items mi ON p.music_item_id = mi.id
+         WHERE p.user_id = $4 AND u.deleted_at IS NULL
+         
+         UNION ALL
+         
+         SELECT 
+          p.id,
+          p.rating,
+          p.text,
+          p.created_at,
+          u.username,
+          mi.id as music_item_id,
+          mi.type,
+          mi.title,
+          mi.artist,
+          mi.image_url,
+          mi.spotify_id,
+          mi.apple_music_id,
+          mi.metadata,
+          (SELECT COUNT(*) FROM post_likes WHERE post_id = p.id) as likes_count,
+          (SELECT COUNT(*) FROM post_comments WHERE post_id = p.id) as comments_count,
+          (SELECT COUNT(*) FROM post_reposts WHERE post_id = p.id) as reposts_count,
+          EXISTS(SELECT 1 FROM post_likes WHERE post_id = p.id AND user_id = $3) as is_liked,
+          TRUE as is_reposted,
+          TRUE as is_repost_item
+         FROM post_reposts pr
+         JOIN posts p ON pr.post_id = p.id
+         JOIN users u ON p.user_id = u.id
+         JOIN music_items mi ON p.music_item_id = mi.id
+         WHERE pr.user_id = $4 AND u.deleted_at IS NULL
+         
+         ORDER BY created_at DESC
+         LIMIT $1 OFFSET $2`,
+        [limit, offset, req.userId, userId]
+      );
+
+      const countResult = await pool.query(
+        `SELECT (
+          (SELECT COUNT(*) FROM posts WHERE user_id = $1) +
+          (SELECT COUNT(*) FROM post_reposts WHERE user_id = $1)
+        ) as total`,
+        [userId]
+      );
+
+      const total = parseInt(countResult.rows[0].total);
+      const hasMore = offset + limit < total;
+      const nextPage = hasMore ? page + 1 : null;
+
+      const posts = result.rows.map((row: any) => ({
+        id: row.id,
+        username: row.username,
+        text: row.text,
+        rating: row.rating,
+        musicItem: {
+          id: row.music_item_id,
+          type: row.type,
+          title: row.title,
+          artist: row.artist,
+          imageUrl: row.image_url,
+          spotifyId: row.spotify_id,
+          appleMusicId: row.apple_music_id,
+          metadata: row.metadata
+        },
+        likesCount: parseInt(row.likes_count) || 0,
+        commentsCount: parseInt(row.comments_count) || 0,
+        repostsCount: parseInt(row.reposts_count) || 0,
+        isLiked: row.is_liked || false,
+        isReposted: row.is_reposted || false,
+        isRepostItem: row.is_repost_item || false,
+        createdAt: row.created_at
+      }));
+
+      res.json({
+        success: true,
+        data: {
+          data: posts,
+          pagination: {
+            page,
+            limit,
+            total,
+            hasMore,
+            nextPage
+          }
+        }
       });
     } catch (error) {
       next(error);

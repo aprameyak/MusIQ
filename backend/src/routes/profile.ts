@@ -20,8 +20,13 @@ router.get(
       }
 
       const userResult = await pool.query(
-        `SELECT id, email, username, email_verified, mfa_enabled, role, oauth_provider, oauth_id, last_login_at, created_at, updated_at
-         FROM users WHERE id = $1 AND deleted_at IS NULL`,
+        `SELECT 
+          u.id, u.email, u.username, u.email_verified, u.mfa_enabled, u.role, u.oauth_provider, u.oauth_id, u.last_login_at, u.created_at, u.updated_at,
+          (SELECT COUNT(*) FROM friendships WHERE user_id = u.id AND status = 'accepted') as following_count,
+          (SELECT COUNT(*) FROM friendships WHERE friend_id = u.id AND status = 'accepted') as followers_count,
+          (SELECT COUNT(*) FROM posts WHERE user_id = u.id) as posts_count
+         FROM users u 
+         WHERE u.id = $1 AND u.deleted_at IS NULL`,
         [req.userId]
       );
 
@@ -29,9 +34,15 @@ router.get(
         throw new CustomError('User not found', 404);
       }
 
+      const user = userResult.rows[0];
       res.json({
         success: true,
-        data: userResult.rows[0]
+        data: {
+          ...user,
+          following_count: parseInt(user.following_count) || 0,
+          followers_count: parseInt(user.followers_count) || 0,
+          posts_count: parseInt(user.posts_count) || 0
+        }
       });
     } catch (error) {
       next(error);
@@ -290,6 +301,53 @@ router.get(
       res.json({
         success: true,
         data: result.rows
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+router.get(
+  '/:userId',
+  authMiddleware,
+  async (req: AuthRequest, res, next) => {
+    try {
+      if (!req.userId) {
+        throw new CustomError('Unauthorized', 401);
+      }
+
+      const { userId } = req.params;
+
+      const userResult = await pool.query(
+        `SELECT 
+          u.id, u.username, u.email, u.created_at,
+          (SELECT COUNT(*) FROM friendships WHERE user_id = u.id AND status = 'accepted') as following_count,
+          (SELECT COUNT(*) FROM friendships WHERE friend_id = u.id AND status = 'accepted') as followers_count,
+          (SELECT COUNT(*) FROM posts WHERE user_id = u.id) as posts_count,
+          EXISTS(SELECT 1 FROM friendships WHERE user_id = $2 AND friend_id = $1 AND status = 'accepted') as is_following
+         FROM users u 
+         WHERE u.id = $1 AND u.deleted_at IS NULL`,
+        [userId, req.userId]
+      );
+
+      if (userResult.rows.length === 0) {
+        throw new CustomError('User not found', 404);
+      }
+
+      const user = userResult.rows[0];
+      res.json({
+        success: true,
+        data: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          createdAt: user.created_at,
+          following_count: parseInt(user.following_count) || 0,
+          followers_count: parseInt(user.followers_count) || 0,
+          posts_count: parseInt(user.posts_count) || 0,
+          is_following: user.is_following
+        }
       });
     } catch (error) {
       next(error);

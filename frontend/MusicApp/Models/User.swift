@@ -25,6 +25,10 @@ struct User: Identifiable, Codable {
     let lastLoginAt: Date?
     let createdAt: Date
     let updatedAt: Date
+    var isFollowing: Bool?
+    var followersCount: Int?
+    var followingCount: Int?
+    var postsCount: Int?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -40,6 +44,10 @@ struct User: Identifiable, Codable {
         case lastLoginAt = "last_login_at"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        case isFollowing = "is_following"
+        case followersCount = "followers_count"
+        case followingCount = "following_count"
+        case postsCount = "posts_count"
     }
     
     init(from decoder: Decoder) throws {
@@ -69,6 +77,11 @@ struct User: Identifiable, Codable {
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         createdAt = formatter.date(from: createdAtString) ?? Date()
         updatedAt = formatter.date(from: updatedAtString) ?? Date()
+        
+        followersCount = try container.decodeIfPresent(Int.self, forKey: .followersCount) ?? 0
+        followingCount = try container.decodeIfPresent(Int.self, forKey: .followingCount) ?? 0
+        postsCount = try container.decodeIfPresent(Int.self, forKey: .postsCount) ?? 0
+        isFollowing = try container.decodeIfPresent(Bool.self, forKey: .isFollowing)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -91,6 +104,10 @@ struct User: Identifiable, Codable {
         }
         try container.encode(formatter.string(from: createdAt), forKey: .createdAt)
         try container.encode(formatter.string(from: updatedAt), forKey: .updatedAt)
+        try container.encode(followersCount, forKey: .followersCount)
+        try container.encode(followingCount, forKey: .followingCount)
+        try container.encode(postsCount, forKey: .postsCount)
+        try container.encodeIfPresent(isFollowing, forKey: .isFollowing)
     }
 }
 
