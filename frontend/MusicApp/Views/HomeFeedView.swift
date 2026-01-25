@@ -5,8 +5,9 @@ struct HomeFeedView: View {
     @StateObject private var ratingViewModel = RatingViewModel()
     @StateObject private var createPostViewModel = CreatePostViewModel()
     @ObservedObject var appState = AppState.shared
-    @State private var showProfile = false
     @State private var showCreatePostModal = false
+    @State private var selectedUserId: String?
+    @State private var showProfile = false
     
     var body: some View {
         ZStack {
@@ -22,20 +23,12 @@ struct HomeFeedView: View {
                             .shadow(color: AppColors.primary.opacity(0.1), radius: 20)
                         
                         Spacer()
-                        
-                        Button(action: {
-                            showProfile = true
-                        }) {
-                            Image(systemName: "person.circle.fill")
-                                .font(.system(size: 24))
-                                .foregroundColor(AppColors.textSecondary)
-                                .frame(width: 40, height: 40)
-                        }
                     }
                 }
                 .padding(.horizontal, AppStyles.paddingMedium)
                 .padding(.top, AppStyles.paddingMedium)
                 .padding(.bottom, AppStyles.paddingMedium)
+
                 
                 if viewModel.isLoading {
                     Spacer()
@@ -58,7 +51,13 @@ struct HomeFeedView: View {
                     ScrollView {
                         LazyVStack(spacing: 16) {
                             ForEach(viewModel.feedItems) { post in
-                                PostCardView(post: post)
+                                PostCardView(
+                                    post: post,
+                                    onUserTap: {
+                                        selectedUserId = post.userId
+                                        showProfile = true
+                                    }
+                                )
                                     .padding(.horizontal, AppStyles.paddingMedium)
                                     .onAppear {
                                         Task {
@@ -131,7 +130,9 @@ struct HomeFeedView: View {
             }
         }
         .sheet(isPresented: $showProfile) {
-            ProfileView(appState: appState)
+            if let userId = selectedUserId {
+                ProfileView(userId: userId, appState: appState)
+            }
         }
         .task {
             await viewModel.loadFeed()

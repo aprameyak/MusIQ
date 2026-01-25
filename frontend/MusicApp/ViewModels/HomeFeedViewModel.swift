@@ -118,4 +118,51 @@ class HomeFeedViewModel: ObservableObject {
         showSearchView = false
         showRatingModal = true
     }
+    
+    func likePost(_ post: Post) async {
+        guard let index = feedItems.firstIndex(where: { $0.id == post.id }) else { return }
+        
+        let previouslyLiked = post.isLiked
+        
+        // Optimistic UI update
+        feedItems[index].isLiked.toggle()
+        feedItems[index].likesCount += previouslyLiked ? -1 : 1
+        
+        do {
+            if previouslyLiked {
+                try await postService.unlikePost(postId: post.id)
+            } else {
+                try await postService.likePost(postId: post.id)
+            }
+        } catch {
+            // Revert on error
+            feedItems[index].isLiked = previouslyLiked
+            feedItems[index].likesCount += previouslyLiked ? 1 : -1
+            errorMessage = "Failed to update like: \(error.localizedDescription)"
+        }
+    }
+    
+    func addComment(to post: Post, text: String) async {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        
+        do {
+            _ = try await postService.addComment(postId: post.id, text: text)
+            if let index = feedItems.firstIndex(where: { $0.id == post.id }) {
+                feedItems[index].commentsCount += 1
+            }
+        } catch {
+            errorMessage = "Failed to add comment: \(error.localizedDescription)"
+        }
+    }
+    
+    func sharePost(_ post: Post, text: String?) async {
+        do {
+            try await postService.sharePost(postId: post.id, text: text)
+            if let index = feedItems.firstIndex(where: { $0.id == post.id }) {
+                feedItems[index].repostsCount += 1
+            }
+        } catch {
+            errorMessage = "Failed to share post: \(error.localizedDescription)"
+        }
+    }
 }

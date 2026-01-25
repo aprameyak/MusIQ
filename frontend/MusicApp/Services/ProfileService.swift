@@ -43,6 +43,20 @@ class ProfileService {
         return data
     }
 
+    func getUserProfile(userId: String) async throws -> User {
+        let response: APIResponse<User> = try await apiService.request(
+            endpoint: "/profile/\(userId)",
+            method: .get,
+            requiresAuth: true
+        )
+        
+        guard response.success, let data = response.data else {
+            throw NetworkError.unknown(NSError(domain: "ProfileService", code: -1))
+        }
+        
+        return data
+    }
+
     func searchUsers(query: String) async throws -> [UserSummary] {
         let response: APIResponse<[UserSummary]> = try await apiService.request(
             endpoint: "/profile/search?q=\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")",

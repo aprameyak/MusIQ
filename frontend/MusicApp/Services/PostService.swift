@@ -65,6 +65,25 @@ class PostService {
         )
     }
 
+    func getUserPosts(userId: String, page: Int = 1, limit: Int = 20) async throws -> (items: [Post], hasMore: Bool, nextPage: Int?) {
+        let endpoint = "/posts/user/\(userId)?page=\(page)&limit=\(limit)"
+        let response: APIResponse<PostFeedResponse> = try await apiService.request(
+            endpoint: endpoint,
+            method: .get,
+            requiresAuth: true
+        )
+        
+        guard response.success, let data = response.data else {
+            throw NetworkError.unknown(NSError(domain: "PostService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to load user posts"]))
+        }
+        
+        return (
+            items: data.data,
+            hasMore: data.pagination?.hasMore ?? false,
+            nextPage: data.pagination?.nextPage
+        )
+    }
+
     func likePost(postId: String) async throws {
         _ = try await apiService.request(
             endpoint: "/posts/\(postId)/like",
@@ -114,6 +133,14 @@ class PostService {
             requiresAuth: true
         ) as APIResponse<EmptyResponse>
     }
+
+    func unsharePost(postId: String) async throws {
+        _ = try await apiService.request(
+            endpoint: "/posts/\(postId)/share",
+            method: .delete,
+            requiresAuth: true
+        ) as APIResponse<EmptyResponse>
+    }
 }
 
 struct CommentRequest: Codable {
@@ -122,14 +149,6 @@ struct CommentRequest: Codable {
 
 struct ShareRequest: Codable {
     let text: String?
-}
-
-struct Comment: Codable, Identifiable {
-    let id: String
-    let userId: String
-    let username: String
-    let text: String
-    let createdAt: String
 }
 
 struct PostResponse: Codable {
