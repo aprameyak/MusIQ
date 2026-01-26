@@ -154,16 +154,19 @@ router.get(
         `SELECT 
           mi.*,
           COALESCE(AVG(r.rating), 0) as rating,
-          COUNT(r.id) as rating_count
+          COUNT(r.id) as rating_count,
+          similarity(mi.title, $1) + similarity(mi.artist, $1) as search_similarity
          FROM music_items mi
          LEFT JOIN ratings r ON mi.id = r.music_item_id
          WHERE 
-           mi.title ILIKE $1 OR 
-           mi.artist ILIKE $1
+           mi.title % $1 OR 
+           mi.artist % $1 OR
+           mi.title ILIKE $2 OR
+           mi.artist ILIKE $2
          GROUP BY mi.id
-         ORDER BY rating DESC
+         ORDER BY search_similarity DESC, rating DESC
          LIMIT 20`,
-        [`%${query}%`]
+        [query, `%${query}%`]
       );
 
       const items = result.rows.map((row: any) => ({

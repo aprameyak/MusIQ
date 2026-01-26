@@ -370,7 +370,6 @@ struct SocialUserRow: View {
     }
 }
 
-
 #Preview {
     ProfileView(appState: AppState.shared)
 }
