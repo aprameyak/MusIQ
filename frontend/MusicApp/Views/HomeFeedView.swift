@@ -8,6 +8,7 @@ struct HomeFeedView: View {
     @State private var showCreatePostModal = false
     @State private var selectedUserId: String?
     @State private var showProfile = false
+    @State private var showNotifications = false
     
     var body: some View {
         ZStack {
@@ -23,6 +24,19 @@ struct HomeFeedView: View {
                             .shadow(color: AppColors.primary.opacity(0.1), radius: 20)
                         
                         Spacer()
+                        
+                        Button(action: {
+                            showNotifications = true
+                        }) {
+                            ZStack {
+                                Image(systemName: "bell.fill")
+                                    .font(.system(size: 22))
+                                    .foregroundColor(AppColors.primary)
+                            }
+                            .padding(8)
+                            .background(AppColors.secondaryBackground)
+                            .clipShape(Circle())
+                        }
                     }
                 }
                 .padding(.horizontal, AppStyles.paddingMedium)
@@ -133,6 +147,9 @@ struct HomeFeedView: View {
             if let userId = selectedUserId {
                 ProfileView(userId: userId, appState: appState)
             }
+        }
+        .sheet(isPresented: $showNotifications) {
+            NotificationsView(appState: appState)
         }
         .task {
             await viewModel.loadFeed()

@@ -1,8 +1,13 @@
 import SwiftUI
 
 struct GlobalSearchView: View {
+    enum SearchType {
+        case people, rankings
+    }
+    
     @ObservedObject var appState: AppState
     @StateObject private var userSearchViewModel = UserSearchViewModel()
+    @State private var searchScope: SearchType = .people
     @State private var selectedUserId: String?
     @State private var showProfile = false
     
@@ -10,41 +15,53 @@ struct GlobalSearchView: View {
         VStack(spacing: 0) {
             // Custom Header
             VStack(spacing: 16) {
-                Text("Search Users")
+                Text("Discovery")
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(AppColors.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 
-                HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(AppColors.textSecondary)
-                    
-                    TextField("Search for users...", text: $userSearchViewModel.searchQuery)
-                        .textFieldStyle(.plain)
-                        .foregroundColor(AppColors.textPrimary)
-                        .onChange(of: userSearchViewModel.searchQuery) { _, _ in
-                            userSearchViewModel.search()
-                        }
-                    
-                    if !userSearchViewModel.searchQuery.isEmpty {
-                        Button(action: {
-                            userSearchViewModel.searchQuery = ""
-                            userSearchViewModel.users = []
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundColor(AppColors.textSecondary)
+                Picker("Search Scope", selection: $searchScope) {
+                    Text("People").tag(SearchType.people)
+                    Text("Rankings").tag(SearchType.rankings)
+                }
+                .pickerStyle(.segmented)
+                
+                if searchScope == .people {
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(AppColors.textSecondary)
+                        
+                        TextField("Search for users...", text: $userSearchViewModel.searchQuery)
+                            .textFieldStyle(.plain)
+                            .foregroundColor(AppColors.textPrimary)
+                            .onChange(of: userSearchViewModel.searchQuery) { _, _ in
+                                userSearchViewModel.search()
+                            }
+                        
+                        if !userSearchViewModel.searchQuery.isEmpty {
+                            Button(action: {
+                                userSearchViewModel.searchQuery = ""
+                                userSearchViewModel.users = []
+                            }) {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundColor(AppColors.textSecondary)
+                            }
                         }
                     }
+                    .padding(12)
+                    .background(AppColors.secondaryBackground)
+                    .cornerRadius(AppStyles.cornerRadiusMedium)
                 }
-                .padding(12)
-                .background(AppColors.secondaryBackground)
-                .cornerRadius(AppStyles.cornerRadiusMedium)
             }
             .padding(.horizontal, AppStyles.paddingMedium)
             .padding(.top, AppStyles.paddingMedium)
             .padding(.bottom, AppStyles.paddingMedium)
             
-            userSearchResults
+            if searchScope == .people {
+                userSearchResults
+            } else {
+                RankingsView()
+            }
         }
         .background(AppColors.background)
         .sheet(isPresented: $showProfile) {

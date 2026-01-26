@@ -38,7 +38,7 @@ router.post(
 
       let ratingResult;
       if (existingRating.rows.length > 0) {
-        
+
         ratingResult = await pool.query(
           `UPDATE ratings 
            SET rating = $1, tags = $2, updated_at = NOW()
@@ -47,7 +47,7 @@ router.post(
           [rating, JSON.stringify(tags || []), req.userId, musicItemId]
         );
       } else {
-        
+
         ratingResult = await pool.query(
           `INSERT INTO ratings (user_id, music_item_id, rating, tags)
            VALUES ($1, $2, $3, $4)
