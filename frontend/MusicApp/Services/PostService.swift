@@ -100,30 +100,6 @@ class PostService {
         ) as APIResponse<EmptyResponse>
     }
 
-    func getComments(postId: String) async throws -> [Comment] {
-        let response: APIResponse<[Comment]> = try await apiService.request(
-            endpoint: "/posts/\(postId)/comments",
-            method: .get,
-            requiresAuth: true
-        )
-        return response.data ?? []
-    }
-
-    func addComment(postId: String, text: String) async throws -> Comment {
-        let request = CommentRequest(text: text)
-        let response: APIResponse<Comment> = try await apiService.request(
-            endpoint: "/posts/\(postId)/comment",
-            method: .post,
-            body: request,
-            requiresAuth: true
-        )
-        
-        guard let data = response.data else {
-            throw NetworkError.unknown(NSError(domain: "PostService", code: -1, userInfo: [NSLocalizedDescriptionKey: "Failed to add comment"]))
-        }
-        return data
-    }
-
     func sharePost(postId: String, text: String?) async throws {
         let request = ShareRequest(text: text)
         _ = try await apiService.request(

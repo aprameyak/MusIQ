@@ -98,14 +98,6 @@ struct PostCardView: View {
                 }
                 
                 SocialActionButton(
-                    icon: "bubble.right",
-                    count: post.commentsCount,
-                    color: AppColors.textSecondary
-                ) {
-                    showComments = true
-                }
-                
-                SocialActionButton(
                     icon: "arrow.2.squarepath",
                     count: post.repostsCount,
                     color: post.isReposted ? .green : AppColors.textSecondary
@@ -124,9 +116,6 @@ struct PostCardView: View {
         }
         .padding(AppStyles.paddingMedium)
         .cardStyle()
-        .sheet(isPresented: $showComments) {
-            CommentsView(viewModel: CommentsViewModel(postId: post.id))
-        }
     }
     
     private func toggleLike() {
