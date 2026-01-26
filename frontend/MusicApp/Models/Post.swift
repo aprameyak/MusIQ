@@ -8,7 +8,6 @@ struct Post: Identifiable, Codable {
     let rating: Int
     let musicItem: PostMusicItem
     var likesCount: Int
-    var commentsCount: Int
     var repostsCount: Int
     var isLiked: Bool
     var isReposted: Bool
@@ -23,7 +22,6 @@ struct Post: Identifiable, Codable {
         case rating
         case musicItem
         case likesCount
-        case commentsCount
         case repostsCount
         case isLiked
         case isReposted
@@ -40,7 +38,6 @@ struct Post: Identifiable, Codable {
         rating = try container.decode(Int.self, forKey: .rating)
         musicItem = try container.decode(PostMusicItem.self, forKey: .musicItem)
         likesCount = try container.decodeIfPresent(Int.self, forKey: .likesCount) ?? 0
-        commentsCount = try container.decodeIfPresent(Int.self, forKey: .commentsCount) ?? 0
         repostsCount = try container.decode(Int.self, forKey: .repostsCount)
         isLiked = try container.decode(Bool.self, forKey: .isLiked)
         isReposted = try container.decodeIfPresent(Bool.self, forKey: .isReposted) ?? false
@@ -60,7 +57,6 @@ struct Post: Identifiable, Codable {
         try container.encode(rating, forKey: .rating)
         try container.encode(musicItem, forKey: .musicItem)
         try container.encode(likesCount, forKey: .likesCount)
-        try container.encode(commentsCount, forKey: .commentsCount)
         try container.encode(repostsCount, forKey: .repostsCount)
         try container.encode(isLiked, forKey: .isLiked)
         

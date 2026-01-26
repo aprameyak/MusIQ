@@ -157,7 +157,7 @@ struct SignupView: View {
                             if !viewModel.passwordErrors.isEmpty {
                                 VStack(alignment: .leading, spacing: 4) {
                                     ForEach(viewModel.passwordErrors, id: \.self) { error in
-                                        Text("• \(error)")
+                                        Text("- \(error)")
                                             .font(.system(size: 11))
                                             .foregroundColor(AppColors.accent)
                                     }

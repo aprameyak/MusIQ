@@ -160,22 +160,6 @@ struct RatingModalView: View {
                     .padding(.horizontal, AppStyles.paddingLarge)
                     .padding(.top, AppStyles.paddingLarge)
                     
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Add a comment (optional)")
-                            .font(.system(size: 14))
-                            .foregroundColor(AppColors.textPrimary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        
-                        TextField("Share your thoughts...", text: $viewModel.postText, axis: .vertical)
-                            .textFieldStyle(.plain)
-                            .padding(AppStyles.paddingMedium)
-                            .background(AppColors.secondaryBackground)
-                            .cornerRadius(AppStyles.cornerRadiusSmall)
-                            .lineLimit(3...6)
-                    }
-                    .padding(.horizontal, AppStyles.paddingLarge)
-                    .padding(.top, AppStyles.paddingMedium)
-                    
                     Button(action: {
                         Task {
                             if await viewModel.submitRating(for: item.id) {
