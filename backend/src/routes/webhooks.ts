@@ -56,7 +56,7 @@ const sendDiscordFollowup = async (applicationId: string, interactionToken: stri
 
   try {
     await axios.post(
-      `https:
+      `https://discord.com/api/v10/webhooks/${applicationId}/${interactionToken}`,
       { content },
       {
         timeout: 5000,
@@ -110,7 +110,7 @@ const handleDiscordInteraction = async (req: DiscordRequest, res: Response) => {
         console.log(`Target: ${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}`);
 
         const githubResponse = await axios.post(
-          `https:
+          `https://api.github.com/repos/${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}/issues`,
           {
             title: title,
             body: body ? `${body}\n\n*Created via Discord*` : 'Created via Discord'
