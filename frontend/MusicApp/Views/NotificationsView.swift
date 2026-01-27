@@ -11,7 +11,7 @@ struct NotificationsView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Header
+                
                 HStack {
                     Button(action: { dismiss() }) {
                         Image(systemName: "chevron.left")
@@ -98,7 +98,7 @@ struct NotificationRow: View {
             }
         }) {
             HStack(spacing: 12) {
-                // Type Icon
+                
                 ZStack {
                     Circle()
                         .fill(notificationColor.opacity(0.15))

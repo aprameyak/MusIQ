@@ -2,7 +2,7 @@ import Foundation
 import Supabase
 
 class AuthService {
-    private let supabase = SupabaseClient(supabaseURL: URL(string: "https://mehxapfmnzalknthnzpy.supabase.co")!, supabaseKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1laHhhcGZtbnphbGtudGhuenB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MzAwMTAsImV4cCI6MjA4NDEwNjAxMH0.AIwgjmaPgoIm87iHu_ugzx0mTc1wD9TekIH3_Z0M7gQ")
+    private let supabase = SupabaseClient(supabaseURL: URL(string: "https:
     private let apiService = APIService.shared
 
     func signup(email: String, password: String, firstName: String, lastName: String, username: String) async throws {

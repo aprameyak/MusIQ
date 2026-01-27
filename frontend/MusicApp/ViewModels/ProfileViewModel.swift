@@ -40,18 +40,18 @@ class ProfileViewModel: ObservableObject {
         
         do {
             if let targetId = userId {
-                // Loading another user's profile
+                
                 async let userTask = profileService.getUserProfile(userId: targetId)
-                async let followingTask = socialService.getFollowing() // Still want to know who WE follow
+                async let followingTask = socialService.getFollowing() 
                 async let postsTask = postService.getUserPosts(userId: targetId)
                 
                 self.user = try await userTask
                 let myFollowing = try await followingTask
                 self.posts = try await postsTask.items
                 
-                // Note: backend already returns is_following in the profile response for other users if we update the User model
+                
             } else {
-                // Loading our own profile
+                
                 async let profileTask = profileService.getProfile()
                 async let followingTask = socialService.getFollowing()
                 async let followersTask = socialService.getFollowers()

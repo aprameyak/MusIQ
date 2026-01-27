@@ -1,29 +1,77 @@
 # MusIQ
 
-![Swift](https://img.shields.io/badge/Swift-FA7343?style=for-the-badge&logo=swift&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+[![Swift](https://img.shields.io/badge/Swift-FA7343?style=for-the-badge&logo=swift&logoColor=white)](https://swift.org)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![CodeRabbit](https://img.shields.io/badge/Reviewed%20by-CodeRabbit-brightgreen?style=for-the-badge&logo=github)](https://coderabbit.ai)
 
----
 
-## About
-
-**MusIQ** is a native iOS app for rating and discovering music. Users rate albums, songs, and artists (1-10), see global rankings, build taste profiles, and connect with friends.
+**MusIQ** is a modern, social-first music discovery and rating platform. Built with a native iOS experience and a robust TypeScript backend, it's designed for music lovers who want to track their taste and connect with a community that shares their passion.
 
 ---
 
 ## Features
 
-- User authentication
-- Rate albums, songs, and artists  
-- Global rankings and trend tracking  
-- Personalized taste profiles with charts  
-- Social features: friends, compatibility scores, sharing  
-- Real-time notifications  
+- **Rating Hub**: Rate albums, songs, and artists on a scale of 1-10.
+- **Social Connectivity**: Find friends, compare music tastes, and share your latest favorites.
+- **Live Updates**: Get notified instantly about interactions and trending music.
 
 ---
 
-## Technology Stack
+## Getting Started
 
-- **Frontend**: SwiftUI, Combine, Swift  
-- **Backend**: Node.js, Express.js, TypeScript, PostgreSQL  
+Whether you're looking to contribute or just play around with the code, here's how to get MusIQ running locally.
+
+### Prerequisites
+
+- **Frontend**: Xcode (latest stable version)
+- **Backend**: Node.js v18+ & PostgreSQL/Supabase
+- **Package Manager**: npm or yarn
+
+### Local Development
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/aprameyak/MusIQ.git
+   cd MusIQ
+   ```
+
+2. **Backend Setup**:
+   ```bash
+   cd backend
+   npm install
+   npm run dev
+   ```
+
+3. **Frontend Setup**:
+   ```bash
+   cd frontend
+   ```
+
+---
+
+## Contributing
+
+We love contributors! MusIQ is an open-source project and we welcome contributions of all kinds: from bug fixes and documentation to new features and UI improvements.
+
+### How to help?
+- **Find an Issue**: Browse our [GitHub Issues](https://github.com/aprameyak/MusIQ/issues)
+- **Report Bugs**: Found something wrong? [Open an issue](https://github.com/aprameyak/MusIQ/issues/new)!
+- **Suggest Features**: Have a great idea for MusIQ? [Let us know](https://github.com/aprameyak/MusIQ/issues/new).
+
+Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started.
+
+---
+
+## License
+
+MusIQ is released under the [MIT License](LICENSE).
+
+---
+
+## Community & Support
+
+- **Discussions**: Use [GitHub Discussions](https://github.com/aprameyak/MusIQ/discussions) to ask questions and share ideas.
+- **Code of Conduct**: We expect all participants to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+
