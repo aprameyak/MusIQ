@@ -13,7 +13,7 @@ struct GlobalSearchView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Custom Header
+            
             VStack(spacing: 16) {
                 Text("Discovery")
                     .font(.system(size: 28, weight: .bold))

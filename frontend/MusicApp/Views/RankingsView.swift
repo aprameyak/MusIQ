@@ -5,7 +5,7 @@ struct RankingsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Type Selector
+            
             Picker("Ranking Type", selection: $viewModel.activeType) {
                 ForEach(RankingType.allCases, id: \.self) { type in
                     Text(type.displayName).tag(type)
@@ -57,7 +57,7 @@ struct RankingRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            // Rank and Trend
+            
             VStack(spacing: 2) {
                 Text("\(item.rank)")
                     .font(.system(size: 18, weight: .bold))
@@ -67,7 +67,7 @@ struct RankingRow: View {
             }
             .frame(width: 40)
             
-            // Image
+            
             ZStack {
                 RoundedRectangle(cornerRadius: AppStyles.cornerRadiusSmall)
                     .fill(AppColors.secondaryBackground)
@@ -77,7 +77,7 @@ struct RankingRow: View {
                     .foregroundColor(AppColors.primary.opacity(0.3))
             }
             
-            // Text
+            
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
                     .font(.system(size: 16, weight: .semibold))
@@ -92,7 +92,7 @@ struct RankingRow: View {
             
             Spacer()
             
-            // Rating
+            
             VStack(alignment: .trailing, spacing: 4) {
                 HStack(spacing: 4) {
                     Image(systemName: "star.fill")

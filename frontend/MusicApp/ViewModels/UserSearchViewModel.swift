@@ -46,7 +46,7 @@ class UserSearchViewModel: ObservableObject {
     func followUser(userId: String) async {
         do {
             try await socialService.follow(userId: userId)
-            // Show success or update status
+            
         } catch {
             self.errorMessage = error.localizedDescription
         }

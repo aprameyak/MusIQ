@@ -1,6 +1,4 @@
-# CodeRabbit Configuration
-# For more information, see: https://docs.coderabbit.ai/getting-started/configuration
-
 reviews:
-  auto_review: true
+  auto_review:
+    enabled: true
   review_level: thorough

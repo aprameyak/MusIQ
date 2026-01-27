@@ -124,7 +124,7 @@ class HomeFeedViewModel: ObservableObject {
         
         let previouslyLiked = post.isLiked
         
-        // Optimistic UI update
+        
         feedItems[index].isLiked.toggle()
         feedItems[index].likesCount += previouslyLiked ? -1 : 1
         
@@ -135,7 +135,7 @@ class HomeFeedViewModel: ObservableObject {
                 try await postService.likePost(postId: post.id)
             }
         } catch {
-            // Revert on error
+            
             feedItems[index].isLiked = previouslyLiked
             feedItems[index].likesCount += previouslyLiked ? 1 : -1
             errorMessage = "Failed to update like: \(error.localizedDescription)"
