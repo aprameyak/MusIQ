@@ -1,10 +1,18 @@
 # MusIQ
 
-[![Swift](https://img.shields.io/badge/Swift-FA7343?style=for-the-badge&logo=swift&logoColor=white)](https://swift.org)
-[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
-[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![CodeRabbit](https://img.shields.io/badge/Reviewed%20by-CodeRabbit-brightgreen?style=for-the-badge&logo=github)](https://coderabbit.ai)
+
+![GitHub repo size](https://img.shields.io/github/repo-size/aprameyak/MusIQ)
+![GitHub issues](https://img.shields.io/github/issues/aprameyak/MusIQ)
+![License](https://img.shields.io/github/license/aprameyak/MusIQ)
+
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
+![Swift](https://img.shields.io/badge/Swift-F05138?style=flat&logo=swift&logoColor=white)
+
+![Reviewed by CodeRabbit](https://img.shields.io/badge/Reviewed%20by-CodeRabbit-brightgreen?style=flat&logo=github&logoColor=white)
+![GitHub Actions](https://img.shields.io/github/actions/workflow/status/aprameyak/MusIQ/codeql.yml)
+
 
 
 **MusIQ** is a modern, social-first music discovery and rating platform. Built with a native iOS experience and a robust TypeScript backend, it's designed for music lovers who want to track their taste and connect with a community that shares their passion.
