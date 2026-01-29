@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  backend:
+    build: .
+    container_name: musiq-backend
+    ports:
+      - "3000:3000"
+    env_file: .env
+    environment:
+      - DATABASE_URL
+      - SUPABASE_URL
+      - SUPABASE_SERVICE_KEY
+    
