@@ -8,8 +8,6 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    // If the user lands on the homepage with a Supabase auth hash (access_token, etc.),
-    // immediately redirect them to the auth page so it can be handled.
     if (window.location.hash) {
       router.replace('/auth' + window.location.hash);
     }

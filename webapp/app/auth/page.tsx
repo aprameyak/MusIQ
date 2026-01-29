@@ -145,7 +145,6 @@ export default function AuthPage() {
 
   useEffect(() => {
     const handleHashAndParams = () => {
-      // Handle Hash (Implicit Flow)
       const hash = window.location.hash;
       if (hash) {
         const params = new URLSearchParams(hash.substring(1));
@@ -159,7 +158,6 @@ export default function AuthPage() {
         }
       }
 
-      // Handle Query Params (PKCE/OTP Flow) redirect to dedicated page
       const searchParams = new URLSearchParams(window.location.search);
       if (searchParams.get('type') === 'recovery' && searchParams.get('code')) {
         router.push('/reset-password' + window.location.search);
