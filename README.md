@@ -11,6 +11,7 @@
 ![Swift](https://img.shields.io/badge/Swift-F05138?style=flat&logo=swift&logoColor=white)
 
 ![Reviewed by CodeRabbit](https://img.shields.io/badge/Reviewed%20by-CodeRabbit-brightgreen?style=flat&logo=github&logoColor=white)
+![Husky](https://img.shields.io/badge/Husky-enabled-ff6600?style=flat&logo=git&logoColor=white)
 ![GitHub Actions](https://img.shields.io/github/actions/workflow/status/aprameyak/MusIQ/codeql.yml)
 
 
