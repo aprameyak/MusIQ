@@ -1,6 +1,6 @@
 node_modules/
 **/node_modules/
-package-lock.json
+# package-lock.json is removed from here to allow it to be committed for CI/CD consistency
 yarn.lock
 pnpm-lock.yaml
 dist/
