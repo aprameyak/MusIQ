@@ -7,7 +7,7 @@ class APIService {
     private let session: URLSession
     
     init(baseURL: String? = nil) {
-        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http:
+        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http://localhost:3000/api"
         
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
