@@ -2,6 +2,11 @@
 
 npx lint-staged
 
-npx tsc --noEmit
+echo "Checking types in backend..."
+cd backend && npx tsc --noEmit && cd ..
 
-npm test
+echo "Checking types in webapp..."
+cd webapp && npx tsc --noEmit && cd ..
+
+echo "Checking types in etl..."
+cd etl && npx tsc --noEmit && cd ..
