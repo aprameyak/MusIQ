@@ -1,0 +1,12 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: musiq-backend
+    ports:
+      - "3001:3000"
+    env_file: ./backend/.env
+    volumes:
+      - ./backend/src:/app/src
+    restart: always
