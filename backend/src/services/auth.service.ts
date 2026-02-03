@@ -1,5 +1,3 @@
-
-
 import { getDatabasePool } from '../database/connection';
 import { logger } from '../config/logger';
 import { CustomError } from '../middleware/error.middleware';
@@ -17,6 +15,7 @@ export interface User {
   oauth_id?: string;
   first_name?: string;
   last_name?: string;
+  profile_picture_url?: string;
   supabase_auth_id?: string;
   created_at: Date;
   updated_at: Date;
@@ -33,60 +32,75 @@ export interface AuthTokens {
 export class AuthService {
   private pool = getDatabasePool();
 
+  constructor() {}
 
-  constructor() {
-
-  }
-
-  async signup(email: string, username: string, password: string, firstName: string, lastName: string): Promise<void> {
+  async signup(
+    email: string,
+    username: string,
+    password: string,
+    firstName: string,
+    lastName: string
+  ): Promise<void> {
     try {
-    const existingUser = await this.pool.query(
+      const existingUser = await this.pool.query(
         'SELECT id FROM users WHERE username = $1 OR email = $2',
         [username, email.toLowerCase()]
-    );
+      );
 
-    if (existingUser.rows.length > 0) {
+      if (existingUser.rows.length > 0) {
         const existing = existingUser.rows[0];
-        const emailCheck = await this.pool.query('SELECT email FROM users WHERE id = $1', [existing.id]);
+        const emailCheck = await this.pool.query('SELECT email FROM users WHERE id = $1', [
+          existing.id,
+        ]);
         if (emailCheck.rows[0]?.email?.toLowerCase() === email.toLowerCase()) {
           throw new CustomError('This email is already registered', 409);
         }
-      throw new CustomError('Username already exists', 409);
-    }
+        throw new CustomError('Username already exists', 409);
+      }
 
       let supabaseAuthId: string;
       try {
-        supabaseAuthId = await supabaseService.createAuthUser(
-          email.toLowerCase(),
-          password,
-          { first_name: firstName, last_name: lastName }
-        );
+        supabaseAuthId = await supabaseService.createAuthUser(email.toLowerCase(), password, {
+          first_name: firstName,
+          last_name: lastName,
+        });
       } catch (error: any) {
-        if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+        if (
+          error.message?.includes('already registered') ||
+          error.message?.includes('already exists')
+        ) {
           const existingSupabaseUser = await supabaseService.getUserByEmail(email.toLowerCase());
           if (existingSupabaseUser) {
-            logger.warn('User exists in Supabase but not in local database', { email, supabaseAuthId: existingSupabaseUser.id });
-            throw new CustomError('This email is already registered. Please try logging in instead.', 409);
+            logger.warn('User exists in Supabase but not in local database', {
+              email,
+              supabaseAuthId: existingSupabaseUser.id,
+            });
+            throw new CustomError(
+              'This email is already registered. Please try logging in instead.',
+              409
+            );
           }
         }
         throw error;
       }
 
-    const result = await this.pool.query(
+      const result = await this.pool.query(
         `INSERT INTO users (email, username, password_hash, role, first_name, last_name, supabase_auth_id, email_verified)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         RETURNING id, email, username, role, created_at, updated_at`,
         [email.toLowerCase(), username, null, 'user', firstName, lastName, supabaseAuthId, true]
-    );
+      );
 
-    const user = result.rows[0];
+      const user = result.rows[0];
 
       logger.info('User signed up', { userId: user.id, username, email, supabaseAuthId });
     } catch (error) {
       if (error instanceof CustomError) {
         throw error;
       }
-      logger.error('Error during signup', { error: error instanceof Error ? error.message : String(error) });
+      logger.error('Error during signup', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw new CustomError('Failed to create user account', 500);
     }
   }
@@ -94,18 +108,18 @@ export class AuthService {
   async login(email: string, password: string): Promise<AuthTokens> {
     try {
       const user = await this.getUserByEmail(email.toLowerCase());
-      
+
       if (!user) {
         throw new CustomError('Invalid email or password', 401);
       }
 
       if (user.supabase_auth_id) {
-        const supabaseSession = await supabaseService.signInWithPassword(email.toLowerCase(), password);
-        
-        await this.pool.query(
-          'UPDATE users SET last_login_at = NOW() WHERE id = $1',
-          [user.id]
+        const supabaseSession = await supabaseService.signInWithPassword(
+          email.toLowerCase(),
+          password
         );
+
+        await this.pool.query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
 
         logger.info('User logged in with Supabase', { userId: user.id, email });
 
@@ -114,17 +128,18 @@ export class AuthService {
           refreshToken: supabaseSession.refresh_token,
           expiresIn: supabaseSession.expires_in,
           tokenType: supabaseSession.token_type,
-          emailVerified: !!supabaseSession.user.email_confirmed_at
+          emailVerified: !!supabaseSession.user.email_confirmed_at,
         };
       } else {
-
         throw new CustomError('Legacy user authentication not supported.', 400);
       }
     } catch (error) {
       if (error instanceof CustomError) {
         throw error;
       }
-      logger.error('Error during login', { error: error instanceof Error ? error.message : String(error) });
+      logger.error('Error during login', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw new CustomError('Login failed', 500);
     }
   }
@@ -137,39 +152,34 @@ export class AuthService {
       if (error instanceof CustomError) {
         throw error;
       }
-      logger.error('Error sending password reset email', { error: error instanceof Error ? error.message : String(error) });
+      logger.error('Error sending password reset email', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw new CustomError('Failed to send password reset email', 500);
     }
   }
 
-
-
-
-
   async refreshToken(_refreshToken: string): Promise<AuthTokens> {
     try {
-
-
-
       throw new CustomError('Refresh token handled by Supabase client', 400);
     } catch (error) {
       if (error instanceof CustomError) {
         throw error;
       }
-      logger.error('Error during token refresh', { error: error instanceof Error ? error.message : String(error) });
+      logger.error('Error during token refresh', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw new CustomError('Token refresh failed', 500);
     }
   }
 
   async logout(): Promise<void> {
-
-
     logger.info('User logout initiated (backend only, client handles Supabase session)');
   }
 
   async getUserById(userId: string): Promise<User | null> {
     const result = await this.pool.query(
-      `SELECT id, email, username, email_verified, mfa_enabled, role, oauth_provider, oauth_id, first_name, last_name, supabase_auth_id, last_login_at, created_at, updated_at
+      `SELECT id, email, username, email_verified, mfa_enabled, role, oauth_provider, oauth_id, first_name, last_name, profile_picture_url, supabase_auth_id, last_login_at, created_at, updated_at
        FROM users WHERE id = $1 AND deleted_at IS NULL`,
       [userId]
     );
@@ -183,7 +193,7 @@ export class AuthService {
 
   async getUserByEmail(email: string): Promise<User | null> {
     const result = await this.pool.query(
-      `SELECT id, email, username, email_verified, mfa_enabled, role, oauth_provider, oauth_id, first_name, last_name, supabase_auth_id, last_login_at, created_at, updated_at
+      `SELECT id, email, username, email_verified, mfa_enabled, role, oauth_provider, oauth_id, first_name, last_name, profile_picture_url, supabase_auth_id, last_login_at, created_at, updated_at
        FROM users WHERE email = $1 AND deleted_at IS NULL`,
       [email.toLowerCase()]
     );
@@ -203,14 +213,21 @@ export class AuthService {
       );
       logger.info('User email verified in local database', { supabaseAuthId });
     } catch (error) {
-      logger.error('Error verifying user email in local database', { error: error instanceof Error ? error.message : String(error), supabaseAuthId });
+      logger.error('Error verifying user email in local database', {
+        error: error instanceof Error ? error.message : String(error),
+        supabaseAuthId,
+      });
       throw new CustomError('Failed to verify email', 500);
     }
   }
 
-
-
-  async updateProfile(userId: string, email?: string, firstName?: string, lastName?: string): Promise<User> {
+  async updateProfile(
+    userId: string,
+    email?: string,
+    firstName?: string,
+    lastName?: string,
+    profilePictureUrl?: string
+  ): Promise<User> {
     try {
       const user = await this.getUserById(userId);
       if (!user) {
@@ -248,6 +265,11 @@ export class AuthService {
         values.push(lastName);
       }
 
+      if (profilePictureUrl !== undefined && profilePictureUrl !== user.profile_picture_url) {
+        updates.push(`profile_picture_url = $${paramCount++}`);
+        values.push(profilePictureUrl);
+      }
+
       if (updates.length === 0) {
         return user;
       }
@@ -266,7 +288,7 @@ export class AuthService {
 
       values.push(userId);
       const query = `UPDATE users SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`;
-      
+
       const result = await this.pool.query(query, values);
       const updatedUser = result.rows[0];
 
@@ -277,10 +299,10 @@ export class AuthService {
       if (error instanceof CustomError) {
         throw error;
       }
-      logger.error('Error updating profile', { error: error instanceof Error ? error.message : String(error) });
+      logger.error('Error updating profile', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       throw new CustomError('Failed to update profile', 500);
     }
   }
-
-
 }

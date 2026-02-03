@@ -1,7 +1,11 @@
 import { Router } from 'express';
 import { authMiddleware, AuthRequest } from '../middleware/auth.middleware';
 import { ratingLimiter } from '../middleware/rate-limit.middleware';
-import { validate, postValidation, createPostWithMusicItemValidation } from '../middleware/validation.middleware';
+import {
+  validate,
+  postValidation,
+  createPostWithMusicItemValidation,
+} from '../middleware/validation.middleware';
 import { getDatabasePool } from '../database/connection';
 import { CustomError } from '../middleware/error.middleware';
 import { logger } from '../config/logger';
@@ -22,10 +26,9 @@ router.post(
 
       const { musicItemId, rating, text } = req.body;
 
-      const musicItemResult = await pool.query(
-        'SELECT id FROM music_items WHERE id = $1',
-        [musicItemId]
-      );
+      const musicItemResult = await pool.query('SELECT id FROM music_items WHERE id = $1', [
+        musicItemId,
+      ]);
 
       if (musicItemResult.rows.length === 0) {
         throw new CustomError('Music item not found', 404);
@@ -61,7 +64,7 @@ router.post(
       );
 
       const userResult = await pool.query(
-        'SELECT username FROM users WHERE id = $1',
+        'SELECT username, profile_picture_url FROM users WHERE id = $1',
         [req.userId]
       );
 
@@ -77,7 +80,7 @@ router.post(
         userId: req.userId,
         musicItemId,
         rating,
-        postId: postResult.rows[0].id
+        postId: postResult.rows[0].id,
       });
 
       res.json({
@@ -86,6 +89,7 @@ router.post(
           post: {
             id: postResult.rows[0].id,
             username: userResult.rows[0].username,
+            profilePictureUrl: userResult.rows[0].profile_picture_url,
             text: postResult.rows[0].text,
             rating: postResult.rows[0].rating,
             musicItem: {
@@ -96,16 +100,16 @@ router.post(
               imageUrl: musicItem.image_url,
               spotifyId: musicItem.spotify_id,
               appleMusicId: musicItem.apple_music_id,
-              metadata: musicItem.metadata
+              metadata: musicItem.metadata,
             },
             likesCount: 0,
             commentsCount: 0,
             repostsCount: 0,
             isLiked: false,
-            createdAt: postResult.rows[0].created_at
-          }
+            createdAt: postResult.rows[0].created_at,
+          },
         },
-        message: 'Post created successfully'
+        message: 'Post created successfully',
       });
     } catch (error) {
       next(error);
@@ -173,7 +177,7 @@ router.post(
       );
 
       const userResult = await pool.query(
-        'SELECT username FROM users WHERE id = $1',
+        'SELECT username, profile_picture_url FROM users WHERE id = $1',
         [req.userId]
       );
 
@@ -189,7 +193,7 @@ router.post(
         userId: req.userId,
         musicItemId,
         rating,
-        postId: postResult.rows[0].id
+        postId: postResult.rows[0].id,
       });
 
       res.json({
@@ -198,6 +202,7 @@ router.post(
           post: {
             id: postResult.rows[0].id,
             username: userResult.rows[0].username,
+            profilePictureUrl: userResult.rows[0].profile_picture_url,
             text: postResult.rows[0].text,
             rating: postResult.rows[0].rating,
             musicItem: {
@@ -208,16 +213,16 @@ router.post(
               imageUrl: musicItem.image_url,
               spotifyId: musicItem.spotify_id,
               appleMusicId: musicItem.apple_music_id,
-              metadata: musicItem.metadata
+              metadata: musicItem.metadata,
             },
             likesCount: 0,
             commentsCount: 0,
             repostsCount: 0,
             isLiked: false,
-            createdAt: postResult.rows[0].created_at
-          }
+            createdAt: postResult.rows[0].created_at,
+          },
         },
-        message: 'Post created successfully'
+        message: 'Post created successfully',
       });
     } catch (error) {
       next(error);
@@ -225,22 +230,20 @@ router.post(
   }
 );
 
-router.get(
-  '/feed',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
-      const offset = (page - 1) * limit;
+router.get('/feed', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
 
-      const result = await pool.query(
-        `SELECT 
+    const result = await pool.query(
+      `SELECT 
           p.id,
           p.rating,
           p.text,
           p.created_at,
           u.username,
+          u.profile_picture_url,
           mi.id as music_item_id,
           mi.type,
           mi.title,
@@ -260,359 +263,331 @@ router.get(
          WHERE u.deleted_at IS NULL
          ORDER BY p.created_at DESC
          LIMIT $1 OFFSET $2`,
-        [limit, offset, req.userId]
-      );
+      [limit, offset, req.userId]
+    );
 
-      const countResult = await pool.query(
-        'SELECT COUNT(*) as total FROM posts p JOIN users u ON p.user_id = u.id WHERE u.deleted_at IS NULL'
-      );
+    const countResult = await pool.query(
+      'SELECT COUNT(*) as total FROM posts p JOIN users u ON p.user_id = u.id WHERE u.deleted_at IS NULL'
+    );
 
-      const total = parseInt(countResult.rows[0].total);
-      const hasMore = offset + limit < total;
-      const nextPage = hasMore ? page + 1 : null;
+    const total = parseInt(countResult.rows[0].total);
+    const hasMore = offset + limit < total;
+    const nextPage = hasMore ? page + 1 : null;
 
-      const posts = result.rows.map((row: any) => ({
-        id: row.id,
-        username: row.username,
-        text: row.text,
-        rating: row.rating,
-        musicItem: {
-          id: row.music_item_id,
-          type: row.type,
-          title: row.title,
-          artist: row.artist,
-          imageUrl: row.image_url,
-          spotifyId: row.spotify_id,
-          appleMusicId: row.apple_music_id,
-          metadata: row.metadata
+    const posts = result.rows.map((row: any) => ({
+      id: row.id,
+      username: row.username,
+      profilePictureUrl: row.profile_picture_url,
+      text: row.text,
+      rating: row.rating,
+      musicItem: {
+        id: row.music_item_id,
+        type: row.type,
+        title: row.title,
+        artist: row.artist,
+        imageUrl: row.image_url,
+        spotifyId: row.spotify_id,
+        appleMusicId: row.apple_music_id,
+        metadata: row.metadata,
+      },
+      likesCount: parseInt(row.likes_count) || 0,
+      commentsCount: parseInt(row.comments_count) || 0,
+      repostsCount: parseInt(row.reposts_count) || 0,
+      isLiked: row.is_liked || false,
+      isReposted: row.is_reposted || false,
+      createdAt: row.created_at,
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        data: posts,
+        pagination: {
+          page,
+          limit,
+          total,
+          hasMore,
+          nextPage,
         },
-        likesCount: parseInt(row.likes_count) || 0,
-        commentsCount: parseInt(row.comments_count) || 0,
-        repostsCount: parseInt(row.reposts_count) || 0,
-        isLiked: row.is_liked || false,
-        isReposted: row.is_reposted || false,
-        createdAt: row.created_at
-      }));
-
-      res.json({
-        success: true,
-        data: {
-          data: posts,
-          pagination: {
-            page,
-            limit,
-            total,
-            hasMore,
-            nextPage
-          }
-        }
-      });
-    } catch (error) {
-      next(error);
-    }
+      },
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.post(
-  '/:id/like',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
+router.post('/:id/like', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
+
+    const { id } = req.params;
+
+    const postResult = await pool.query('SELECT user_id FROM posts WHERE id = $1', [id]);
+
+    if (postResult.rows.length === 0) {
+      throw new CustomError('Post not found', 404);
+    }
+
     try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
+      await pool.query('INSERT INTO post_likes (user_id, post_id) VALUES ($1, $2)', [
+        req.userId,
+        id,
+      ]);
 
-      const { id } = req.params;
-
-      const postResult = await pool.query(
-        'SELECT user_id FROM posts WHERE id = $1',
-        [id]
-      );
-
-      if (postResult.rows.length === 0) {
-        throw new CustomError('Post not found', 404);
-      }
-
-      try {
-        await pool.query(
-          'INSERT INTO post_likes (user_id, post_id) VALUES ($1, $2)',
-          [req.userId, id]
+      if (postResult.rows[0].user_id !== req.userId) {
+        const userResult = await pool.query(
+          'SELECT username, profile_picture_url FROM users WHERE id = $1',
+          [req.userId]
         );
+        const username = userResult.rows[0]?.username || 'Someone';
 
-        if (postResult.rows[0].user_id !== req.userId) {
-          const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
-          const username = userResult.rows[0]?.username || 'Someone';
-
-          await pool.query(
-            `INSERT INTO notifications (user_id, type, title, message, metadata)
+        await pool.query(
+          `INSERT INTO notifications (user_id, type, title, message, metadata)
              VALUES ($1, $2, $3, $4, $5)`,
-            [
-              postResult.rows[0].user_id,
-              'post_like',
-              'New Like',
-              `${username} liked your post`,
-              JSON.stringify({ postId: id, likedBy: req.userId })
-            ]
-          );
-        }
-      } catch (err: any) {
-        if (err.code === '23505') {
-
-          res.json({ success: true, message: 'Post already liked' });
-          return;
-        }
-        throw err;
+          [
+            postResult.rows[0].user_id,
+            'post_like',
+            'New Like',
+            `${username} liked your post`,
+            JSON.stringify({ postId: id, likedBy: req.userId }),
+          ]
+        );
       }
-
-      res.json({
-        success: true,
-        message: 'Post liked successfully'
-      });
-    } catch (error) {
-      next(error);
+    } catch (err: any) {
+      if (err.code === '23505') {
+        res.json({ success: true, message: 'Post already liked' });
+        return;
+      }
+      throw err;
     }
+
+    res.json({
+      success: true,
+      message: 'Post liked successfully',
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.delete(
-  '/:id/like',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
-
-      const { id } = req.params;
-
-      const result = await pool.query(
-        'DELETE FROM post_likes WHERE user_id = $1 AND post_id = $2 RETURNING *',
-        [req.userId, id]
-      );
-
-      if (result.rows.length === 0) {
-        throw new CustomError('Post not liked', 404);
-      }
-
-      res.json({
-        success: true,
-        message: 'Post unliked successfully'
-      });
-    } catch (error) {
-      next(error);
+router.delete('/:id/like', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
     }
+
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'DELETE FROM post_likes WHERE user_id = $1 AND post_id = $2 RETURNING *',
+      [req.userId, id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new CustomError('Post not liked', 404);
+    }
+
+    res.json({
+      success: true,
+      message: 'Post unliked successfully',
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.get(
-  '/:id/comments',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
+router.get('/:id/comments', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
 
-      const { id } = req.params;
+    const { id } = req.params;
 
-      const result = await pool.query(
-        `SELECT pc.*, u.username
+    const result = await pool.query(
+      `SELECT pc.*, u.username, u.profile_picture_url
          FROM post_comments pc
          JOIN users u ON pc.user_id = u.id
          WHERE pc.post_id = $1
          ORDER BY pc.created_at ASC`,
-        [id]
-      );
+      [id]
+    );
 
-      const comments = result.rows.map((row: any) => ({
-        id: row.id,
-        userId: row.user_id,
-        username: row.username,
-        text: row.text,
-        createdAt: row.created_at
-      }));
+    const comments = result.rows.map((row: any) => ({
+      id: row.id,
+      userId: row.user_id,
+      username: row.username,
+      profilePictureUrl: row.profile_picture_url,
+      text: row.text,
+      createdAt: row.created_at,
+    }));
 
-      res.json({
-        success: true,
-        data: comments
-      });
-    } catch (error) {
-      next(error);
-    }
+    res.json({
+      success: true,
+      data: comments,
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.post(
-  '/:id/comment',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
+router.post('/:id/comment', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
 
-      const { id } = req.params;
-      const { text } = req.body;
+    const { id } = req.params;
+    const { text } = req.body;
 
-      if (!text || typeof text !== 'string' || text.trim().length === 0) {
-        throw new CustomError('Comment text is required', 400);
-      }
+    if (!text || typeof text !== 'string' || text.trim().length === 0) {
+      throw new CustomError('Comment text is required', 400);
+    }
 
-      const postResult = await pool.query(
-        'SELECT user_id FROM posts WHERE id = $1',
-        [id]
-      );
+    const postResult = await pool.query('SELECT user_id FROM posts WHERE id = $1', [id]);
 
-      if (postResult.rows.length === 0) {
-        throw new CustomError('Post not found', 404);
-      }
+    if (postResult.rows.length === 0) {
+      throw new CustomError('Post not found', 404);
+    }
 
-      const commentResult = await pool.query(
-        `INSERT INTO post_comments (user_id, post_id, text)
+    const commentResult = await pool.query(
+      `INSERT INTO post_comments (user_id, post_id, text)
          VALUES ($1, $2, $3)
          RETURNING *`,
-        [req.userId, id, text.trim()]
-      );
+      [req.userId, id, text.trim()]
+    );
 
-      if (postResult.rows[0].user_id !== req.userId) {
-        const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
-        const username = userResult.rows[0]?.username || 'Someone';
+    if (postResult.rows[0].user_id !== req.userId) {
+      const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
+      const username = userResult.rows[0]?.username || 'Someone';
 
-        await pool.query(
-          `INSERT INTO notifications (user_id, type, title, message, metadata)
+      await pool.query(
+        `INSERT INTO notifications (user_id, type, title, message, metadata)
            VALUES ($1, $2, $3, $4, $5)`,
-          [
-            postResult.rows[0].user_id,
-            'post_comment',
-            'New Comment',
-            `${username} commented on your post`,
-            JSON.stringify({ postId: id, commentId: commentResult.rows[0].id, commentedBy: req.userId })
-          ]
-        );
-      }
-
-      res.json({
-        success: true,
-        data: {
-          id: commentResult.rows[0].id,
-          text: commentResult.rows[0].text,
-          createdAt: commentResult.rows[0].created_at
-        },
-        message: 'Comment added successfully'
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.post(
-  '/:id/share',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
-
-      const { id } = req.params;
-      const { text } = req.body;
-
-      const postResult = await pool.query(
-        'SELECT user_id FROM posts WHERE id = $1',
-        [id]
+        [
+          postResult.rows[0].user_id,
+          'post_comment',
+          'New Comment',
+          `${username} commented on your post`,
+          JSON.stringify({
+            postId: id,
+            commentId: commentResult.rows[0].id,
+            commentedBy: req.userId,
+          }),
+        ]
       );
+    }
 
-      if (postResult.rows.length === 0) {
-        throw new CustomError('Post not found', 404);
-      }
+    res.json({
+      success: true,
+      data: {
+        id: commentResult.rows[0].id,
+        text: commentResult.rows[0].text,
+        createdAt: commentResult.rows[0].created_at,
+      },
+      message: 'Comment added successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
-      const repostResult = await pool.query(
-        `INSERT INTO post_reposts (user_id, post_id, text)
+router.post('/:id/share', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
+
+    const { id } = req.params;
+    const { text } = req.body;
+
+    const postResult = await pool.query('SELECT user_id FROM posts WHERE id = $1', [id]);
+
+    if (postResult.rows.length === 0) {
+      throw new CustomError('Post not found', 404);
+    }
+
+    const repostResult = await pool.query(
+      `INSERT INTO post_reposts (user_id, post_id, text)
          VALUES ($1, $2, $3)
          RETURNING *`,
-        [req.userId, id, text || null]
-      );
+      [req.userId, id, text || null]
+    );
 
-      if (postResult.rows[0].user_id !== req.userId) {
-        const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
-        const username = userResult.rows[0]?.username || 'Someone';
+    if (postResult.rows[0].user_id !== req.userId) {
+      const userResult = await pool.query('SELECT username FROM users WHERE id = $1', [req.userId]);
+      const username = userResult.rows[0]?.username || 'Someone';
 
-        await pool.query(
-          `INSERT INTO notifications (user_id, type, title, message, metadata)
+      await pool.query(
+        `INSERT INTO notifications (user_id, type, title, message, metadata)
            VALUES ($1, $2, $3, $4, $5)`,
-          [
-            postResult.rows[0].user_id,
-            'post_repost',
-            'New Repost',
-            `${username} reposted your post`,
-            JSON.stringify({ postId: id, repostId: repostResult.rows[0].id, repostedBy: req.userId })
-          ]
-        );
-      }
-
-      res.json({
-        success: true,
-        data: {
-          id: repostResult.rows[0].id,
-          text: repostResult.rows[0].text,
-          createdAt: repostResult.rows[0].created_at
-        },
-        message: 'Post shared successfully'
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.delete(
-  '/:id/share',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
-
-      const { id } = req.params;
-
-      const result = await pool.query(
-        'DELETE FROM post_reposts WHERE user_id = $1 AND post_id = $2 RETURNING *',
-        [req.userId, id]
+        [
+          postResult.rows[0].user_id,
+          'post_repost',
+          'New Repost',
+          `${username} reposted your post`,
+          JSON.stringify({ postId: id, repostId: repostResult.rows[0].id, repostedBy: req.userId }),
+        ]
       );
-
-      if (result.rows.length === 0) {
-        throw new CustomError('Post not shared', 404);
-      }
-
-      res.json({
-        success: true,
-        message: 'Post unshared successfully'
-      });
-    } catch (error) {
-      next(error);
     }
+
+    res.json({
+      success: true,
+      data: {
+        id: repostResult.rows[0].id,
+        text: repostResult.rows[0].text,
+        createdAt: repostResult.rows[0].created_at,
+      },
+      message: 'Post shared successfully',
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.get(
-  '/user/:userId',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      const { userId } = req.params;
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
-      const offset = (page - 1) * limit;
+router.delete('/:id/share', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
 
-      const result = await pool.query(
-        `SELECT 
+    const { id } = req.params;
+
+    const result = await pool.query(
+      'DELETE FROM post_reposts WHERE user_id = $1 AND post_id = $2 RETURNING *',
+      [req.userId, id]
+    );
+
+    if (result.rows.length === 0) {
+      throw new CustomError('Post not shared', 404);
+    }
+
+    res.json({
+      success: true,
+      message: 'Post unshared successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/user/:userId', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    const { userId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
+
+    const result = await pool.query(
+      `SELECT 
           p.id,
           p.rating,
           p.text,
           p.created_at,
           u.username,
+          u.profile_picture_url,
           mi.id as music_item_id,
           mi.type,
           mi.title,
@@ -640,6 +615,7 @@ router.get(
           p.text,
           p.created_at,
           u.username,
+          u.profile_picture_url,
           mi.id as music_item_id,
           mi.type,
           mi.title,
@@ -662,62 +638,62 @@ router.get(
          
          ORDER BY created_at DESC
          LIMIT $1 OFFSET $2`,
-        [limit, offset, req.userId, userId]
-      );
+      [limit, offset, req.userId, userId]
+    );
 
-      const countResult = await pool.query(
-        `SELECT (
+    const countResult = await pool.query(
+      `SELECT (
           (SELECT COUNT(*) FROM posts WHERE user_id = $1) +
           (SELECT COUNT(*) FROM post_reposts WHERE user_id = $1)
         ) as total`,
-        [userId]
-      );
+      [userId]
+    );
 
-      const total = parseInt(countResult.rows[0].total);
-      const hasMore = offset + limit < total;
-      const nextPage = hasMore ? page + 1 : null;
+    const total = parseInt(countResult.rows[0].total);
+    const hasMore = offset + limit < total;
+    const nextPage = hasMore ? page + 1 : null;
 
-      const posts = result.rows.map((row: any) => ({
-        id: row.id,
-        username: row.username,
-        text: row.text,
-        rating: row.rating,
-        musicItem: {
-          id: row.music_item_id,
-          type: row.type,
-          title: row.title,
-          artist: row.artist,
-          imageUrl: row.image_url,
-          spotifyId: row.spotify_id,
-          appleMusicId: row.apple_music_id,
-          metadata: row.metadata
+    const posts = result.rows.map((row: any) => ({
+      id: row.id,
+      username: row.username,
+      profilePictureUrl: row.profile_picture_url,
+      text: row.text,
+      rating: row.rating,
+      musicItem: {
+        id: row.music_item_id,
+        type: row.type,
+        title: row.title,
+        artist: row.artist,
+        imageUrl: row.image_url,
+        spotifyId: row.spotify_id,
+        appleMusicId: row.apple_music_id,
+        metadata: row.metadata,
+      },
+      likesCount: parseInt(row.likes_count) || 0,
+      commentsCount: parseInt(row.comments_count) || 0,
+      repostsCount: parseInt(row.reposts_count) || 0,
+      isLiked: row.is_liked || false,
+      isReposted: row.is_reposted || false,
+      isRepostItem: row.is_repost_item || false,
+      createdAt: row.created_at,
+    }));
+
+    res.json({
+      success: true,
+      data: {
+        data: posts,
+        pagination: {
+          page,
+          limit,
+          total,
+          hasMore,
+          nextPage,
         },
-        likesCount: parseInt(row.likes_count) || 0,
-        commentsCount: parseInt(row.comments_count) || 0,
-        repostsCount: parseInt(row.reposts_count) || 0,
-        isLiked: row.is_liked || false,
-        isReposted: row.is_reposted || false,
-        isRepostItem: row.is_repost_item || false,
-        createdAt: row.created_at
-      }));
-
-      res.json({
-        success: true,
-        data: {
-          data: posts,
-          pagination: {
-            page,
-            limit,
-            total,
-            hasMore,
-            nextPage
-          }
-        }
-      });
-    } catch (error) {
-      next(error);
-    }
+      },
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 export default router;

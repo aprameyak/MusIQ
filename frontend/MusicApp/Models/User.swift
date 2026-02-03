@@ -29,6 +29,7 @@ struct User: Identifiable, Codable {
     var followersCount: Int?
     var followingCount: Int?
     var postsCount: Int?
+    let profilePictureUrl: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -48,6 +49,7 @@ struct User: Identifiable, Codable {
         case followersCount = "followers_count"
         case followingCount = "following_count"
         case postsCount = "posts_count"
+        case profilePictureUrl = "profile_picture_url"
     }
     
     init(from decoder: Decoder) throws {
@@ -82,6 +84,7 @@ struct User: Identifiable, Codable {
         followingCount = try container.decodeIfPresent(Int.self, forKey: .followingCount) ?? 0
         postsCount = try container.decodeIfPresent(Int.self, forKey: .postsCount) ?? 0
         isFollowing = try container.decodeIfPresent(Bool.self, forKey: .isFollowing)
+        profilePictureUrl = try container.decodeIfPresent(String.self, forKey: .profilePictureUrl)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -108,6 +111,7 @@ struct User: Identifiable, Codable {
         try container.encode(followingCount, forKey: .followingCount)
         try container.encode(postsCount, forKey: .postsCount)
         try container.encodeIfPresent(isFollowing, forKey: .isFollowing)
+        try container.encodeIfPresent(profilePictureUrl, forKey: .profilePictureUrl)
     }
 }
 

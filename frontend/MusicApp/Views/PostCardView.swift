@@ -21,14 +21,25 @@ struct PostCardView: View {
             
             HStack(spacing: 12) {
                 Button(action: { onUserTap?() }) {
-                    Circle()
-                        .fill(AppColors.primary.opacity(0.1))
+                    if let profileUrl = post.profilePictureUrl, let url = URL(string: profileUrl) {
+                        AsyncImage(url: url) { image in
+                            image.resizable()
+                                .aspectRatio(contentMode: .fill)
+                        } placeholder: {
+                            ProgressView()
+                        }
                         .frame(width: 40, height: 40)
-                        .overlay(
-                            Text(post.username.prefix(1).uppercased())
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundColor(AppColors.primary)
-                        )
+                        .clipShape(Circle())
+                    } else {
+                        Circle()
+                            .fill(AppColors.primary.opacity(0.1))
+                            .frame(width: 40, height: 40)
+                            .overlay(
+                                Text(post.username.prefix(1).uppercased())
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundColor(AppColors.primary)
+                            )
+                    }
                 }
                 
                 Button(action: { onUserTap?() }) {

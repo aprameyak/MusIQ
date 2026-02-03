@@ -85,14 +85,25 @@ struct UserSearchResultCard: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Circle()
-                .fill(AppColors.primary.opacity(0.2))
+            if let profileUrl = user.profilePictureUrl, let url = URL(string: profileUrl) {
+                AsyncImage(url: url) { image in
+                    image.resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    ProgressView()
+                }
                 .frame(width: 44, height: 44)
-                .overlay(
-                    Text(user.username.prefix(1).uppercased())
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundColor(AppColors.primary)
-                )
+                .clipShape(Circle())
+            } else {
+                Circle()
+                    .fill(AppColors.primary.opacity(0.2))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Text(user.username.prefix(1).uppercased())
+                            .font(.system(size: 18, weight: .bold))
+                            .foregroundColor(AppColors.primary)
+                    )
+            }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(user.username)

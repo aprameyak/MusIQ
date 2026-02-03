@@ -12,6 +12,7 @@ struct Post: Identifiable, Codable {
     var isLiked: Bool
     var isReposted: Bool
     let isRepostItem: Bool?
+    let profilePictureUrl: String?
     let createdAt: Date
     
     enum CodingKeys: String, CodingKey {
@@ -26,6 +27,7 @@ struct Post: Identifiable, Codable {
         case isLiked
         case isReposted
         case isRepostItem
+        case profilePictureUrl = "profile_picture_url"
         case createdAt
     }
     
@@ -42,6 +44,7 @@ struct Post: Identifiable, Codable {
         isLiked = try container.decode(Bool.self, forKey: .isLiked)
         isReposted = try container.decodeIfPresent(Bool.self, forKey: .isReposted) ?? false
         isRepostItem = try container.decodeIfPresent(Bool.self, forKey: .isRepostItem)
+        profilePictureUrl = try container.decodeIfPresent(String.self, forKey: .profilePictureUrl)
         
         let formatter = ISO8601DateFormatter()
         let createdAtString = try container.decode(String.self, forKey: .createdAt)

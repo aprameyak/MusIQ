@@ -15,6 +15,7 @@ struct Friend: Identifiable, Codable {
     let topGenre: String
     let sharedArtists: Int
     let status: FriendshipStatus?
+    let profilePictureUrl: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -25,6 +26,7 @@ struct Friend: Identifiable, Codable {
         case topGenre
         case sharedArtists
         case status
+        case profilePictureUrl = "profile_picture_url"
     }
 }
 
