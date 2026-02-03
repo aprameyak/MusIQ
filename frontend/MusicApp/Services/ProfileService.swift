@@ -70,4 +70,12 @@ struct UserSummary: Codable, Identifiable {
     let id: String
     let username: String
     let email: String
+    let profilePictureUrl: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case username
+        case email
+        case profilePictureUrl = "profile_picture_url"
+    }
 }

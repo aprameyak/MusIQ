@@ -13,6 +13,9 @@ class ProfileEditViewModel: ObservableObject {
     @Published var emailError: String?
     @Published var firstNameError: String?
     @Published var lastNameError: String?
+    @Published var selectedImage: UIImage?
+    @Published var profilePictureUrl: String?
+    @Published var isUploadingImage: Bool = false
     
     private let authService: AuthService
     private let apiService = APIService.shared
@@ -66,6 +69,7 @@ class ProfileEditViewModel: ObservableObject {
         firstName = user.firstName ?? ""
         lastName = user.lastName ?? ""
         username = user.username
+        profilePictureUrl = user.profilePictureUrl
     }
     
     var hasChanges: Bool {
@@ -128,6 +132,76 @@ class ProfileEditViewModel: ObservableObject {
         } catch {
             updateError = error.localizedDescription
             isUpdating = false
+            return false
+        }
+    func uploadProfilePicture() async -> Bool {
+        guard let image = selectedImage else { return false }
+        guard let imageData = image.jpegData(compressionQuality: 0.7) else { return false }
+        
+        isUploadingImage = true
+        updateError = nil
+        
+        do {
+            struct ProfilePictureResponse: Codable {
+                let success: Bool
+                let data: PictureData?
+                let message: String?
+                
+                struct PictureData: Codable {
+                    let profile_picture_url: String
+                }
+            }
+            
+            let response: ProfilePictureResponse = try await apiService.upload(
+                endpoint: "/profile/picture",
+                fileData: imageData,
+                fileName: "profile.jpg",
+                mimeType: "image/jpeg"
+            )
+            
+            if response.success, let pictureData = response.data {
+                profilePictureUrl = pictureData.profile_picture_url
+                selectedImage = nil
+                isUploadingImage = false
+                return true
+            } else {
+                updateError = response.message ?? "Failed to upload image"
+                isUploadingImage = false
+                return false
+            }
+        } catch {
+            updateError = error.localizedDescription
+            isUploadingImage = false
+            return false
+        }
+    func removeProfilePicture() async -> Bool {
+        isUploadingImage = true
+        updateError = nil
+        
+        do {
+            struct ProfileRemovalResponse: Codable {
+                let success: Bool
+                let message: String?
+            }
+            
+            let response: ProfileRemovalResponse = try await apiService.request(
+                endpoint: "/profile/picture",
+                method: .delete,
+                requiresAuth: true
+            )
+            
+            if response.success {
+                profilePictureUrl = nil
+                isUploadingImage = false
+                return true
+            } else {
+                updateError = response.message ?? "Failed to remove image"
+                isUploadingImage = false
+                return false
+            }
+        } catch {
+            updateError = error.localizedDescription
+            isUploadingImage = false
             return false
         }
     }

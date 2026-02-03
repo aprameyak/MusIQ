@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 struct ProfileView: View {
     let userId: String?
@@ -9,6 +10,7 @@ struct ProfileView: View {
     @State private var selectedTab = 0
     @State private var isLoggingOut = false
     @State private var showSuccessMessage = false
+    @State private var selectedItem: PhotosPickerItem? = nil
     
     init(userId: String? = nil, appState: AppState) {
         self.userId = userId
@@ -68,15 +70,56 @@ struct ProfileView: View {
 
                 ScrollView {
                     VStack(spacing: 24) {
-                        VStack(spacing: 20) {
-                            ZStack {
-                                Circle()
-                                    .fill(AppColors.primary)
+                            PhotosPicker(selection: $selectedItem, matching: .images) {
+                                if let profileUrl = viewModel.user?.profilePictureUrl ?? appState.currentUser?.profilePictureUrl,
+                                   let url = URL(string: profileUrl) {
+                                    AsyncImage(url: url) { image in
+                                        image.resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                    } placeholder: {
+                                        ProgressView()
+                                    }
                                     .frame(width: 80, height: 80)
+                                    .clipShape(Circle())
+                                } else {
+                                    ZStack {
+                                        Circle()
+                                            .fill(AppColors.primary)
+                                            .frame(width: 80, height: 80)
+                                        
+                                        Text((viewModel.user?.username ?? appState.currentUser?.username ?? "U").prefix(1).uppercased())
+                                            .font(.system(size: 32, weight: .bold))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            }
+                            .contextMenu {
+                                PhotosPicker(selection: $selectedItem, matching: .images) {
+                                    Label("Change Picture", systemImage: "photo.on.rectangle")
+                                }
                                 
-                                Text((viewModel.user?.username ?? appState.currentUser?.username ?? "U").prefix(1).uppercased())
-                                    .font(.system(size: 32, weight: .bold))
-                                    .foregroundColor(.white)
+                                if viewModel.user?.profilePictureUrl != nil || appState.currentUser?.profilePictureUrl != nil {
+                                    Button(role: .destructive) {
+                                        Task {
+                                            if await editViewModel.removeProfilePicture() {
+                                                await viewModel.loadFullProfile()
+                                            }
+                                        }
+                                    } label: {
+                                        Label("Remove Picture", systemImage: "trash")
+                                    }
+                                }
+                            }
+                            .onChange(of: selectedItem) { newItem in
+                                Task {
+                                    if let data = try? await newItem?.loadTransferable(type: Data.self),
+                                       let image = UIImage(data: data) {
+                                        editViewModel.selectedImage = image
+                                        if await editViewModel.uploadProfilePicture() {
+                                            await viewModel.loadFullProfile()
+                                        }
+                                    }
+                                }
                             }
                             
                             VStack(spacing: 4) {
@@ -328,14 +371,25 @@ struct SocialUserRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Circle()
-                .fill(AppColors.primary.opacity(0.1))
+            if let profileUrl = user.profilePictureUrl, let url = URL(string: profileUrl) {
+                AsyncImage(url: url) { image in
+                    image.resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    ProgressView()
+                }
                 .frame(width: 44, height: 44)
-                .overlay(
-                    Text(user.username.prefix(1).uppercased())
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(AppColors.primary)
-                )
+                .clipShape(Circle())
+            } else {
+                Circle()
+                    .fill(AppColors.primary.opacity(0.1))
+                    .frame(width: 44, height: 44)
+                    .overlay(
+                        Text(user.username.prefix(1).uppercased())
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundColor(AppColors.primary)
+                    )
+            }
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(user.username)

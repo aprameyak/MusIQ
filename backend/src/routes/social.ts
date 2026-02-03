@@ -6,20 +6,18 @@ import { CustomError } from '../middleware/error.middleware';
 const router = Router();
 const pool = getDatabasePool();
 
-router.get(
-  '/friends',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
+router.get('/friends', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
 
-      const result = await pool.query(
-        `SELECT 
+    const result = await pool.query(
+      `SELECT 
           u.id,
           u.username,
           u.email,
+          u.profile_picture_url,
           f.status,
           COUNT(DISTINCT r1.music_item_id) as shared_artists
          FROM friendships f
@@ -28,10 +26,11 @@ router.get(
          LEFT JOIN ratings r2 ON r2.user_id = u.id AND r2.music_item_id = r1.music_item_id
          WHERE f.user_id = $1 AND f.status = 'accepted' AND u.deleted_at IS NULL
          GROUP BY u.id, u.username, u.email, f.status`,
-        [req.userId]
-      );
+      [req.userId]
+    );
 
-      const friends = await Promise.all(result.rows.map(async (row: any) => {
+    const friends = await Promise.all(
+      result.rows.map(async (row: any) => {
         const compatibilityResult = await pool.query(
           `SELECT 
             COUNT(*) as shared_ratings,
@@ -44,7 +43,7 @@ router.get(
 
         const sharedRatings = parseInt(compatibilityResult.rows[0]?.shared_ratings || '0');
         const avgDiff = parseFloat(compatibilityResult.rows[0]?.avg_rating_diff || '10');
-        const compatibility = Math.max(0, Math.min(100, 100 - (avgDiff * 10) + (sharedRatings * 2)));
+        const compatibility = Math.max(0, Math.min(100, 100 - avgDiff * 10 + sharedRatings * 2));
 
         const topGenreResult = await pool.query(
           `SELECT 
@@ -72,271 +71,249 @@ router.get(
           compatibility: Math.round(compatibility),
           topGenre,
           sharedArtists: parseInt(row.shared_artists) || 0,
-          status: row.status
+          status: row.status,
+          profile_picture_url: row.profile_picture_url,
         };
-      }));
+      })
+    );
 
-      res.json({
-        success: true,
-        data: friends
-      });
-    } catch (error) {
-      next(error);
-    }
+    res.json({
+      success: true,
+      data: friends,
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.post(
-  '/follow/:userId',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
-
-      const { userId } = req.params;
-
-      if (userId === req.userId) {
-        throw new CustomError('Cannot follow yourself', 400);
-      }
-
-      const userResult = await pool.query(
-        'SELECT id FROM users WHERE id = $1 AND deleted_at IS NULL',
-        [userId]
-      );
-
-      if (userResult.rows.length === 0) {
-        throw new CustomError('User not found', 404);
-      }
-
-      const existingResult = await pool.query(
-        'SELECT id, status FROM friendships WHERE user_id = $1 AND friend_id = $2',
-        [req.userId, userId]
-      );
-
-      if (existingResult.rows.length > 0) {
-        const existing = existingResult.rows[0];
-        if (existing.status === 'accepted') {
-          res.json({
-            success: true,
-            message: 'Already following this user'
-          });
-          return;
-        } else if (existing.status === 'pending') {
-          await pool.query(
-            'UPDATE friendships SET status = $1 WHERE id = $2',
-            ['accepted', existing.id]
-          );
-        }
-      } else {
-        await pool.query(
-          'INSERT INTO friendships (user_id, friend_id, status) VALUES ($1, $2, $3)',
-          [req.userId, userId, 'pending']
-        );
-      }
-
-      res.json({
-        success: true,
-        message: 'Follow request sent'
-      });
-    } catch (error) {
-      next(error);
+router.post('/follow/:userId', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
     }
-  }
-);
 
-router.delete(
-  '/unfollow/:userId',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
+    const { userId } = req.params;
 
-      const { userId } = req.params;
-
-      const result = await pool.query(
-        'DELETE FROM friendships WHERE user_id = $1 AND friend_id = $2 RETURNING *',
-        [req.userId, userId]
-      );
-
-      if (result.rows.length === 0) {
-        throw new CustomError('Not following this user', 404);
-      }
-
-      res.json({
-        success: true,
-        message: 'Unfollowed successfully'
-      });
-    } catch (error) {
-      next(error);
+    if (userId === req.userId) {
+      throw new CustomError('Cannot follow yourself', 400);
     }
-  }
-);
 
-router.get(
-  '/compatibility/:userId',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
+    const userResult = await pool.query(
+      'SELECT id FROM users WHERE id = $1 AND deleted_at IS NULL',
+      [userId]
+    );
+
+    if (userResult.rows.length === 0) {
+      throw new CustomError('User not found', 404);
+    }
+
+    const existingResult = await pool.query(
+      'SELECT id, status FROM friendships WHERE user_id = $1 AND friend_id = $2',
+      [req.userId, userId]
+    );
+
+    if (existingResult.rows.length > 0) {
+      const existing = existingResult.rows[0];
+      if (existing.status === 'accepted') {
+        res.json({
+          success: true,
+          message: 'Already following this user',
+        });
+        return;
+      } else if (existing.status === 'pending') {
+        await pool.query('UPDATE friendships SET status = $1 WHERE id = $2', [
+          'accepted',
+          existing.id,
+        ]);
       }
+    } else {
+      await pool.query('INSERT INTO friendships (user_id, friend_id, status) VALUES ($1, $2, $3)', [
+        req.userId,
+        userId,
+        'pending',
+      ]);
+    }
 
-      const { userId } = req.params;
+    res.json({
+      success: true,
+      message: 'Follow request sent',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
-      const result = await pool.query(
-        `SELECT 
+router.delete('/unfollow/:userId', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
+
+    const { userId } = req.params;
+
+    const result = await pool.query(
+      'DELETE FROM friendships WHERE user_id = $1 AND friend_id = $2 RETURNING *',
+      [req.userId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      throw new CustomError('Not following this user', 404);
+    }
+
+    res.json({
+      success: true,
+      message: 'Unfollowed successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/compatibility/:userId', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
+
+    const { userId } = req.params;
+
+    const result = await pool.query(
+      `SELECT 
           COUNT(*) as shared_ratings,
           AVG(ABS(r1.rating - r2.rating)) as avg_rating_diff
          FROM ratings r1
          JOIN ratings r2 ON r1.music_item_id = r2.music_item_id
          WHERE r1.user_id = $1 AND r2.user_id = $2`,
-        [req.userId, userId]
-      );
+      [req.userId, userId]
+    );
 
-      const sharedRatings = parseInt(result.rows[0]?.shared_ratings || '0');
-      const avgDiff = parseFloat(result.rows[0]?.avg_rating_diff || '10');
-      const compatibility = Math.max(0, Math.min(100, 100 - (avgDiff * 10) + (sharedRatings * 2)));
+    const sharedRatings = parseInt(result.rows[0]?.shared_ratings || '0');
+    const avgDiff = parseFloat(result.rows[0]?.avg_rating_diff || '10');
+    const compatibility = Math.max(0, Math.min(100, 100 - avgDiff * 10 + sharedRatings * 2));
 
-      res.json({
-        success: true,
-        data: {
-          compatibility: Math.round(compatibility)
-        }
-      });
-    } catch (error) {
-      next(error);
-    }
+    res.json({
+      success: true,
+      data: {
+        compatibility: Math.round(compatibility),
+      },
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.get(
-  '/compare/:userId',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
+router.get('/compare/:userId', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
 
-      const { userId } = req.params;
+    const { userId } = req.params;
 
-      const sharedResult = await pool.query(
-        `SELECT COUNT(DISTINCT r1.music_item_id) as shared_count
+    const sharedResult = await pool.query(
+      `SELECT COUNT(DISTINCT r1.music_item_id) as shared_count
          FROM ratings r1
          JOIN ratings r2 ON r1.music_item_id = r2.music_item_id
          WHERE r1.user_id = $1 AND r2.user_id = $2`,
-        [req.userId, userId]
-      );
+      [req.userId, userId]
+    );
 
-      const compatibilityResult = await pool.query(
-        `SELECT 
+    const compatibilityResult = await pool.query(
+      `SELECT 
           COUNT(*) as shared_ratings,
           AVG(ABS(r1.rating - r2.rating)) as avg_rating_diff
          FROM ratings r1
          JOIN ratings r2 ON r1.music_item_id = r2.music_item_id
          WHERE r1.user_id = $1 AND r2.user_id = $2`,
-        [req.userId, userId]
-      );
+      [req.userId, userId]
+    );
 
-      const sharedRatings = parseInt(compatibilityResult.rows[0]?.shared_ratings || '0');
-      const avgDiff = parseFloat(compatibilityResult.rows[0]?.avg_rating_diff || '10');
-      const compatibility = Math.max(0, Math.min(100, 100 - (avgDiff * 10) + (sharedRatings * 2)));
+    const sharedRatings = parseInt(compatibilityResult.rows[0]?.shared_ratings || '0');
+    const avgDiff = parseFloat(compatibilityResult.rows[0]?.avg_rating_diff || '10');
+    const compatibility = Math.max(0, Math.min(100, 100 - avgDiff * 10 + sharedRatings * 2));
 
-      const sharedGenresResult = await pool.query(
-        `SELECT 
+    const sharedGenresResult = await pool.query(
+      `SELECT 
           DISTINCT mi.metadata->>'genres' as genres
          FROM ratings r1
          JOIN ratings r2 ON r1.music_item_id = r2.music_item_id
          JOIN music_items mi ON r1.music_item_id = mi.id
          WHERE r1.user_id = $1 AND r2.user_id = $2
          AND mi.metadata->>'genres' IS NOT NULL`,
-        [req.userId, userId]
-      );
+      [req.userId, userId]
+    );
 
-      const sharedGenresSet = new Set<string>();
-      sharedGenresResult.rows.forEach((row: any) => {
-        const genres = JSON.parse(row.genres || '[]');
-        if (Array.isArray(genres)) {
-          genres.forEach((genre: string) => {
-            if (genre && typeof genre === 'string') {
-              sharedGenresSet.add(genre);
-            }
-          });
-        }
-      });
-
-      res.json({
-        success: true,
-        data: {
-          compatibility: Math.round(compatibility),
-          sharedArtists: parseInt(sharedResult.rows[0]?.shared_count || '0'),
-          sharedGenres: Array.from(sharedGenresSet)
-        }
-      });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
-router.get(
-  '/following',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
+    const sharedGenresSet = new Set<string>();
+    sharedGenresResult.rows.forEach((row: any) => {
+      const genres = JSON.parse(row.genres || '[]');
+      if (Array.isArray(genres)) {
+        genres.forEach((genre: string) => {
+          if (genre && typeof genre === 'string') {
+            sharedGenresSet.add(genre);
+          }
+        });
       }
+    });
 
-      const result = await pool.query(
-        `SELECT u.id, u.username, u.email, f.status, f.created_at
+    res.json({
+      success: true,
+      data: {
+        compatibility: Math.round(compatibility),
+        sharedArtists: parseInt(sharedResult.rows[0]?.shared_count || '0'),
+        sharedGenres: Array.from(sharedGenresSet),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/following', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
+
+    const result = await pool.query(
+      `SELECT u.id, u.username, u.email, u.profile_picture_url, f.status, f.created_at
          FROM friendships f
          JOIN users u ON f.friend_id = u.id
          WHERE f.user_id = $1 AND u.deleted_at IS NULL
          ORDER BY f.created_at DESC`,
-        [req.userId]
-      );
+      [req.userId]
+    );
 
-      res.json({
-        success: true,
-        data: result.rows
-      });
-    } catch (error) {
-      next(error);
-    }
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.get(
-  '/followers',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      if (!req.userId) {
-        throw new CustomError('Unauthorized', 401);
-      }
+router.get('/followers', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    if (!req.userId) {
+      throw new CustomError('Unauthorized', 401);
+    }
 
-      const result = await pool.query(
-        `SELECT u.id, u.username, u.email, f.status, f.created_at
+    const result = await pool.query(
+      `SELECT u.id, u.username, u.email, u.profile_picture_url, f.status, f.created_at
          FROM friendships f
          JOIN users u ON f.user_id = u.id
          WHERE f.friend_id = $1 AND u.deleted_at IS NULL
          ORDER BY f.created_at DESC`,
-        [req.userId]
-      );
+      [req.userId]
+    );
 
-      res.json({
-        success: true,
-        data: result.rows
-      });
-    } catch (error) {
-      next(error);
-    }
+    res.json({
+      success: true,
+      data: result.rows,
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
 export default router;

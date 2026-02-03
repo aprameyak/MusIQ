@@ -94,4 +94,11 @@ struct SocialUser: Codable, Identifiable {
     let email: String
     let status: String
     let createdAt: String
+    let profilePictureUrl: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, username, email, status
+        case createdAt = "created_at"
+        case profilePictureUrl = "profile_picture_url"
+    }
 }
