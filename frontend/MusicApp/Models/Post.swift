@@ -9,6 +9,7 @@ struct Post: Identifiable, Codable {
     let musicItem: PostMusicItem
     var likesCount: Int
     var repostsCount: Int
+    var commentsCount: Int
     var isLiked: Bool
     var isReposted: Bool
     let isRepostItem: Bool?
@@ -24,10 +25,11 @@ struct Post: Identifiable, Codable {
         case musicItem
         case likesCount
         case repostsCount
+        case commentsCount
         case isLiked
         case isReposted
         case isRepostItem
-        case profilePictureUrl = "profile_picture_url"
+        case profilePictureUrl
         case createdAt
     }
     
@@ -40,7 +42,8 @@ struct Post: Identifiable, Codable {
         rating = try container.decode(Int.self, forKey: .rating)
         musicItem = try container.decode(PostMusicItem.self, forKey: .musicItem)
         likesCount = try container.decodeIfPresent(Int.self, forKey: .likesCount) ?? 0
-        repostsCount = try container.decode(Int.self, forKey: .repostsCount)
+        repostsCount = try container.decodeIfPresent(Int.self, forKey: .repostsCount) ?? 0
+        commentsCount = try container.decodeIfPresent(Int.self, forKey: .commentsCount) ?? 0
         isLiked = try container.decode(Bool.self, forKey: .isLiked)
         isReposted = try container.decodeIfPresent(Bool.self, forKey: .isReposted) ?? false
         isRepostItem = try container.decodeIfPresent(Bool.self, forKey: .isRepostItem)
@@ -61,6 +64,7 @@ struct Post: Identifiable, Codable {
         try container.encode(musicItem, forKey: .musicItem)
         try container.encode(likesCount, forKey: .likesCount)
         try container.encode(repostsCount, forKey: .repostsCount)
+        try container.encode(commentsCount, forKey: .commentsCount)
         try container.encode(isLiked, forKey: .isLiked)
         
         let formatter = ISO8601DateFormatter()
@@ -110,4 +114,34 @@ struct Pagination: Codable {
     let total: Int
     let hasMore: Bool
     let nextPage: Int?
+}
+
+struct Comment: Identifiable, Codable {
+    let id: String
+    let userId: String
+    let username: String
+    let profilePictureUrl: String?
+    let text: String
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId
+        case username
+        case profilePictureUrl
+        case text
+        case createdAt
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        userId = try container.decode(String.self, forKey: .userId)
+        username = try container.decode(String.self, forKey: .username)
+        profilePictureUrl = try container.decodeIfPresent(String.self, forKey: .profilePictureUrl)
+        text = try container.decode(String.self, forKey: .text)
+        let formatter = ISO8601DateFormatter()
+        let createdAtString = try container.decode(String.self, forKey: .createdAt)
+        createdAt = formatter.date(from: createdAtString) ?? Date()
+    }
 }
