@@ -117,6 +117,25 @@ class PostService {
             requiresAuth: true
         ) as APIResponse<EmptyResponse>
     }
+
+    func getComments(postId: String) async throws -> [Comment] {
+        let response: APIResponse<[Comment]> = try await apiService.request(
+            endpoint: "/posts/\(postId)/comments",
+            method: .get,
+            requiresAuth: true
+        )
+        return response.data ?? []
+    }
+
+    func addComment(postId: String, text: String) async throws {
+        let request = CommentRequest(text: text)
+        _ = try await apiService.request(
+            endpoint: "/posts/\(postId)/comment",
+            method: .post,
+            body: request,
+            requiresAuth: true
+        ) as APIResponse<EmptyResponse>
+    }
 }
 
 struct CommentRequest: Codable {

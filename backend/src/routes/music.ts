@@ -7,17 +7,14 @@ import { searchLimiter } from '../middleware/rate-limit.middleware';
 const router = Router();
 const pool = getDatabasePool();
 
-router.get(
-  '/feed',
-  authMiddleware,
-  async (req: AuthRequest, res, next) => {
-    try {
-      const filter = req.query.filter as string || 'trending';
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
-      const offset = (page - 1) * limit;
+router.get('/feed', authMiddleware, async (req: AuthRequest, res, next) => {
+  try {
+    const filter = (req.query.filter as string) || 'trending';
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = (page - 1) * limit;
 
-      let query = `
+    let query = `
         SELECT 
           mi.*,
           COALESCE(AVG(r.rating), 0) as rating,
@@ -28,11 +25,11 @@ router.get(
         WHERE 1=1
       `;
 
-      const queryParams: any[] = [];
-      let paramCount = 1;
+    const queryParams: any[] = [];
+    let paramCount = 1;
 
-      if (filter === 'forYou' && req.userId) {
-        query = `
+    if (filter === 'forYou' && req.userId) {
+      query = `
           WITH user_follows AS (
             SELECT friend_id FROM friendships WHERE user_id = $1 AND status = 'accepted'
           ),
@@ -67,26 +64,29 @@ router.get(
             )
           )
         `;
-        queryParams.push(req.userId);
-        paramCount++;
-      }
+      queryParams.push(req.userId);
+      paramCount++;
+    }
 
-      query += ` GROUP BY mi.id ORDER BY `;
+    query += ` GROUP BY mi.id ORDER BY `;
 
-      if (filter === 'forYou') {
-        query += `friend_rating_count DESC, rating DESC, recent_ratings DESC, mi.created_at DESC`;
-      } else if (filter === 'trending') {
-        query += `recent_ratings DESC NULLS LAST, rating DESC, rating_count DESC, mi.created_at DESC`;
-      } else {
-        query += `rating DESC, rating_count DESC, mi.created_at DESC`;
-      }
+    if (filter === 'forYou') {
+      query += `friend_rating_count DESC, rating DESC, recent_ratings DESC, mi.created_at DESC`;
+    } else if (filter === 'trending') {
+      query += `recent_ratings DESC NULLS LAST, rating DESC, rating_count DESC, mi.created_at DESC`;
+    } else {
+      query += `rating DESC, rating_count DESC, mi.created_at DESC`;
+    }
 
-      query += ` LIMIT $${paramCount++} OFFSET $${paramCount++}`;
-      queryParams.push(limit, offset);
+    query += ` LIMIT $${paramCount++} OFFSET $${paramCount++}`;
+    queryParams.push(limit + 1, offset);
 
-      const result = await pool.query(query, queryParams);
+    const result = await pool.query(query, queryParams);
+    const hasMore = result.rows.length > limit;
+    const pageRows = hasMore ? result.rows.slice(0, limit) : result.rows;
 
-      const items = await Promise.all(result.rows.map(async (row: any) => {
+    const items = await Promise.all(
+      pageRows.map(async (row: any) => {
         let trendingChange: number | null = null;
         if (parseInt(row.recent_ratings) > 10) {
           const previousPeriodResult = await pool.query(
@@ -114,44 +114,45 @@ router.get(
           trendingChange,
           spotifyId: row.spotify_id,
           appleMusicId: row.apple_music_id,
-          metadata: row.metadata
+          metadata: row.metadata,
         };
-      }));
+      })
+    );
 
+    res.json({
+      success: true,
+      data: {
+        data: items,
+        pagination: {
+          page,
+          limit,
+          total: offset + items.length + (hasMore ? 1 : 0),
+          hasMore,
+          nextPage: hasMore ? page + 1 : null,
+        },
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/search', searchLimiter, authMiddleware, async (req, res, next) => {
+  try {
+    const rawQuery = req.query.q;
+    const query =
+      typeof rawQuery === 'string' ? rawQuery : Array.isArray(rawQuery) ? (rawQuery[0] ?? '') : '';
+
+    if (!query || (typeof query === 'string' && query.length < 2)) {
       res.json({
         success: true,
-        data: items
+        data: [],
       });
-    } catch (error) {
-      next(error);
+      return;
     }
-  }
-);
 
-router.get(
-  '/search',
-  searchLimiter,
-  authMiddleware,
-  async (req, res, next) => {
-    try {
-      const rawQuery = req.query.q;
-      const query =
-        typeof rawQuery === 'string'
-          ? rawQuery
-          : Array.isArray(rawQuery)
-            ? (rawQuery[0] ?? '')
-            : '';
-
-      if (!query || (typeof query === 'string' && query.length < 2)) {
-        res.json({
-          success: true,
-          data: []
-        });
-        return;
-      }
-
-      const result = await pool.query(
-        `SELECT 
+    const result = await pool.query(
+      `SELECT 
           mi.*,
           COALESCE(AVG(r.rating), 0) as rating,
           COUNT(r.id) as rating_count,
@@ -166,41 +167,37 @@ router.get(
          GROUP BY mi.id
          ORDER BY search_similarity DESC, rating DESC
          LIMIT 20`,
-        [query, `%${query}%`]
-      );
+      [query, `%${query}%`]
+    );
 
-      const items = result.rows.map((row: any) => ({
-        id: row.id,
-        type: row.type,
-        title: row.title,
-        artist: row.artist,
-        imageUrl: row.image_url,
-        rating: parseFloat(row.rating) || 0,
-        ratingCount: parseInt(row.rating_count) || 0,
-        spotifyId: row.spotify_id,
-        appleMusicId: row.apple_music_id,
-        metadata: row.metadata
-      }));
+    const items = result.rows.map((row: any) => ({
+      id: row.id,
+      type: row.type,
+      title: row.title,
+      artist: row.artist,
+      imageUrl: row.image_url,
+      rating: parseFloat(row.rating) || 0,
+      ratingCount: parseInt(row.rating_count) || 0,
+      spotifyId: row.spotify_id,
+      appleMusicId: row.apple_music_id,
+      metadata: row.metadata,
+    }));
 
-      res.json({
-        success: true,
-        data: items
-      });
-    } catch (error) {
-      next(error);
-    }
+    res.json({
+      success: true,
+      data: items,
+    });
+  } catch (error) {
+    next(error);
   }
-);
+});
 
-router.get(
-  '/:id',
-  authMiddleware,
-  async (req, res, next) => {
-    try {
-      const { id } = req.params;
+router.get('/:id', authMiddleware, async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-      const result = await pool.query(
-        `SELECT 
+    const result = await pool.query(
+      `SELECT 
           mi.*,
           COALESCE(AVG(r.rating), 0) as rating,
           COUNT(r.id) as rating_count
@@ -208,36 +205,34 @@ router.get(
          LEFT JOIN ratings r ON mi.id = r.music_item_id
          WHERE mi.id = $1
          GROUP BY mi.id`,
-        [id]
-      );
+      [id]
+    );
 
-      if (result.rows.length === 0) {
-        throw new CustomError('Music item not found', 404);
-      }
-
-      const row = result.rows[0];
-      const item = {
-        id: row.id,
-        type: row.type,
-        title: row.title,
-        artist: row.artist,
-        imageUrl: row.image_url,
-        rating: parseFloat(row.rating) || 0,
-        ratingCount: parseInt(row.rating_count) || 0,
-        spotifyId: row.spotify_id,
-        appleMusicId: row.apple_music_id,
-        metadata: row.metadata
-      };
-
-      res.json({
-        success: true,
-        data: item
-      });
-    } catch (error) {
-      next(error);
+    if (result.rows.length === 0) {
+      throw new CustomError('Music item not found', 404);
     }
-  }
-);
 
+    const row = result.rows[0];
+    const item = {
+      id: row.id,
+      type: row.type,
+      title: row.title,
+      artist: row.artist,
+      imageUrl: row.image_url,
+      rating: parseFloat(row.rating) || 0,
+      ratingCount: parseInt(row.rating_count) || 0,
+      spotifyId: row.spotify_id,
+      appleMusicId: row.apple_music_id,
+      metadata: row.metadata,
+    };
+
+    res.json({
+      success: true,
+      data: item,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

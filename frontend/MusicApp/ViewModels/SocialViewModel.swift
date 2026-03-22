@@ -39,6 +39,12 @@ class SocialViewModel: ObservableObject {
     }
     
     func getCompatibilityEmoji(_ score: Int) -> String {
-        return ""
+        switch score {
+        case 90...100: return "🔥"
+        case 75..<90:  return "🎵"
+        case 60..<75:  return "👍"
+        case 40..<60:  return "🎶"
+        default:       return "🎧"
+        }
     }
 }

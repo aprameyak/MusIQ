@@ -86,6 +86,8 @@ class APIService {
         } catch {
             throw NetworkError.unknown(error)
         }
+    }
+
     func upload<T: Decodable>(
         endpoint: String,
         fileData: Data,

@@ -237,8 +237,9 @@ router.get('/feed', authMiddleware, async (req: AuthRequest, res, next) => {
     const offset = (page - 1) * limit;
 
     const result = await pool.query(
-      `SELECT 
+      `SELECT
           p.id,
+          p.user_id,
           p.rating,
           p.text,
           p.created_at,
@@ -276,6 +277,7 @@ router.get('/feed', authMiddleware, async (req: AuthRequest, res, next) => {
 
     const posts = result.rows.map((row: any) => ({
       id: row.id,
+      userId: row.user_id,
       username: row.username,
       profilePictureUrl: row.profile_picture_url,
       text: row.text,
@@ -581,8 +583,9 @@ router.get('/user/:userId', authMiddleware, async (req: AuthRequest, res, next) 
     const offset = (page - 1) * limit;
 
     const result = await pool.query(
-      `SELECT 
+      `SELECT
           p.id,
+          p.user_id,
           p.rating,
           p.text,
           p.created_at,
@@ -606,11 +609,12 @@ router.get('/user/:userId', authMiddleware, async (req: AuthRequest, res, next) 
          JOIN users u ON p.user_id = u.id
          JOIN music_items mi ON p.music_item_id = mi.id
          WHERE p.user_id = $4 AND u.deleted_at IS NULL
-         
+
          UNION ALL
-         
-         SELECT 
+
+         SELECT
           p.id,
+          p.user_id,
           p.rating,
           p.text,
           p.created_at,
@@ -635,7 +639,7 @@ router.get('/user/:userId', authMiddleware, async (req: AuthRequest, res, next) 
          JOIN users u ON p.user_id = u.id
          JOIN music_items mi ON p.music_item_id = mi.id
          WHERE pr.user_id = $4 AND u.deleted_at IS NULL
-         
+
          ORDER BY created_at DESC
          LIMIT $1 OFFSET $2`,
       [limit, offset, req.userId, userId]
@@ -655,6 +659,7 @@ router.get('/user/:userId', authMiddleware, async (req: AuthRequest, res, next) 
 
     const posts = result.rows.map((row: any) => ({
       id: row.id,
+      userId: row.user_id,
       username: row.username,
       profilePictureUrl: row.profile_picture_url,
       text: row.text,
