@@ -1,86 +1,35 @@
 # MusIQ
 
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=for-the-badge)
+![Swift](https://img.shields.io/badge/Swift-F05138?logo=swift&logoColor=white&style=for-the-badge)
+![Node.js](https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white&style=for-the-badge)
+![Express](https://img.shields.io/badge/Express-000000?logo=express&logoColor=white&style=for-the-badge)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white&style=for-the-badge)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white&style=for-the-badge)
 
-![GitHub repo size](https://img.shields.io/github/repo-size/aprameyak/MusIQ)
-![GitHub issues](https://img.shields.io/github/issues/aprameyak/MusIQ)
-![License](https://img.shields.io/github/license/aprameyak/MusIQ)
+## About
 
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=flat&logo=supabase&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
-![Swift](https://img.shields.io/badge/Swift-F05138?style=flat&logo=swift&logoColor=white)
-
-![Reviewed by CodeRabbit](https://img.shields.io/badge/Reviewed%20by-CodeRabbit-brightgreen?style=flat&logo=github&logoColor=white)
-![Husky](https://img.shields.io/badge/Husky-enabled-ff6600?style=flat&logo=git&logoColor=white)
-![GitHub Actions](https://img.shields.io/github/actions/workflow/status/aprameyak/MusIQ/codeql.yml)
-
-
-
-**MusIQ** is a modern, social-first music discovery and rating platform. Built with a native iOS experience and a robust TypeScript backend, it's designed for music lovers who want to track their taste and connect with a community that shares their passion.
-
----
+**MusIQ** is a social music discovery and rating platform with a native **Swift** iOS frontend and a **Node.js/Express** backend. Users rate albums, songs, and artists on a scale of 1–10, follow friends, compare music tastes, and receive real-time notifications about interactions and trending music.
 
 ## Features
 
-- **Rating Hub**: Rate albums, songs, and artists on a scale of 1-10.
-- **Social Connectivity**: Find friends, compare music tastes, and share your latest favorites.
-- **Live Updates**: Get notified instantly about interactions and trending music.
+- Rate albums, songs, and artists on a 1–10 scale
+- Social graph with friend connections and music taste comparison
+- Real-time notifications for interactions and trending content
+- MusicBrainz ID integration for accurate music item identification
+- Fuzzy search across the full music catalog
+- Social posts and interactions tied to music ratings
+- Role-based access control with audit logging
+- Discord authentication support alongside standard email login
 
----
+## Technology Stack
 
-## Getting Started
+- **Mobile**: Swift (iOS)
+- **Backend**: Node.js, TypeScript, Express.js, Knex.js
+- **Database**: PostgreSQL (Supabase), Redis (sessions)
+- **Storage**: Azure Blob Storage
+- **Auth**: Supabase Auth, JWT, Discord OAuth
 
-Whether you're looking to contribute or just play around with the code, here's how to get MusIQ running locally.
+## Deployment
 
-### Prerequisites
-
-- **Frontend**: Xcode (latest stable version)
-- **Backend**: Node.js v18+ & PostgreSQL/Supabase
-- **Package Manager**: npm or yarn
-
-### Local Development
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/aprameyak/MusIQ.git
-   cd MusIQ
-   ```
-
-2. **Backend Setup**:
-   ```bash
-   cd backend
-   npm install
-   npm run dev
-   ```
-
-3. **Frontend Setup**:
-   ```bash
-   cd frontend
-   ```
-
----
-
-## Contributing
-
-We love contributors! MusIQ is an open-source project and we welcome contributions of all kinds: from bug fixes and documentation to new features and UI improvements.
-
-### How to help?
-- **Find an Issue**: Browse our [GitHub Issues](https://github.com/aprameyak/MusIQ/issues)
-- **Report Bugs**: Found something wrong? [Open an issue](https://github.com/aprameyak/MusIQ/issues/new)!
-- **Suggest Features**: Have a great idea for MusIQ? [Let us know](https://github.com/aprameyak/MusIQ/issues/new).
-
-Please read our [Contributing Guidelines](CONTRIBUTING.md) to get started.
-
----
-
-## License
-
-MusIQ is released under the [MIT License](LICENSE).
-
----
-
-## Community & Support
-
-- **Discussions**: Use [GitHub Discussions](https://github.com/aprameyak/MusIQ/discussions) to ask questions and share ideas.
-- **Code of Conduct**: We expect all participants to follow our [Code of Conduct](CODE_OF_CONDUCT.md).
-
+Visit the live site at [https://musiq-tawny.vercel.app](https://musiq-tawny.vercel.app)
