@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "build": "tsc",
-    "postinstall": "npm run build",
     "start": "node dist/index.js",
     "migrate": "knex migrate:latest",
     "migrate:rollback": "knex migrate:rollback",
@@ -15,8 +14,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "delete-user": "ts-node src/scripts/delete-supabase-user.ts",
     "test": "jest",
-    "test:coverage": "jest --coverage",
-    "prepare": "husky install"
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "music",
