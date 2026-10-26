@@ -50,3 +50,4 @@ Pods/
 Carthage/Build/
 
 *.backup
+xcuserdata/
