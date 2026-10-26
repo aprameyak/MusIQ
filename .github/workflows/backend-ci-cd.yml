@@ -4,12 +4,14 @@ on:
   push:
     branches:
       - main
+      - production
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci-cd.yml'
   pull_request:
     branches:
       - main
+      - production
     paths:
       - 'backend/**'
       - '.github/workflows/backend-ci-cd.yml'
@@ -44,11 +46,20 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
+      - name: Install root lint dependencies
+        working-directory: .
+        run: npm ci
+      
       - name: Run linter
         run: npm run lint
       
       - name: Run unit tests
         run: npm test
+        env:
+          DATABASE_URL: postgres://user:pass@localhost:5432/test
+          SUPABASE_URL: http://localhost:54321
+          SUPABASE_SERVICE_ROLE_KEY: test-key
+          SUPABASE_ANON_KEY: test-key
       
       - name: Build project
         run: npm run build
