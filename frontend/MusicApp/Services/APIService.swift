@@ -7,7 +7,8 @@ class APIService {
     private let session: URLSession
     
     init(baseURL: String? = nil) {
-        self.baseURL = baseURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http://localhost:3000/api"
+        let plistURL = (Bundle.main.object(forInfoDictionaryKey: "API_BASE_URL") as? String).flatMap { $0.isEmpty ? nil : $0 }
+        self.baseURL = baseURL ?? plistURL ?? ProcessInfo.processInfo.environment["API_BASE_URL"] ?? "http://localhost:3000/api"
         
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 30
