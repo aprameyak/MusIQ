@@ -49,3 +49,4 @@ project.xcworkspace/xcuserdata/
 Pods/
 Carthage/Build/
 
+*.backup
