@@ -44,7 +44,7 @@ describe('Music Routes', () => {
             mockPool.query.mockResolvedValueOnce({ rows: [{ id: '1', recent_ratings: '5' }] });
             const res = await request(app).get('/api/music/feed?filter=trending');
             expect(res.status).toBe(200);
-            expect(res.body.data[0].id).toBe('1');
+            expect(res.body.data.data[0].id).toBe('1');
         });
 
         it('should return forYou items', async () => {
@@ -70,7 +70,7 @@ describe('Music Routes', () => {
                 .mockResolvedValueOnce({ rows: [{ count: '5' }] });
             const res = await request(app).get('/api/music/feed?filter=trending');
             expect(res.status).toBe(200);
-            expect(res.body.data[0].trendingChange).toBe(10);
+            expect(res.body.data.data[0].trendingChange).toBe(10);
         });
 
         it('should handle other filter', async () => {
