@@ -30,7 +30,26 @@
   },
   "overrides": {
     "@next/eslint-plugin-next": {
-      "glob": "^10.5.0"
+      "glob": "^14.0.2"
+    },
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.1"
+    },
+    "@jest/reporters": {
+      "glob": "^14.0.2",
+      "minimatch": "^11.0.1"
+    },
+    "jest-config": {
+      "glob": "^14.0.2",
+      "minimatch": "^11.0.1"
+    },
+    "jest-runtime": {
+      "glob": "^14.0.2",
+      "minimatch": "^11.0.1"
+    },
+    "test-exclude": {
+      "glob": "^14.0.2",
+      "minimatch": "^11.0.1"
     }
   }
 }
